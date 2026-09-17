@@ -1,0 +1,14 @@
+/* Reset limité aux éléments utilisés, adapté de Meyer (domaine public)
+   et normalize.css 8.0.1 (MIT, github.com/necolas/normalize.css). */
+html, body, div, span, h1, h2, h3, p, a, b, i, strong, img, ul, li,
+main, section, nav, header, footer, figure {
+  margin: 0;
+  border: 0;
+  font-size: 1rem;
+  overflow-wrap: break-word;
+  vertical-align: baseline;
+}
+html { -webkit-text-size-adjust: 100%; }
+b, strong { font-weight: bolder; }
+a { background-color: transparent; }
+[hidden] { display: none; }

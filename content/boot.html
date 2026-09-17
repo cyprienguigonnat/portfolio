@@ -1,0 +1,73 @@
+<style>
+  html { background: #0355a1; }
+  html.is-booting #site-shell { visibility: hidden; }
+  html.loading-visible { overflow: hidden; }
+  #site-loader { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: #0355a1; color: white; font: 16px/1.4 "Hanken Grotesk", Arial, sans-serif; transition: opacity .25s ease; }
+  #site-loader[hidden] { display: none; }
+  #site-loader span { font-size: 16px; font-variant-numeric: tabular-nums; }
+  #site-loader.is-leaving { opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { #site-loader { transition: none; } }
+</style>
+<script>
+(() => {
+  document.documentElement.classList.add('is-booting');
+  let done = false, shown = false, value = 0, target = 0, frame = 0, completion;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const element = () => document.getElementById('site-loader');
+  function paint() {
+    value = reduced ? target : value + (target - value) * .18;
+    if (Math.abs(target - value) < .4) value = target;
+    const counter = element()?.querySelector('span');
+    if (counter) counter.textContent = Math.round(value) + ' %';
+    frame = value !== target ? requestAnimationFrame(paint) : 0;
+  }
+  function show() {
+    if (done) return;
+    const loader = element();
+    if (!loader) { requestAnimationFrame(show); return; }
+    shown = true;
+    loader.hidden = false;
+    document.documentElement.classList.add('loading-visible');
+    const shell = document.getElementById('site-shell');
+    if (shell) shell.inert = true;
+    paint();
+  }
+  const showTimer = setTimeout(show, 220);
+  function progress(percent) {
+    target = Math.max(target, Math.min(100, percent));
+    if (shown && !frame) paint();
+  }
+  function finish() {
+    if (completion) return completion;
+    done = true;
+    clearTimeout(showTimer);
+    clearTimeout(safetyTimer);
+    progress(100);
+    completion = new Promise(resolve => {
+      const release = () => {
+        cancelAnimationFrame(frame);
+        document.documentElement.classList.remove('loading-visible');
+        document.documentElement.classList.remove('is-booting');
+        const shell = document.getElementById('site-shell');
+        if (shell) shell.inert = false;
+        element()?.remove();
+        resolve();
+      };
+      if (!shown) { release(); return; }
+      setTimeout(() => {
+        cancelAnimationFrame(frame);
+        const loader = element();
+        if (loader) {
+          loader.querySelector('span').textContent = '100 %';
+          loader.classList.add('is-leaving');
+        }
+        setTimeout(release, reduced ? 0 : 250);
+      }, reduced ? 0 : 200);
+    });
+    return completion;
+  }
+  // Une ressource indisponible ne doit jamais bloquer l'accès au portfolio.
+  const safetyTimer = setTimeout(finish, 8000);
+  window.portfolioBoot = { progress, finish };
+})();
+</script>
