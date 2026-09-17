@@ -12,7 +12,7 @@ Site statique en français, sans framework ni dépendance JavaScript à installe
 - `img/projets/*.png` : originaux et repli des images ; ne pas les supprimer lorsque le HTML ou le catalogue les référence.
 - `content/images.json` : manifeste généré des variantes WebP.
 - `dist/` : site compilé complet, généré par la construction et ignoré par Git. Modifier les sources puis reconstruire.
-- `fonts/` : Hanken Grotesk 400 et 700, WOFF2 Latin, avec sa licence OFL.
+- `fonts/` : BDO Grotesk Regular et Bold, au format WOFF2 (police active du site), ainsi que les anciens fichiers Hanken Grotesk et leur licence OFL.
 - `scripts/check-*.cjs` : contrôles du chargement, de la physique, des interactions et des pages.
 
 ## Construire et vérifier
