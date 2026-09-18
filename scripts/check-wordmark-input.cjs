@@ -16,7 +16,10 @@ class Element {
 function run(pointerEvents){
  let now=0,rafId=0;const frames=new Map(),handlers={};
  const identity=new Element(),svg=new Element('svg'),entry=new Element(),letter=new Element();
+ const hint=new Element('p'),scatterButton=new Element('button'),returnButton=new Element('button'),status=new Element('span');
  entry.classList.add('letter-entry');letter.classList.add('wordmark-letter');entry.append(letter);svg.append(entry);identity.append(svg);
+ hint.classList.add('wordmark-hint');scatterButton.classList.add('wordmark-hint-default');returnButton.classList.add('wordmark-hint-return');status.classList.add('wordmark-status');
+ returnButton.hidden=true;hint.append(scatterButton);hint.append(returnButton);identity.append(hint);identity.append(status);
  const window={PortfolioLetterPhysics:physics,addEventListener:(type,fn)=>(handlers[type]??=[]).push(fn)};
  if(pointerEvents)window.PointerEvent=function(){};
  const document={querySelector:()=>identity,createElementNS:(_,name)=>new Element(name),body:new Element(),hidden:false,addEventListener(){}};
@@ -30,6 +33,17 @@ function run(pointerEvents){
   handlers[type].forEach(fn=>fn(event));
  };
  const advance=(seconds)=>{for(let i=0;i<seconds*120;i++){now+=1000/120;const pending=[...frames];frames.clear();pending.forEach(([,fn])=>fn(now));}};
+ scatterButton.handlers.click[0]();
+ assert.equal(letter.dataset.motion,'floating','Bousculez-moi disperse la lettre');
+ assert.equal(letter.attrs.transform,'translate(0.000 0.000) rotate(0.000 50 62)','La dispersion part de la position initiale');
+ assert.equal(scatterButton.hidden,true);assert.equal(returnButton.hidden,false);
+ advance(.2);assert.notEqual(letter.attrs.transform,'translate(0.000 0.000) rotate(0.000 50 62)');
+ returnButton.handlers.click[0]();
+ assert.equal(scatterButton.hidden,false);assert.equal(returnButton.hidden,true,'Le bouton rebascule sans attendre la fin du retour');
+ advance(8);
+ assert.equal(letter.dataset.motion,'idle','Ramenez-moi replace la lettre');
+ assert.equal(letter.attrs.transform,'translate(0.000 0.000) rotate(0.000 50 62)');
+ assert.equal(scatterButton.hidden,false);assert.equal(returnButton.hidden,true);
  if(pointerEvents){
   const hoverEvent={target:letter,pointerType:'mouse'};
   letter.handlers.pointerenter.forEach(fn=>fn(hoverEvent));advance(.5);

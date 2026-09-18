@@ -28,6 +28,23 @@ for(const project of projects) {
   }
 }
 const escape = text => String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const lucidePaths = {
+  "arrow-up-right": "M7 7h10v10M7 17 17 7",
+  "arrow-up": "m5 12 7-7 7 7M12 19V5",
+  "rotate-ccw": "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8M3 3v5h5",
+  "corner-down-right": "M15 10l5 5-5 5M4 4v7a4 4 0 0 0 4 4h12",
+  "arrow-right": "M5 12h14m-7-7 7 7-7 7",
+  "arrow-left": "M19 12H5m7 7-7-7 7-7",
+  "x": "M18 6 6 18M6 6l12 12"
+};
+function icon(name) {
+  return '<svg class="icon icon-'+name+'" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="'+lucidePaths[name]+'"></path></svg>';
+}
+function replaceIconTokens(html) {
+  return html
+    .replace(/&#8599;|↗/g, icon('arrow-up-right'))
+    .replace(/&#10551;|⤷/g, icon('corner-down-right'));
+}
 const runtime = ['js/letter-physics.js','js/wordmark.js','js/main.js'].map(read).join('\n');
 const runtimeOutput = esbuild.transformSync(runtime,{minify:true,target:'es2022',legalComments:'eof'}).code;
 const runtimeHash = crypto.createHash('sha256').update(runtimeOutput).digest('hex').slice(0,8).toUpperCase();
@@ -56,10 +73,11 @@ function secureLinks(html) {
   });
 }
 
-function head(title, prefix) {
+function head(title, prefix, themeColor) {
   return read("content/head.html")
     .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n'+boot)
     .replace(/<title>.*?<\/title>/, "<title>"+escape(title)+"</title>")
+    .replace('{{THEME_COLOR}}', themeColor)
     .replace(/(["'])\/img\//g, '$1'+prefix+'img/')
     .replace(/href="css\/style.css[^"]*"/, 'href="'+prefix+stylesheet+'"');
 }
@@ -76,13 +94,14 @@ function skiplinks() {
   return '<nav class="skiplinks" aria-label="Accès rapide"><a href="#mn">Contenu</a><a href="#hdr">Navigation</a></nav>';
 }
 function documentPage({title, kind, prefix="", slug="", content}) {
-  return '<!doctype html>\n<html lang="fr">\n<head>\n'+head(title,prefix)
+  const themeColor = kind === "project" ? "#ffffff" : "#0355a1";
+  return '<!doctype html>\n<html lang="fr">\n<head>\n'+head(title,prefix,themeColor)
     + '\n<script src="'+prefix+runtimeFile+'" defer></script>\n</head>\n'
     + '<body data-page="'+kind+'">\n'
     + '<div id="site-loader" hidden role="status" aria-label="Chargement du site"><span aria-hidden="true">0 %</span></div>\n'
     + skiplinks()+'\n'
     + '<div id="site-shell" data-page="'+kind+'"'+(slug?' data-project="'+slug+'"':'')+'>\n'
-    + secureLinks(content)+'\n</div>\n<div id="transition-layer" aria-hidden="true"></div>\n</body>\n</html>\n';
+    + secureLinks(replaceIconTokens(content))+'\n</div>\n<div id="transition-layer" aria-hidden="true"></div>\n</body>\n</html>\n';
 }
 function srcset(image,prefix) {
   const variants=[...images[image.file].variants];
@@ -110,7 +129,7 @@ write("index.html",documentPage({
   title:"Cyprien GUIGONNAT",kind:"home",
   content:header("home")+'\n<main id="mn" class="home-page" tabindex="-1">\n'
     +'<div class="home-identity"><h1 class="visually-hidden">Cyprien GUIGONNAT — Portfolio</h1>'+read("content/wordmark.svg")
-    +'<p class="wordmark-hint" aria-hidden="true"><span class="wordmark-hint-default">[Bousculez-moi ↑]</span><span class="wordmark-hint-return">[Ramenez-moi ↺]</span></p>'
+    +'<p class="wordmark-hint"><button class="wordmark-hint-default" type="button">[Bousculez-moi '+icon('arrow-up')+']</button><button class="wordmark-hint-return" type="button" hidden>[Ramenez-moi '+icon('rotate-ccw')+']</button></p>'
     +'<span class="visually-hidden wordmark-status" aria-live="polite">Bousculez-moi</span></div>\n'
     +'<div class="preview-stage" aria-hidden="true"></div>\n'
     +'<nav id="projets" class="project-index" aria-label="Projets">\n'
@@ -154,7 +173,7 @@ projects.forEach((project,index)=>{
   }).join("\n");
   write("projets/"+project.slug+".html",documentPage({
     title:project.title.replace(/^\d+\.\s*/,"")+" — Cyprien GUIGONNAT",kind:"project",prefix:"../",slug:project.slug,
-    content:'<header id="hdr" class="project-header" tabindex="-1"><a id="nav-home" href="../index.html" class="project-close" aria-label="Fermer le projet et revenir à la page précédente">Fermer ×</a></header>\n'
+    content:'<header id="hdr" class="project-header" tabindex="-1"><a id="nav-home" href="../index.html" class="project-close" aria-label="Fermer le projet et revenir à la page précédente">Fermer '+icon('x')+'</a></header>\n'
       +'<main id="mn" class="project-page" tabindex="-1">\n'
       +'<figure class="project-hero">'+imageMarkup(project.images[0],"../","hero-image",true)+'</figure>\n'
       +'<section class="project-description" aria-labelledby="project-title">\n'
@@ -162,9 +181,9 @@ projects.forEach((project,index)=>{
       +'<div class="project-story">'+project.description+'</div>\n'
       +'<div class="project-details">'+project.details+'</div>\n</section>\n'
       +'<div class="project-gallery" role="group" aria-label="Images du projet">'+gallery+'</div>\n</main>\n'
-      +'<footer class="page-footer project-pagination"><a href="../index.html">Accueil ↺</a>'
-      +'<nav aria-label="Navigation entre les projets"><a href="'+previous.slug+'.html" rel="prev" aria-label="Projet précédent : '+escape(previous.title)+'">← Précédent</a>'
-      +'<a href="'+next.slug+'.html" rel="next" aria-label="Projet suivant : '+escape(next.title)+'">Suivant →</a></nav></footer>'
+      +'<footer class="page-footer project-pagination"><a href="../index.html">'+icon('rotate-ccw')+' Accueil</a>'
+      +'<nav aria-label="Navigation entre les projets"><a href="'+previous.slug+'.html" rel="prev" aria-label="Projet précédent : '+escape(previous.title)+'">'+icon('arrow-left')+' Précédent</a>'
+      +'<a href="'+next.slug+'.html" rel="next" aria-label="Projet suivant : '+escape(next.title)+'">Suivant '+icon('arrow-right')+'</a></nav></footer>'
   }));
 });
 process.stdout.write('Accueil, informations, données et '+projects.length+' projets générés.\n');

@@ -1,7 +1,7 @@
 window.initPortfolioWordmark = function (animateEntry = true) {
   const identity=document.querySelector('#site-shell .home-identity');
   if(!identity)return ()=>{};
-  const svg=identity.querySelector('svg'),hint=identity.querySelector('.wordmark-hint'),status=identity.querySelector('.wordmark-status'),physics=window.PortfolioLetterPhysics;
+  const svg=identity.querySelector('svg'),hint=identity.querySelector('.wordmark-hint'),scatterButton=hint?.querySelector('.wordmark-hint-default'),returnButton=hint?.querySelector('.wordmark-hint-return'),status=identity.querySelector('.wordmark-status'),physics=window.PortfolioLetterPhysics;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const controller=new AbortController(), options={signal:controller.signal};
   const layout=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -27,7 +27,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   svg.removeAttribute('aria-hidden');
   svg.setAttribute('role','group');
   svg.setAttribute('aria-label','Cyprien Guigonnat, lettres interactives');
-  let size={width:0,height:0},scale=1,frame=0,last=0,dragged=null,hovered=null,disposed=false;
+  let size={width:0,height:0},scale=1,frame=0,last=0,dragged=null,hovered=null,disposed=false,returningAll=false;
   let entranceTimer;
   const clamp=(n,max)=>Math.max(-max,Math.min(max,n));
   function render(letter) {
@@ -35,8 +35,9 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     letter.el.dataset.motion=letter.mode;
   }
   function updateHint() {
-    const returning=letters.some(letter=>letter.disturbed);
-    hint?.classList.toggle('is-returning',returning);
+    const returning=!returningAll && letters.some(letter=>letter.disturbed);
+    if(scatterButton)scatterButton.hidden=returning;
+    if(returnButton)returnButton.hidden=!returning;
     if(status && status.dataset.returning!==String(returning)) {
       status.dataset.returning=String(returning);
       status.textContent=returning?'Ramenez-moi':'Bousculez-moi';
@@ -78,6 +79,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
       physics.collide(letters,size,dragged);
     }
     for(const letter of letters)if(letter.disturbed && letter.mode==='idle')letter.disturbed=false;
+    if(returningAll && !letters.some(letter=>letter.disturbed))returningAll=false;
     letters.forEach(render);
     updateHint();
     if(letters.some(letter=>letter.mode!=='idle'))frame=requestAnimationFrame(tick);
@@ -90,6 +92,34 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     letter.mode='returning';letter.vx=letter.vy=0;
     if(reduced.matches) {letter.x=letter.y=letter.rotation=0;letter.mode='idle';letter.disturbed=false;}
     render(letter);updateHint();start();
+  }
+  function scatterLetters() {
+    if(document.body.classList.contains('is-navigating'))return;
+    clearTimeout(entranceTimer);identity.classList.remove('is-arriving');
+    if(dragged)up({},true);
+    hovered=null;returningAll=false;
+    for(const letter of letters) {
+      const angle=Math.random()*Math.PI*2,speed=220+Math.random()*300;
+      let x=0,y=0;
+      if(reduced.matches) {
+        const halfWidth=letter.width/2,halfHeight=letter.height/2;
+        x=halfWidth+Math.random()*Math.max(0,size.width-letter.width)-letter.cx;
+        y=halfHeight+Math.random()*Math.max(0,size.height-letter.height)-letter.cy;
+      }
+      Object.assign(letter,{x,y,rotation:0,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
+        mode:reduced.matches?'idle':'floating',disturbed:true});
+      physics.contain(letter,size,false);
+    }
+    letters.forEach(render);
+    updateHint();start();
+  }
+  function resetLetters() {
+    if(document.body.classList.contains('is-navigating'))return;
+    clearTimeout(entranceTimer);identity.classList.remove('is-arriving');
+    if(dragged)up({},true);
+    hovered=null;returningAll=true;
+    letters.forEach(resetLetter);
+    updateHint();
   }
   function setHovered(letter) {
     for(const other of letters)if(other!==letter && other.mode==='hover')other.mode='hover-returning';
@@ -109,7 +139,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     if(!letter)return;
     event.preventDefault();
     if(hovered?.mode==='hover')hovered.mode='hover-returning';
-    dragged=letter;hovered=null;
+    dragged=letter;hovered=null;returningAll=false;
     Object.assign(letter,{mode:'dragging',pointerId:event.pointerId,startX:letter.x,startY:letter.y,
       startPX:event.clientX,startPY:event.clientY,lastPX:event.clientX,lastPY:event.clientY,lastTime:performance.now(),moved:false,vx:0,vy:0});
     letter.el.classList.add('is-dragging');
@@ -155,6 +185,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     const directions={ArrowLeft:[-16,0],ArrowRight:[16,0],ArrowUp:[0,-16],ArrowDown:[0,16]};
     if(event.key==='Enter' || event.key===' ') {
       event.preventDefault();
+      returningAll=false;
       if(letter.disturbed)resetLetter(letter);
       else {
         letter.disturbed=true;letter.y-=16;
@@ -163,6 +194,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
       }
     } else if(directions[event.key]) {
       event.preventDefault();
+      returningAll=false;
       const [x,y]=directions[event.key];
       letter.x+=x;letter.y+=y;letter.disturbed=true;
       physics.contain(letter,size,false);
@@ -170,6 +202,8 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     } else return;
     updateHint();
   },options);
+  scatterButton?.addEventListener('click',scatterLetters,options);
+  returnButton?.addEventListener('click',resetLetters,options);
   // Écoute sur toute la fenêtre et capture du pointeur : souris, stylet et tactile.
   if('PointerEvent' in window) {
     for(const letter of letters) {

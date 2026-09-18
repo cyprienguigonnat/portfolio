@@ -71,6 +71,19 @@ async function settled(page) {
       process.stdout.write(JSON.stringify({pages:results.length,idleMutations,errors,violations:results.filter(r=>r.violations.length).map(r=>({route:r.route,width:r.width,ids:r.violations.map(v=>v.id)}))})+'\n');
       return;
     }
+    const scatterButton=page.getByRole('button',{name:/Bousculez-moi/});
+    await scatterButton.click();
+    await page.waitForFunction(()=>[...document.querySelectorAll('.wordmark-letter')].every(letter=>letter.dataset.motion==='floating' && !letter.getAttribute('transform').startsWith('translate(0.000 0.000)')));
+    assert.equal(await page.getByRole('button',{name:/Ramenez-moi/}).isVisible(),true);
+    assert.equal(await page.locator('.wordmark-letter').evaluateAll(letters=>letters.every(letter=>{
+      const transform=letter.getAttribute('transform');
+      return transform && !transform.startsWith('translate(0.000 0.000)');
+    })),true,'Le bouton Bousculez-moi disperse toutes les lettres');
+    await page.getByRole('button',{name:/Ramenez-moi/}).click();
+    assert.equal(await page.getByRole('button',{name:/Bousculez-moi/}).isVisible(),true);
+    await page.waitForFunction(()=>[...document.querySelectorAll('.wordmark-letter')].every(letter=>letter.dataset.motion==='idle'));
+    assert.equal(await page.getByRole('button',{name:/Bousculez-moi/}).isVisible(),true);
+    await page.goto(base+'/index.html');await settled(page);
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus').textContent(),'Contenu');
     assert.equal(await page.locator('.project-index').evaluate(element => {
@@ -98,7 +111,7 @@ async function settled(page) {
     assert.equal(await page.locator(':focus').evaluate(element => getComputedStyle(element).outlineStyle),'none');
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus').getAttribute('id'),'nav-home');
-    assert.equal(await page.locator(':focus').textContent(),'Fermer ×');
+    assert.equal((await page.locator(':focus').textContent()).trim(),'Fermer');
     await page.locator('[rel=next]').click(); await page.waitForURL('**/projets/france-titres.html'); await settled(page);
     await page.keyboard.press('Escape'); await page.waitForURL(/\/index\.html(?:#.*)?$/); await settled(page);
     await page.getByRole('link',{name:'Informations',exact:true}).click(); await page.waitForURL('**/informations.html'); await settled(page);
