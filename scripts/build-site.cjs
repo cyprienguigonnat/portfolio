@@ -156,8 +156,7 @@ for(const entry of [
     .replace(/href="#([^"]+)"/g,rewriteSiteLink);
   write(entry.file+".html",documentPage({
     title:entry.title+" — Cyprien GUIGONNAT",kind:entry.kind,
-    content:header(entry.kind)+'\n<main id="mn" class="information-page" tabindex="-1">'+content+'</main>\n'
-      +'<footer class="page-footer legal-footer"><span>© 2026 Tous Droits Réservés</span></footer>'
+    content:header(entry.kind)+'\n<main id="mn" class="information-page" tabindex="-1">'+content+'</main>'
   }));
 }
 

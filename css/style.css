@@ -72,7 +72,17 @@ ul { margin: 0; padding-left: 1em; }
   width: 1em;
   height: 1em;
   flex: 0 0 auto;
-  vertical-align: -.125em;
+  vertical-align: middle;
+}
+button:has(> .icon):hover,
+a:has(> .icon):hover,
+.project-story a:has(> .icon),
+.project-details a:has(> .icon) {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
 }
 .skiplinks {
   position: relative;
@@ -177,7 +187,7 @@ ul { margin: 0; padding-left: 1em; }
   cursor: pointer;
 }
 .wordmark-hint button[hidden] { display: none; }
-.wordmark-hint button:hover { text-decoration: underline; text-underline-offset: .2em; }
+.wordmark-hint button:hover { text-decoration: none; }
 .home-identity.is-arriving .letter-entry {
   transform-box: fill-box;
   transform-origin: center;
