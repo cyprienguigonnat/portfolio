@@ -73,11 +73,10 @@ function secureLinks(html) {
   });
 }
 
-function head(title, prefix, themeColor) {
+function head(title, prefix) {
   return read("content/head.html")
     .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n'+boot)
     .replace(/<title>.*?<\/title>/, "<title>"+escape(title)+"</title>")
-    .replace('{{THEME_COLOR}}', themeColor)
     .replace(/(["'])\/img\//g, '$1'+prefix+'img/')
     .replace(/href="css\/style.css[^"]*"/, 'href="'+prefix+stylesheet+'"');
 }
@@ -94,8 +93,7 @@ function skiplinks() {
   return '<nav class="skiplinks" aria-label="Accès rapide"><a href="#mn">Contenu</a><a href="#hdr">Navigation</a></nav>';
 }
 function documentPage({title, kind, prefix="", slug="", content}) {
-  const themeColor = kind === "project" ? "#ffffff" : "#0355a1";
-  return '<!doctype html>\n<html lang="fr">\n<head>\n'+head(title,prefix,themeColor)
+  return '<!doctype html>\n<html lang="fr">\n<head>\n'+head(title,prefix)
     + '\n<script src="'+prefix+runtimeFile+'" defer></script>\n</head>\n'
     + '<body data-page="'+kind+'">\n'
     + '<div id="site-loader" hidden role="status" aria-label="Chargement du site"><span aria-hidden="true">0 %</span></div>\n'

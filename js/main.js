@@ -360,7 +360,14 @@
       const target = document.getElementById(id);
       if (!target) return;
       event.preventDefault();
-      history.pushState({...history.state, scrollY:window.scrollY}, "", url);
+      const state = {...history.state, scrollY:window.scrollY};
+      // Un lien d'évitement crée une entrée d'historique supplémentaire.
+      // Sur une page projet, elle doit faire partie du recul de « Fermer » afin
+      // de revenir à la page d'origine plutôt qu'au projet précédent.
+      if (shell().dataset.page === "project" && state.returnTo && Number.isInteger(state.returnDepth)) {
+        state.returnDepth += 1;
+      }
+      history.pushState(state, "", url);
       target.focus({preventScroll:true});
       target.scrollIntoView({block:"start", behavior:"instant"});
       return;

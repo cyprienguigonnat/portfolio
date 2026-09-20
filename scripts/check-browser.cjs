@@ -105,6 +105,8 @@ async function settled(page) {
     await page.locator('.project-link').first().focus();
     await page.keyboard.press('Enter'); await page.waitForURL('**/projets/infomaniak.html'); await settled(page);
     assert.equal(await page.locator(':focus').getAttribute('id'),'mn');
+    await page.locator('[rel=next]').focus();
+    await page.keyboard.press('Enter'); await page.waitForURL('**/projets/france-titres.html'); await settled(page);
     await page.locator('.skiplinks a').nth(1).focus();
     await page.keyboard.press('Enter');
     assert.equal(await page.locator(':focus').getAttribute('id'),'hdr');
@@ -112,8 +114,7 @@ async function settled(page) {
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus').getAttribute('id'),'nav-home');
     assert.equal((await page.locator(':focus').textContent()).trim(),'Fermer');
-    await page.locator('[rel=next]').click(); await page.waitForURL('**/projets/france-titres.html'); await settled(page);
-    await page.keyboard.press('Escape'); await page.waitForURL(/\/index\.html(?:#.*)?$/); await settled(page);
+    await page.keyboard.press('Enter'); await page.waitForURL(/\/index\.html(?:#.*)?$/); await settled(page);
     await page.getByRole('link',{name:'Informations',exact:true}).click(); await page.waitForURL('**/informations.html'); await settled(page);
     await page.goBack(); await page.waitForURL(/\/index\.html(?:#.*)?$/); await settled(page);
     await page.goForward(); await page.waitForURL('**/informations.html'); await settled(page);

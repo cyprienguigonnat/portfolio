@@ -90,7 +90,7 @@ a:has(> .icon):hover,
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 8px;
   max-height: 0;
   padding: 0 12px;
   overflow: hidden;
@@ -198,7 +198,7 @@ a:has(> .icon):hover,
   to { opacity: 1; transform: translateY(0) rotate(0); }
 }
 .project-index {
-  position: absolute;
+  position: fixed;
   z-index: 4;
   right: var(--gutter);
   bottom: var(--gutter);

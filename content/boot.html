@@ -11,6 +11,16 @@
 <script>
 (() => {
   document.documentElement.classList.add('is-booting');
+  const userAgent = typeof navigator === 'object' ? navigator.userAgent : '';
+  const isSafari = /Safari/i.test(userAgent)
+    && !/(CriOS|FxiOS|EdgiOS|OPiOS|GSA|Instagram|FBAN|FBAV|DuckDuckGo|YaBrowser)/i.test(userAgent);
+  if (!isSafari && document.createElement && document.head) {
+    const theme = document.createElement('meta');
+    theme.name = 'theme-color';
+    const path = typeof location === 'object' ? location.pathname : '';
+    theme.content = path.includes('/projets/') ? '#fff' : '#0355a1';
+    document.head.append(theme);
+  }
   let done = false, shown = false, value = 0, target = 0, frame = 0, completion;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const element = () => document.getElementById('site-loader');
