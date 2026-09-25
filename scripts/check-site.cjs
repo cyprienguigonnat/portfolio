@@ -32,7 +32,7 @@ for(const [file,html] of documents) {
   const hash=crypto.createHash('sha256').update(boot).digest('base64');
   assert.ok(fs.readFileSync(path.join(siteRoot,'.htaccess'),'utf8').includes("'sha256-"+hash+"'"),'Empreinte CSP : '+file);
 }
-for(const project of projects)for(const image of project.images) {
+for(const project of projects)for(const image of project.images.filter(image=>!image.video)) {
   const entry=require('../content/images.json')[image.file];
   const source=fs.readFileSync(path.join(root,'img/projets',image.file));
   assert.equal(entry.digest,crypto.createHash('sha256').update(source).digest('hex'),'Relancer npm run images : '+image.file);

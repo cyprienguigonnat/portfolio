@@ -1,272 +1,660 @@
 {
   "infomaniak-01.png": {
-    "recipe": 2,
-    "digest": "6d11691d14116746589347dad369965f9bcebd5fcc15622a024b55ade58b557c",
-    "originalBytes": 1588336,
+    "recipe": 3,
+    "digest": "69d22db56f4669715a66be24bb54355c684472db96df464ea8ee6d10e19420a6",
+    "originalBytes": 3021827,
     "variants": [
       {
-        "file": "infomaniak-01-640-A52D143F.webp",
+        "file": "infomaniak-01-640-126572BD.webp",
         "width": 640,
-        "bytes": 202016
+        "bytes": 35940
       },
       {
-        "file": "infomaniak-01-960-BC98B94C.webp",
+        "file": "infomaniak-01-960-B6E34B21.webp",
         "width": 960,
-        "bytes": 432040
+        "bytes": 62752
       },
       {
-        "file": "infomaniak-01-1280-0987B9BA.webp",
+        "file": "infomaniak-01-1280-8B547BD5.webp",
         "width": 1280,
-        "bytes": 752826
+        "bytes": 95440
       },
       {
-        "file": "infomaniak-01-1672-A2F5158D.webp",
+        "file": "infomaniak-01-1672-CC22CDDD.webp",
         "width": 1672,
-        "bytes": 1165808
-      }
-    ]
-  },
-  "infomaniak-02.png": {
-    "recipe": 2,
-    "digest": "f3ddf67e69bb72c0b41447bfc76c47b019d39c16e5249708437de7e66eb445fb",
-    "originalBytes": 1053672,
-    "variants": [
-      {
-        "file": "infomaniak-02-640-DC9BDFDF.webp",
-        "width": 640,
-        "bytes": 147366
-      },
-      {
-        "file": "infomaniak-02-960-763F0C2E.webp",
-        "width": 960,
-        "bytes": 305298
-      },
-      {
-        "file": "infomaniak-02-1280-4E5AA8F2.webp",
-        "width": 1280,
-        "bytes": 521780
-      },
-      {
-        "file": "infomaniak-02-1672-E074A2B8.webp",
-        "width": 1672,
-        "bytes": 768190
+        "bytes": 143596
       }
     ]
   },
   "infomaniak-03.png": {
-    "recipe": 2,
-    "digest": "73bb5e0d681743bd5f08d5d41888266573fbda17598fbb48014de3d663bc0baf",
-    "originalBytes": 1212256,
+    "recipe": 3,
+    "digest": "b13da09fe6742682160c144faf41184d6480b4e4af5ca6f6d4aa97a59460508a",
+    "originalBytes": 418612,
     "variants": [
       {
-        "file": "infomaniak-03-640-F4B4D328.webp",
+        "file": "infomaniak-03-640-6386A485.webp",
         "width": 640,
-        "bytes": 160622
+        "bytes": 31070
       },
       {
-        "file": "infomaniak-03-960-14AECA95.webp",
+        "file": "infomaniak-03-960-DDCE86E6.webp",
         "width": 960,
-        "bytes": 336832
+        "bytes": 54896
       },
       {
-        "file": "infomaniak-03-1280-C1F3E268.webp",
+        "file": "infomaniak-03-1280-604781AF.webp",
         "width": 1280,
-        "bytes": 582480
+        "bytes": 84286
       },
       {
-        "file": "infomaniak-03-1672-DFD38714.webp",
+        "file": "infomaniak-03-1672-D451C5A1.webp",
         "width": 1672,
-        "bytes": 877024
+        "bytes": 120496
+      }
+    ]
+  },
+  "infomaniak-04.png": {
+    "recipe": 3,
+    "digest": "190d204078633aa7db60d313790d037f39831d75ca9c0d5177043199aca00857",
+    "originalBytes": 2697960,
+    "variants": [
+      {
+        "file": "infomaniak-04-640-281E4433.webp",
+        "width": 640,
+        "bytes": 39840
+      },
+      {
+        "file": "infomaniak-04-960-E1D228D4.webp",
+        "width": 960,
+        "bytes": 73646
+      },
+      {
+        "file": "infomaniak-04-1280-9F549122.webp",
+        "width": 1280,
+        "bytes": 110596
+      },
+      {
+        "file": "infomaniak-04-1672-70F2AD2D.webp",
+        "width": 1672,
+        "bytes": 170050
+      }
+    ]
+  },
+  "infomaniak-05.png": {
+    "recipe": 3,
+    "digest": "61b6574c959f0005ada6fb2601026b88a511ca833fdf02f2bd771c5021de0bfa",
+    "originalBytes": 157585,
+    "variants": [
+      {
+        "file": "infomaniak-05-640-56DF1D72.webp",
+        "width": 640,
+        "bytes": 43670
+      },
+      {
+        "file": "infomaniak-05-912-6185B16C.webp",
+        "width": 912,
+        "bytes": 66810
+      }
+    ]
+  },
+  "infomaniak-06.png": {
+    "recipe": 3,
+    "digest": "49efb881af04f4c610cc5695e0cf8267a59733857c69503ea3dc8fb10da0be99",
+    "originalBytes": 478410,
+    "variants": [
+      {
+        "file": "infomaniak-06-640-76608634.webp",
+        "width": 640,
+        "bytes": 20264
+      },
+      {
+        "file": "infomaniak-06-960-4C45CF80.webp",
+        "width": 960,
+        "bytes": 34286
+      },
+      {
+        "file": "infomaniak-06-1280-21C30691.webp",
+        "width": 1280,
+        "bytes": 49446
+      },
+      {
+        "file": "infomaniak-06-1672-ED169637.webp",
+        "width": 1672,
+        "bytes": 68056
+      }
+    ]
+  },
+  "infomaniak-07.png": {
+    "recipe": 3,
+    "digest": "55176cd2783f934e62253e472e761d660dfd8b88d996447e2ca8ab6bce681ea4",
+    "originalBytes": 372632,
+    "variants": [
+      {
+        "file": "infomaniak-07-640-9DC1B510.webp",
+        "width": 640,
+        "bytes": 21444
+      },
+      {
+        "file": "infomaniak-07-960-7BA9DCF1.webp",
+        "width": 960,
+        "bytes": 39008
+      },
+      {
+        "file": "infomaniak-07-1280-E33A5EAF.webp",
+        "width": 1280,
+        "bytes": 57672
+      },
+      {
+        "file": "infomaniak-07-1672-6889D466.webp",
+        "width": 1672,
+        "bytes": 80988
+      }
+    ]
+  },
+  "infomaniak-08.png": {
+    "recipe": 3,
+    "digest": "4a50588ae9b8ed9b311db22e3f38ec47cb072ff0ef6dde8c2ad89d6d65d4d36e",
+    "originalBytes": 3240580,
+    "variants": [
+      {
+        "file": "infomaniak-08-640-61BB7401.webp",
+        "width": 640,
+        "bytes": 27352
+      },
+      {
+        "file": "infomaniak-08-960-2148BDE4.webp",
+        "width": 960,
+        "bytes": 44728
+      },
+      {
+        "file": "infomaniak-08-1280-03012A17.webp",
+        "width": 1280,
+        "bytes": 64440
+      },
+      {
+        "file": "infomaniak-08-1672-7A8865DA.webp",
+        "width": 1672,
+        "bytes": 87810
       }
     ]
   },
   "france-titres-01.png": {
-    "recipe": 2,
+    "recipe": 3,
     "digest": "0b523935ca9466a390861a442267cca9e287e045666863e89d26724817cb5693",
     "originalBytes": 1619820,
     "variants": [
       {
-        "file": "france-titres-01-640-6DB4D631.webp",
+        "file": "france-titres-01-640-53DEF1D6.webp",
         "width": 640,
-        "bytes": 201098
+        "bytes": 40914
       },
       {
-        "file": "france-titres-01-960-1347F479.webp",
+        "file": "france-titres-01-960-9CDC80FD.webp",
         "width": 960,
-        "bytes": 427988
+        "bytes": 69916
       },
       {
-        "file": "france-titres-01-1280-9E293DCF.webp",
+        "file": "france-titres-01-1280-3EE8E747.webp",
         "width": 1280,
-        "bytes": 749476
+        "bytes": 103296
       },
       {
-        "file": "france-titres-01-1672-D7D8F1A5.webp",
+        "file": "france-titres-01-1672-8D8B2E62.webp",
         "width": 1672,
-        "bytes": 1141964
-      }
-    ]
-  },
-  "france-titres-02.png": {
-    "recipe": 2,
-    "digest": "ec10015e22b64a1003963425a1ca84d1e291b5bc45be29248379debce19f8da2",
-    "originalBytes": 1163737,
-    "variants": [
-      {
-        "file": "france-titres-02-640-C8EE8BFD.webp",
-        "width": 640,
-        "bytes": 151634
-      },
-      {
-        "file": "france-titres-02-960-F3362A74.webp",
-        "width": 960,
-        "bytes": 321730
-      },
-      {
-        "file": "france-titres-02-1280-C4AFE3CC.webp",
-        "width": 1280,
-        "bytes": 547146
-      },
-      {
-        "file": "france-titres-02-1672-5CB99678.webp",
-        "width": 1672,
-        "bytes": 816506
+        "bytes": 143780
       }
     ]
   },
   "france-titres-03.png": {
-    "recipe": 2,
-    "digest": "3b01416de33a795af169790f1afcbb4222287ac863ff3e1df3a7075369a73b78",
-    "originalBytes": 983741,
+    "recipe": 3,
+    "digest": "8a422da2cedcf494ffa0464ff552f92cc6e5f042539427be1e00d853719b69db",
+    "originalBytes": 458444,
     "variants": [
       {
-        "file": "france-titres-03-640-CCD31486.webp",
+        "file": "france-titres-03-640-6AAE49D9.webp",
         "width": 640,
-        "bytes": 125776
+        "bytes": 20954
       },
       {
-        "file": "france-titres-03-960-D760B399.webp",
+        "file": "france-titres-03-960-7EB07856.webp",
         "width": 960,
-        "bytes": 267224
+        "bytes": 38082
       },
       {
-        "file": "france-titres-03-1280-127FDE44.webp",
+        "file": "france-titres-03-1280-1307A3F4.webp",
         "width": 1280,
-        "bytes": 447912
+        "bytes": 60402
       },
       {
-        "file": "france-titres-03-1672-001F9309.webp",
+        "file": "france-titres-03-1856-93CB4D42.webp",
+        "width": 1856,
+        "bytes": 111420
+      }
+    ]
+  },
+  "france-titres-04.png": {
+    "recipe": 3,
+    "digest": "4cd3aca5871af7d612d007245cf4049ceeb0e419baf700fa028e9bb454ae41a2",
+    "originalBytes": 3700397,
+    "variants": [
+      {
+        "file": "france-titres-04-640-8FA4DF16.webp",
+        "width": 640,
+        "bytes": 81014
+      },
+      {
+        "file": "france-titres-04-960-F193D184.webp",
+        "width": 960,
+        "bytes": 158386
+      },
+      {
+        "file": "france-titres-04-1280-BF3D2047.webp",
+        "width": 1280,
+        "bytes": 234390
+      },
+      {
+        "file": "france-titres-04-1672-6F9EAC8B.webp",
         "width": 1672,
-        "bytes": 667144
+        "bytes": 341206
       }
     ]
   },
-  "g6_01.png": {
-    "recipe": 2,
-    "digest": "fbc44bbe20ae734a8b646063a238d73f5ecd74253250cc3170b2bfcb5d351d5f",
-    "originalBytes": 397228,
+  "france-titres-05.png": {
+    "recipe": 3,
+    "digest": "9abcf5796614b610d9cb9c55ae0afa9d755910c8e725cb0a5e936eb320026b5e",
+    "originalBytes": 152142,
     "variants": [
       {
-        "file": "g6_01-640-B827DCDB.webp",
+        "file": "france-titres-05-640-3F12B40B.webp",
         "width": 640,
-        "bytes": 217026
-      }
-    ]
-  },
-  "g6_02.png": {
-    "recipe": 2,
-    "digest": "00009ad5f9c4d22ff345c51e3a6d13f65aa60f92ca5980cf3378f73b309c827d",
-    "originalBytes": 66329,
-    "variants": [
-      {
-        "file": "g6_02-1920-499EC12E.webp",
-        "width": 1920,
-        "bytes": 53948
-      }
-    ]
-  },
-  "g6_03.png": {
-    "recipe": 2,
-    "digest": "d5a796cd3efffc4bbfb7cac1e15c66c47225c5550020d4fe03ddbf7a0177f415",
-    "originalBytes": 35253,
-    "variants": [
-      {
-        "file": "g6_03-1920-2E834D3B.webp",
-        "width": 1920,
-        "bytes": 29300
-      }
-    ]
-  },
-  "g6_04.png": {
-    "recipe": 2,
-    "digest": "ea2c2ab49d6f7aafcb65ab76b6049f12a897d85a0c643748c5f8aefc50a318da",
-    "originalBytes": 4419,
-    "variants": [
-      {
-        "file": "g6_04-1920-BA2FB2BA.webp",
-        "width": 1920,
-        "bytes": 3284
-      }
-    ]
-  },
-  "g9_01.png": {
-    "recipe": 2,
-    "digest": "a3bfa7a19e1fd843833242612999c7ba6ac24a889bb37bad99a6675f3f341e97",
-    "originalBytes": 536998,
-    "variants": [
-      {
-        "file": "g9_01-640-0DE54143.webp",
-        "width": 640,
-        "bytes": 238774
+        "bytes": 53506
       },
       {
-        "file": "g9_01-1920-7DF1E2BA.webp",
-        "width": 1920,
-        "bytes": 469750
+        "file": "france-titres-05-912-F2406749.webp",
+        "width": 912,
+        "bytes": 83430
       }
     ]
   },
-  "g9_02.png": {
-    "recipe": 2,
-    "digest": "4cbac8d70720fd29bd1c927fd8efab81da7478a5be9abeb45f2d674ffe3918f7",
-    "originalBytes": 691120,
+  "france-titres-06.png": {
+    "recipe": 3,
+    "digest": "357f60b5001b2b221c1b7b176d4567116adeebcbeabd7637a60524bf9472d9b0",
+    "originalBytes": 161341,
     "variants": [
       {
-        "file": "g9_02-640-BA9511FC.webp",
+        "file": "france-titres-06-640-0B7C6F5D.webp",
         "width": 640,
-        "bytes": 102244
+        "bytes": 25402
       },
       {
-        "file": "g9_02-960-B19E15F9.webp",
+        "file": "france-titres-06-912-574D8F61.webp",
+        "width": 912,
+        "bytes": 39744
+      }
+    ]
+  },
+  "france-titres-07.png": {
+    "recipe": 3,
+    "digest": "b5a2a2897666de5ba831073fed8da1a2630448974f96113adbfbce0e0b2f6a3c",
+    "originalBytes": 476313,
+    "variants": [
+      {
+        "file": "france-titres-07-640-AF3F1D7C.webp",
+        "width": 640,
+        "bytes": 25546
+      },
+      {
+        "file": "france-titres-07-960-9595EA66.webp",
         "width": 960,
-        "bytes": 204932
+        "bytes": 45404
       },
       {
-        "file": "g9_02-1280-86E27792.webp",
+        "file": "france-titres-07-1280-12D444F7.webp",
         "width": 1280,
-        "bytes": 329896
+        "bytes": 68678
       },
       {
-        "file": "g9_02-1920-FA00237E.webp",
-        "width": 1920,
-        "bytes": 593340
+        "file": "france-titres-07-2090-CF054FBF.webp",
+        "width": 2090,
+        "bytes": 132742
       }
     ]
   },
-  "g9_03.png": {
-    "recipe": 2,
-    "digest": "438abe50f7d04212cf0009deaa6feb6555509c9b1d015a0fd728238465a45f62",
-    "originalBytes": 3793,
+  "france-titres-08.png": {
+    "recipe": 3,
+    "digest": "62d58a12459ed7cc16861ae9830cf9a93cdaf2193ed28e1870246fe761a8d5b4",
+    "originalBytes": 1989732,
     "variants": [
       {
-        "file": "g9_03-640-E63B8100.webp",
+        "file": "france-titres-08-640-E01A0492.webp",
         "width": 640,
-        "bytes": 3776
+        "bytes": 17480
       },
       {
-        "file": "g9_03-1920-655684F0.webp",
-        "width": 1920,
-        "bytes": 2614
+        "file": "france-titres-08-960-5F7FD625.webp",
+        "width": 960,
+        "bytes": 30184
+      },
+      {
+        "file": "france-titres-08-1280-7D23A589.webp",
+        "width": 1280,
+        "bytes": 45948
+      },
+      {
+        "file": "france-titres-08-1672-2835E3C4.webp",
+        "width": 1672,
+        "bytes": 63488
+      }
+    ]
+  },
+  "fontlibrary-01.png": {
+    "recipe": 3,
+    "digest": "8576653d890cd5ca6ab71aa5b300d48c9740ddba7b639c4f03dad48561dab053",
+    "originalBytes": 3007727,
+    "variants": [
+      {
+        "file": "fontlibrary-01-640-ECEC0872.webp",
+        "width": 640,
+        "bytes": 78320
+      },
+      {
+        "file": "fontlibrary-01-960-416905D6.webp",
+        "width": 960,
+        "bytes": 148412
+      },
+      {
+        "file": "fontlibrary-01-1280-6D6E92F2.webp",
+        "width": 1280,
+        "bytes": 215916
+      },
+      {
+        "file": "fontlibrary-01-1672-04AEDE93.webp",
+        "width": 1672,
+        "bytes": 315546
+      }
+    ]
+  },
+  "fontlibrary-03.png": {
+    "recipe": 3,
+    "digest": "525de92d42b09077d95f55a725082a036ec3e1c4625c0554d922e6fa38ad5749",
+    "originalBytes": 1452481,
+    "variants": [
+      {
+        "file": "fontlibrary-03-640-7CB5153A.webp",
+        "width": 640,
+        "bytes": 46140
+      },
+      {
+        "file": "fontlibrary-03-960-8E40A442.webp",
+        "width": 960,
+        "bytes": 85890
+      },
+      {
+        "file": "fontlibrary-03-1280-4D8DB296.webp",
+        "width": 1280,
+        "bytes": 131288
+      },
+      {
+        "file": "fontlibrary-03-1856-A16CF70D.webp",
+        "width": 1856,
+        "bytes": 217156
+      }
+    ]
+  },
+  "fontlibrary-04.png": {
+    "recipe": 3,
+    "digest": "a84c95e6b0637556fedb9dbed6b17fc707d1ceabd5fe6b6fda33a094d1692fa7",
+    "originalBytes": 2061870,
+    "variants": [
+      {
+        "file": "fontlibrary-04-640-8AE52A13.webp",
+        "width": 640,
+        "bytes": 45888
+      },
+      {
+        "file": "fontlibrary-04-960-5F6BF64E.webp",
+        "width": 960,
+        "bytes": 83774
+      },
+      {
+        "file": "fontlibrary-04-1280-538B76EF.webp",
+        "width": 1280,
+        "bytes": 117488
+      },
+      {
+        "file": "fontlibrary-04-1856-B849EAE0.webp",
+        "width": 1856,
+        "bytes": 188546
+      }
+    ]
+  },
+  "fontlibrary-05.png": {
+    "recipe": 3,
+    "digest": "11c6e52b45222aa06c658c478d0d40155f6c2a2479b8eb17acdbee41de5a0d5d",
+    "originalBytes": 310684,
+    "variants": [
+      {
+        "file": "fontlibrary-05-640-0FA4D23C.webp",
+        "width": 640,
+        "bytes": 47508
+      },
+      {
+        "file": "fontlibrary-05-912-290E107D.webp",
+        "width": 912,
+        "bytes": 69052
+      }
+    ]
+  },
+  "fontlibrary-06.png": {
+    "recipe": 3,
+    "digest": "4e0df519f56e443c5ebfb22529573fd911d62a462e55103f05513f8693f8286d",
+    "originalBytes": 128731,
+    "variants": [
+      {
+        "file": "fontlibrary-06-640-F26DB03E.webp",
+        "width": 640,
+        "bytes": 21846
+      },
+      {
+        "file": "fontlibrary-06-912-5D9E71A1.webp",
+        "width": 912,
+        "bytes": 32488
+      }
+    ]
+  },
+  "fontlibrary-07.png": {
+    "recipe": 3,
+    "digest": "53c2fe975762b56f75ffd0af92466470f60757c96588d1139776eb8f217861fa",
+    "originalBytes": 1160945,
+    "variants": [
+      {
+        "file": "fontlibrary-07-640-4AF603EC.webp",
+        "width": 640,
+        "bytes": 41064
+      },
+      {
+        "file": "fontlibrary-07-960-DF1FCB44.webp",
+        "width": 960,
+        "bytes": 73474
+      },
+      {
+        "file": "fontlibrary-07-1280-EFE0A5E5.webp",
+        "width": 1280,
+        "bytes": 112750
+      },
+      {
+        "file": "fontlibrary-07-1856-1DB784A3.webp",
+        "width": 1856,
+        "bytes": 179876
+      }
+    ]
+  },
+  "fontlibrary-08.png": {
+    "recipe": 3,
+    "digest": "c0018e1762d834308b7bddedb3cb7fed93fb5ca8dc4bef9af03d9374dd884f08",
+    "originalBytes": 3085475,
+    "variants": [
+      {
+        "file": "fontlibrary-08-640-E8B91525.webp",
+        "width": 640,
+        "bytes": 21508
+      },
+      {
+        "file": "fontlibrary-08-960-65BD5357.webp",
+        "width": 960,
+        "bytes": 34750
+      },
+      {
+        "file": "fontlibrary-08-1280-B1DAE3B8.webp",
+        "width": 1280,
+        "bytes": 50148
+      },
+      {
+        "file": "fontlibrary-08-1856-FE45B4B8.webp",
+        "width": 1856,
+        "bytes": 79938
+      }
+    ]
+  },
+  "fabmanager-01.png": {
+    "recipe": 3,
+    "digest": "e78abb4d5c7223043cccc6f26cb0949eb992f859e5b35d266f2ec8dc4b4c69c3",
+    "originalBytes": 2024942,
+    "variants": [
+      {
+        "file": "fabmanager-01-640-04FD6F92.webp",
+        "width": 640,
+        "bytes": 65996
+      },
+      {
+        "file": "fabmanager-01-960-1251DCCF.webp",
+        "width": 960,
+        "bytes": 108060
+      },
+      {
+        "file": "fabmanager-01-1280-A171947A.webp",
+        "width": 1280,
+        "bytes": 153370
+      },
+      {
+        "file": "fabmanager-01-1672-1D3E4CB1.webp",
+        "width": 1672,
+        "bytes": 216774
+      }
+    ]
+  },
+  "fabmanager-03.png": {
+    "recipe": 3,
+    "digest": "1e970c6124b5af85f48f7e1e8fb1e4a908054ff9df83763f4f0f1af134326c71",
+    "originalBytes": 3985591,
+    "variants": [
+      {
+        "file": "fabmanager-03-640-A9B2CDE2.webp",
+        "width": 640,
+        "bytes": 61086
+      },
+      {
+        "file": "fabmanager-03-960-E5BDD736.webp",
+        "width": 960,
+        "bytes": 121274
+      },
+      {
+        "file": "fabmanager-03-1280-CCD300F5.webp",
+        "width": 1280,
+        "bytes": 187318
+      },
+      {
+        "file": "fabmanager-03-1856-23446E47.webp",
+        "width": 1856,
+        "bytes": 288644
+      }
+    ]
+  },
+  "fabmanager-04.png": {
+    "recipe": 3,
+    "digest": "17e780c1a90312de85d4fc1508df2c98b38725653f54e2836fde9d61cf4eb970",
+    "originalBytes": 242136,
+    "variants": [
+      {
+        "file": "fabmanager-04-640-F9E4243B.webp",
+        "width": 640,
+        "bytes": 53740
+      },
+      {
+        "file": "fabmanager-04-912-E073FB41.webp",
+        "width": 912,
+        "bytes": 89712
+      }
+    ]
+  },
+  "fabmanager-05.png": {
+    "recipe": 3,
+    "digest": "39ee9c68475d4fbec09b4b6932eeea086a7b10a1ead3360011bd56da3baef04c",
+    "originalBytes": 145585,
+    "variants": [
+      {
+        "file": "fabmanager-05-640-54A54665.webp",
+        "width": 640,
+        "bytes": 31280
+      },
+      {
+        "file": "fabmanager-05-912-061726DA.webp",
+        "width": 912,
+        "bytes": 44486
+      }
+    ]
+  },
+  "fabmanager-06.png": {
+    "recipe": 3,
+    "digest": "be4bd67fffabb38f67f59d57d0d2b5fa282da66a7b992db71db3df0c14fde0f5",
+    "originalBytes": 897873,
+    "variants": [
+      {
+        "file": "fabmanager-06-640-DD972B82.webp",
+        "width": 640,
+        "bytes": 53560
+      },
+      {
+        "file": "fabmanager-06-960-65ABDF1F.webp",
+        "width": 960,
+        "bytes": 93186
+      },
+      {
+        "file": "fabmanager-06-1280-E10D76AD.webp",
+        "width": 1280,
+        "bytes": 133930
+      },
+      {
+        "file": "fabmanager-06-1856-F232650D.webp",
+        "width": 1856,
+        "bytes": 210064
+      }
+    ]
+  },
+  "fabmanager-07.png": {
+    "recipe": 3,
+    "digest": "83a010cb780588d03c7128f9797d25d5a5a55b7a5b68e7c80f46e60cffa3c79b",
+    "originalBytes": 3628752,
+    "variants": [
+      {
+        "file": "fabmanager-07-640-868E355C.webp",
+        "width": 640,
+        "bytes": 23188
+      },
+      {
+        "file": "fabmanager-07-960-6BFC2C5D.webp",
+        "width": 960,
+        "bytes": 37754
+      },
+      {
+        "file": "fabmanager-07-1280-64E3008F.webp",
+        "width": 1280,
+        "bytes": 53244
+      },
+      {
+        "file": "fabmanager-07-1856-33251140.webp",
+        "width": 1856,
+        "bytes": 85730
       }
     ]
   }

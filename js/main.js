@@ -55,7 +55,7 @@
     image.width = Number(link.dataset.width);
     image.height = Number(link.dataset.height);
     image.dataset.project = link.dataset.project;
-    image.style.setProperty("--angle", (reducedMotion.matches ? 0 : (Math.random() * 16 - 8)).toFixed(2) + "deg");
+    image.style.setProperty("--angle", (reducedMotion.matches ? 0 : (Math.random() * 14 - 7)).toFixed(2) + "deg");
     image.style.zIndex = String(++previewOrder);
     image.sizes = '(max-width: 700px) 76vw, (max-height: 580px) 40vw, (min-width: 1917px) 920px, 48vw';
     if (link.dataset.srcset) image.srcset = link.dataset.srcset;

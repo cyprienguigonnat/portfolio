@@ -24,7 +24,7 @@ for(const project of projects) {
   if(!/^[a-z][a-z-]*$/.test(project.slug) || !/^anchor-[a-z-]+$/.test(project.anchor))throw new Error('Identifiant de projet invalide');
   if(!Array.isArray(project.images) || !project.images.length)throw new Error('Projet sans image : '+project.slug);
   for(const image of project.images) {
-    if(!/^[a-z0-9_-]+\.png$/.test(image.file) || !image.alt || !Number.isInteger(image.width) || !Number.isInteger(image.height) || image.width<=0 || image.height<=0)throw new Error('Image invalide : '+project.slug);
+    if((!image.video && !/^[a-z0-9_-]+\.png$/.test(image.file)) || !image.alt || !Number.isInteger(image.width) || !Number.isInteger(image.height) || image.width<=0 || image.height<=0)throw new Error('Image invalide : '+project.slug);
   }
 }
 const escape = text => String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -127,7 +127,7 @@ write("index.html",documentPage({
   title:"Cyprien GUIGONNAT",kind:"home",
   content:header("home")+'\n<main id="mn" class="home-page" tabindex="-1">\n'
     +'<div class="home-identity"><h1 class="visually-hidden">Cyprien GUIGONNAT — Portfolio</h1>'+read("content/wordmark.svg")
-    +'<p class="wordmark-hint"><button class="wordmark-hint-default" type="button">[Bousculez-moi '+icon('arrow-up')+']</button><button class="wordmark-hint-return" type="button" hidden>[Ramenez-moi '+icon('rotate-ccw')+']</button></p>'
+    +'<p class="wordmark-hint"><button class="wordmark-hint-default" type="button">[ Bousculez-moi '+icon('arrow-up')+']</button><button class="wordmark-hint-return" type="button" hidden>[ Ramenez-moi '+icon('rotate-ccw')+']</button></p>'
     +'<span class="visually-hidden wordmark-status" aria-live="polite">Bousculez-moi</span></div>\n'
     +'<div class="preview-stage" aria-hidden="true"></div>\n'
     +'<nav id="projets" class="project-index" aria-label="Projets">\n'
@@ -162,10 +162,15 @@ fs.mkdirSync(path.join(root,"projets"),{recursive:true});
 projects.forEach((project,index)=>{
   const previous=projects[(index-1+projects.length)%projects.length];
   const next=projects[(index+1)%projects.length];
-  const rest=project.images.slice(1);
+  const rest=project.images.slice(1).filter(image=>!(project.slug==='fabmanager' && image.video));
   const gallery=rest.map((image,i)=>{
-    // Deux visuels équilibrés ; pour les séries longues, alterner 2/3 et 1/3.
-    const span=rest.length===2?3:rest.length%2===1&&i===rest.length-1?6:(i%4===0||i%4===3?4:2);
+    const infomaniakSpans=[6,6,6,3,3,6,6];
+    const franceTitresSpans=[6,6,6,3,3,6,6];
+    const fabManagerSpans=[6,3,3,6,6];
+    const span=project.slug==='fabmanager' ? (fabManagerSpans[i] || 6) : project.slug==='infomaniak' || project.slug==='fontlibrary' ? (infomaniakSpans[i] || 6) : project.slug==='france-titres' ? (franceTitresSpans[i] || 6) : (rest.length===2?3:rest.length%2===1&&i===rest.length-1?6:(i%4===0||i%4===3?4:2));
+    if(image.video) return '<figure class="gallery-image gallery-video gallery-span-'+span+'">'
+      +'<video class="project-video" width="'+image.width+'" height="'+image.height+'" controls loop muted playsinline preload="none" poster="../img/projets/'+escape(image.poster)+'" aria-label="'+escape(image.alt)+'">'
+      +'<source src="../img/'+escape(image.video)+'" type="video/mp4"></video></figure>';
     return '<figure class="gallery-image gallery-span-'+span+'">'+imageMarkup(image,"../","project-image",false,span)+'</figure>';
   }).join("\n");
   write("projets/"+project.slug+".html",documentPage({
@@ -174,9 +179,13 @@ projects.forEach((project,index)=>{
       +'<main id="mn" class="project-page" tabindex="-1">\n'
       +'<figure class="project-hero">'+imageMarkup(project.images[0],"../","hero-image",true)+'</figure>\n'
       +'<section class="project-description" aria-labelledby="project-title">\n'
-      +'<div class="project-heading"><h1 id="project-title">'+escape(project.title)+'</h1><p class="project-subtitle">'+escape(project.subtitle)+'</p><p class="project-date">'+escape(project.date)+'</p></div>\n'
+      +'<div class="project-heading"><h1 id="project-title">'+escape(project.title)+'</h1>'+(project.slug==='infomaniak'?'':'<p>'+escape(project.subtitle)+'</p>')+(project.date?'<p>'+escape(project.date)+'</p>':'')+'</div>\n'
       +'<div class="project-story">'+project.description+'</div>\n'
       +'<div class="project-details">'+project.details+'</div>\n</section>\n'
+      +(project.slug==='fabmanager'?'<figure class="project-image-after-text">'+(() => {
+        const image=project.images.find(image=>image.video);
+        return image.video ? '<video class="project-video" width="'+image.width+'" height="'+image.height+'" controls loop muted playsinline preload="none" poster="../img/projets/'+escape(image.poster)+'" aria-label="Démonstration de la page d’accueil de Fab Manager"><source src="../img/'+escape(image.video)+'" type="video/mp4"></video>' : imageMarkup(image,"../","project-image",false);
+      })()+'</figure>\n':'')
       +'<div class="project-gallery" role="group" aria-label="Images du projet">'+gallery+'</div>\n</main>\n'
       +'<footer class="page-footer project-pagination"><a href="../index.html">'+icon('rotate-ccw')+' Accueil</a>'
       +'<nav aria-label="Navigation entre les projets"><a href="'+previous.slug+'.html" rel="prev" aria-label="Projet précédent : '+escape(previous.title)+'">'+icon('arrow-left')+' Précédent</a>'

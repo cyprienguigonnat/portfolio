@@ -3,10 +3,10 @@
     "slug": "infomaniak",
     "anchor": "anchor-infomaniak",
     "title": "1. Infomaniak",
-    "subtitle": "Design produit des interfaces Calendar et kSuite",
-    "date": "En poste",
-    "description": "Chez Infomaniak, j’interviens en tant que Product Designer (UX/UI) sur les interfaces des outils collaboratifs. Cette sélection présente Calendar et kSuite, à travers la création d’événements et la présentation des offres.<br>&emsp;&emsp;Les écrans mettent en évidence l’organisation de l’agenda, les options associées aux rendez-vous et la mise en avant des fonctionnalités de la suite.",
-    "details": "&#10551; Product Designer (UX/UI), CDI, Genève<br>&#10551; Calendar et kSuite<br><br>&#10551; <a href=\"https://www.infomaniak.com/fr\" target=\"_blank\" rel=\"noopener noreferrer\">Infomaniak | The Ethical Cloud &#8599;</a>",
+    "subtitle": "Refonte de l’UX/UI de la modale de création d’événement de l’application Calendar",
+    "date": "Refonte de l’UX/UI de la modale de création d’évènement de l’application Calendar",
+    "description": "<a href=\"https://www.infomaniak.com/fr\" target=\"_blank\">Infomaniak &#8599;</a> développe la kSuite, un ensemble d’outils collaboratifs auquel appartient Calendar. En tant que Product Designer (UX/UI), j’ai travaillé sur la refonte de la modale de création d’événement de l’application.<br>&emsp;&emsp;J’ai repensé l’organisation des informations et des options pour rendre la création d’un événement plus claire et agréable à utiliser. La conception prend en compte les différents paramètres nécessaires à la planification, ainsi que l’accessibilité et le design system. Ce travail a été mené en lien étroit avec l’équipe produit et les développeurs.",
+    "details": "&#10551; Product Designer (UX/UI)<br>&#10551; CDI, Genève (12)<br>&#10551; 2025 / 2026<br><br>&#10551; <a href=\"https://www.infomaniak.com/fr\" target=\"_blank\" rel=\"noopener noreferrer\">Voir le site &#8599;</a>",
     "images": [
       {
         "file": "infomaniak-01.png",
@@ -15,16 +15,47 @@
         "height": 941
       },
       {
-        "file": "infomaniak-02.png",
-        "alt": "Création d’un événement dans Infomaniak Calendar sur fond bleu",
+        "video": "projets/infomaniak-calendar-video.mp4",
+        "poster": "infomaniak-video-poster.webp",
+        "alt": "Interface desktop Infomaniak Calendar avec une fenêtre de création d’événement",
+        "width": 1672,
+        "height": 942
+      },
+      {
+        "file": "infomaniak-03.png",
+        "alt": "Montage de vues mobiles d’Infomaniak Calendar pour la création et la gestion d’un événement",
         "width": 1672,
         "height": 941
       },
       {
-        "file": "infomaniak-03.png",
-        "alt": "Présentation de l’offre Standard de kSuite sur fond bleu",
+        "file": "infomaniak-04.png",
+        "alt": "Deux collègues utilisent une interface Infomaniak dans un espace de travail",
         "width": 1672,
         "height": 941
+      },
+      {
+        "file": "infomaniak-05.png",
+        "alt": "Composition de composants Infomaniak Calendar : champs de titre, états d’événement, actions et aperçu de l’agenda",
+        "width": 912,
+        "height": 1216
+      },
+      {
+        "file": "infomaniak-06.png",
+        "alt": "Vue mobile d’Infomaniak Calendar dans un téléphone",
+        "width": 1672,
+        "height": 2229
+      },
+      {
+        "file": "infomaniak-07.png",
+        "alt": "Détail d’un événement Infomaniak Calendar avec participants, lieu et actions",
+        "width": 1672,
+        "height": 1045
+      },
+      {
+        "file": "infomaniak-08.png",
+        "alt": "Mise en scène d’une publication kSuite avec une proposition de planification",
+        "width": 1672,
+        "height": 1095
       }
     ]
   },
@@ -32,10 +63,10 @@
     "slug": "france-titres",
     "anchor": "anchor-france-titres",
     "title": "2. France Titres - ANTS",
-    "subtitle": "UX/UI des services et démarches administratives en ligne",
-    "date": "2023 / 2024",
-    "description": "Au sein de France Titres - ANTS, j’ai travaillé en tant que UX/UI designer lors d’un stage puis d’une alternance.<br>&emsp;&emsp;Cette sélection présente les interfaces des services en ligne et le parcours de demande de permis de conduire : l’accès aux démarches depuis l’accueil, la préparation des pièces nécessaires et la progression dans le formulaire.",
-    "details": "&#10551; UX/UI designer, stage et alternance<br>&#10551; Mai 2023 / septembre 2023 à août 2024<br><br>&#10551; <a href=\"https://ants.gouv.fr/\" target=\"_blank\" rel=\"noopener noreferrer\">France Titres - ANTS &#8599;</a>",
+    "subtitle": "Refonte de l’UX/UI des démarches en ligne du permis de conduire",
+    "date": "",
+    "description": "<a href=\"https://ants.gouv.fr/\" target=\"_blank\">France Titres - ANTS &#8599;</a> est l’établissement public qui accompagne les usagers dans leurs démarches liées aux titres sécurisés. Lors d’un stage puis d’une alternance, j’ai travaillé à la refonte des démarches en ligne du permis de conduire, de la carte d’identité et du passeport.<br>&emsp;&emsp;En m’appuyant sur le Système de Design de l’État (DSFR), j’ai conçu et adapté des interfaces et des composants pour clarifier les exigences administratives et guider les usagers dans leurs démarches. Ce travail s’est construit avec les équipes et les développeurs, à partir de recherches et d’ateliers de conception, dans le respect des règles d’accessibilité et de protection des données. Cette sélection met notamment en lumière le parcours de demande de permis de conduire, de l’accès aux démarches jusqu’à la progression dans le formulaire.",
+    "details": "&#10551; UX/UI Designer<br>&#10551; Contrat d’alternance, Charleville-Mézières (08)<br>&#10551; 2023 / 2024<br><br>&#10551; <a href=\"https://ants.gouv.fr/\" target=\"_blank\" rel=\"noopener noreferrer\">Voir le site &#8599;</a>",
     "images": [
       {
         "file": "france-titres-01.png",
@@ -44,16 +75,47 @@
         "height": 941
       },
       {
-        "file": "france-titres-02.png",
-        "alt": "Accueil France Titres et accès aux démarches sur fond bleu institutionnel",
+        "video": "projets/france-titres-video.mp4",
+        "poster": "france-titres-video-poster.webp",
+        "alt": "Démonstration du parcours France Titres, sur une photographie floue d’un espace France services",
         "width": 1672,
         "height": 941
       },
       {
         "file": "france-titres-03.png",
-        "alt": "Première étape de la demande de permis de conduire et présentation des pièces nécessaires",
+        "alt": "Atelier de conception réunissant l’équipe autour du parcours France Titres",
+        "width": 1856,
+        "height": 1044
+      },
+      {
+        "file": "france-titres-04.png",
+        "alt": "Planche d’ambiance et éléments de direction artistique pour France Titres",
         "width": 1672,
         "height": 941
+      },
+      {
+        "file": "france-titres-05.png",
+        "alt": "Interface mobile France Titres présentée dans un téléphone",
+        "width": 912,
+        "height": 1216
+      },
+      {
+        "file": "france-titres-06.png",
+        "alt": "Interface mobile Infomaniak Calendar présentée dans un téléphone",
+        "width": 912,
+        "height": 1216
+      },
+      {
+        "file": "france-titres-07.png",
+        "alt": "Parcours détaillé de demande de permis de conduire dans France Titres",
+        "width": 2090,
+        "height": 3153
+      },
+      {
+        "file": "france-titres-08.png",
+        "alt": "Publication de communication autour du permis de conduire",
+        "width": 1672,
+        "height": 1095
       }
     ]
   },
@@ -62,33 +124,58 @@
     "anchor": "anchor-fontlibrary",
     "title": "3. Font Library",
     "subtitle": "Refonte de l’UX/UI du site web typographique libre",
-    "date": "2022",
+    "date": "",
     "description": "<a href=\"https://fontlibrary.org/\" target=\"_blank\">Font Library &#8599;</a> est un site web dédié à l'hébergement de polices sous licence libre et à l'encouragement de leur développement collaboratif. En collaboration avec Clément Rénaud, créateur de Font Library, nous avons cherché à valoriser la diversité des styles typographiques de tout en offrant une expérience usager (UX) adéquate à l’identité graphique existante de Font Library (UI).<br>&emsp;&emsp;À travers les échanges effectuées avec Clément Rénaud et les usagers de Font Library, j’ai été amené à segmenter le parcours usager à travers trois principales caractéristiques de Font Library : le filtre, les résultats, la collection. Ainsi, sous la forme de colonnes séparées équitablement, l’usager peut fermer ces dernières afin d’agrandir le champ de vision de sa recherche typographique. Telles un livre, les animations « défilent » pour montrer que l’usager a la maîtrise de sa navigation.",
-    "details": "&#10551; Conduite d’entretien, Figma<br>&#10551; 1 semaine d’échange, 1 semaine d’étude et 1 semaine de conception<br>&#10551; 2022<br><br>&#10551; <a href=\"https://www.figma.com/proto/rVsd2kkGFsSht7oGTW4mZ3/P2-%E2%80%A2-Font-Library?page-id=1%3A2&node-id=320%3A53033&viewport=269%2C12%2C0.05&scaling=contain&starting-point-node-id=300%3A37510&hotspot-hints=0\">Prototype interactif &#8599;</a>",
+    "details": "&#10551; UX/UI Designer<br>&#10551; Projet, Villefontaine (38)<br>&#10551; 2022 / 2023<br><br>&#10551; <a href=\"https://www.figma.com/proto/rVsd2kkGFsSht7oGTW4mZ3/P2-%E2%80%A2-Font-Library?page-id=1%3A2&node-id=320%3A53033&viewport=269%2C12%2C0.05&scaling=contain&starting-point-node-id=300%3A37510&hotspot-hints=0\" target=\"_blank\" rel=\"noopener noreferrer\">Prototype interactif &#8599;</a><br>&#10551; <a href=\"https://fontlibrary.org/\" target=\"_blank\" rel=\"noopener noreferrer\">Voir le site &#8599;</a>",
     "images": [
       {
-        "file": "g6_01.png",
-        "alt": "Vue d'ensemble de l'interface redesignée de Font Library en trois colonnes",
-        "width": 1920,
-        "height": 1200
+        "file": "fontlibrary-01.png",
+        "alt": "Interface de Font Library en trois colonnes sur un ordinateur portable utilisé en extérieur",
+        "width": 1672,
+        "height": 941
       },
       {
-        "file": "g6_02.png",
-        "alt": "Panneau de filtres typographiques de Font Library redesigné",
-        "width": 1920,
-        "height": 1200
+        "video": "projets/fontlibrary-video.mp4",
+        "poster": "fontlibrary-video-poster.webp",
+        "alt": "Démonstration de l’interface de Font Library sur une photographie floue de bibliothèque",
+        "width": 1856,
+        "height": 1044
       },
       {
-        "file": "g6_03.png",
+        "file": "fontlibrary-03.png",
         "alt": "Grille de résultats de polices avec prévisualisation typographique",
-        "width": 1920,
-        "height": 1200
+        "width": 1856,
+        "height": 1044
       },
       {
-        "file": "g6_04.png",
+        "file": "fontlibrary-04.png",
         "alt": "Écran de gestion de la collection personnelle de polices",
-        "width": 1920,
-        "height": 1200
+        "width": 1856,
+        "height": 1044
+      },
+      {
+        "file": "fontlibrary-05.png",
+        "alt": "Vue mobile du panneau de filtres de Font Library",
+        "width": 912,
+        "height": 1216
+      },
+      {
+        "file": "fontlibrary-06.png",
+        "alt": "Vue mobile des résultats typographiques de Font Library",
+        "width": 912,
+        "height": 1216
+      },
+      {
+        "file": "fontlibrary-07.png",
+        "alt": "Interface de Font Library avec ses trois espaces de navigation",
+        "width": 1856,
+        "height": 1044
+      },
+      {
+        "file": "fontlibrary-08.png",
+        "alt": "Vue détaillée de l’interface de Font Library",
+        "width": 1856,
+        "height": 1216
       }
     ]
   },
@@ -97,27 +184,52 @@
     "anchor": "anchor-fabmanager",
     "title": "4. Fab Manager",
     "subtitle": "Identité graphique et UX nouvelle de la page d’accueil du site web",
-    "date": "2021 / 2022",
+    "date": "",
     "description": "<a href=\"https://www.fab-manager.com/fr\" target=\"_blank\">Fab Manager &#8599;</a> est une application web dirigée par l’agence <a href=\"https://www.sleede.com/\" target=\"_blank\">Sleede &#8599;</a> — dans laquelle j’ai fait mon apprentissage — permettant de faciliter la gestion des tiers-lieux, et plus particulièrement les fab labs. Dans le cadre d’un projet professionnel, j’ai proposé une refonte du site vitrine de Fab Manager.<br>&emsp;&emsp;En établissant un audit détaillé de l’existant, sur les différents éléments qui le composent (grille de mise en page, typographie, boutons, images et couleurs), j’ai travaillé sur le renouvellement de ces éléments. Le choix des typographies Epilogue (pour les titres) et Work Sans (pour le texte) en addition aux illustrations donnent une assurance et une image sérieuse au logiciel. J’ai pu retravailler la charte graphique de Fab Manager pour à partir de la documentation <a href=\"https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html\" target=\"_blank\">W3C &#8599;</a> de l’accessibilité numérique. De plus, la grille de mise en page est linéaire, chacune des séquences proposées à l’usager est déterminée par une hiérarchisation de l’information claire et structurée.",
-    "details": "&#10551; Audit, Communication avec les métiers du web (chef de projet, développeurs, marketing), Notion, Illustrator, Figma<br>&#10551; 4 semaines d’étude et 4 semaines de conception<br>&#10551; 2021 / 2022<br><br>&#10551;<a href=\"https://www.figma.com/proto/oNzLj1dIJFcrE2k6SrNzdg/Fab-Manager?page-id=2%3A2&node-id=401%3A538&viewport=278%2C82%2C0.14&scaling=scale-down&starting-point-node-id=401%3A538&hotspot-hints=0\" target=\"_blank\">Prototype interactif &#8599;</a><br>&#10551;<a href=\"https://cypguigo.notion.site/Rapport-Site-vitrine-Fab-Manager-ef566d16b4dc42809efc22269112f482\" target=\"_blank\">Audit &#8599;</a>",
+    "details": "&#10551; UX/UI Designer<br>&#10551; Contrat d’alternance, Grenoble (38)<br>&#10551; 2021 / 2022<br><br>&#10551; <a href=\"https://www.figma.com/proto/oNzLj1dIJFcrE2k6SrNzdg/Fab-Manager?page-id=2%3A2&node-id=401%3A538&viewport=278%2C82%2C0.14&scaling=scale-down&starting-point-node-id=401%3A538&hotspot-hints=0\" target=\"_blank\" rel=\"noopener noreferrer\">Prototype interactif &#8599;</a><br>&#10551; <a href=\"https://cypguigo.notion.site/Rapport-Site-vitrine-Fab-Manager-ef566d16b4dc42809efc22269112f482\" target=\"_blank\" rel=\"noopener noreferrer\">Audit &#8599;</a>",
     "images": [
       {
-        "file": "g9_01.png",
-        "alt": "Vue d'ensemble de la page d'accueil redesignée de Fab Manager",
-        "width": 1920,
-        "height": 1200
+        "file": "fabmanager-01.png",
+        "alt": "Page d’accueil de Fab Manager affichée sur un ordinateur portable utilisé en extérieur",
+        "width": 1672,
+        "height": 941
       },
       {
-        "file": "g9_02.png",
+        "video": "projets/fabmanager-video.mp4",
+        "poster": "fabmanager-video-poster.webp",
+        "alt": "Vue d’ensemble de la page d’accueil redesignée de Fab Manager",
+        "width": 1856,
+        "height": 1044
+      },
+      {
+        "file": "fabmanager-03.png",
         "alt": "Présentation des typographies Epilogue et Work Sans choisies pour Fab Manager",
-        "width": 1920,
-        "height": 1202
+        "width": 1856,
+        "height": 1044
       },
       {
-        "file": "g9_03.png",
+        "file": "fabmanager-04.png",
         "alt": "Déclinaison de la nouvelle charte graphique et palette de couleurs de Fab Manager",
-        "width": 1920,
-        "height": 1200
+        "width": 912,
+        "height": 1216
+      },
+      {
+        "file": "fabmanager-05.png",
+        "alt": "Écran de présentation de l’interface Fab Manager",
+        "width": 912,
+        "height": 1216
+      },
+      {
+        "file": "fabmanager-06.png",
+        "alt": "Écran complémentaire de l’interface Fab Manager",
+        "width": 1856,
+        "height": 2799
+      },
+      {
+        "file": "fabmanager-07.png",
+        "alt": "Publication sociale Fab Manager avec avatar et icônes de réaction",
+        "width": 1856,
+        "height": 1216
       }
     ]
   }

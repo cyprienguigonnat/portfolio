@@ -75,9 +75,7 @@ ul { margin: 0; padding-left: 1em; }
   vertical-align: middle;
 }
 button:has(> .icon):hover,
-a:has(> .icon):hover,
-.project-story a:has(> .icon),
-.project-details a:has(> .icon) {
+a:has(> .icon):hover {
   text-decoration: none;
   background-image: linear-gradient(currentColor, currentColor);
   background-repeat: no-repeat;
@@ -218,13 +216,12 @@ a:has(> .icon):hover,
 }
 .project-link {
   display: inline-block;
-  text-transform: uppercase;
+  font-weight: 400;
   text-decoration-thickness: 2px;
 }
 .project-link h2 {
   margin: 0;
-  font-size: 16px;
-  line-height: 1.2;
+  font-weight: 400;
 }
 .preview-stage {
   position: absolute;
@@ -301,6 +298,7 @@ body.is-navigating a { cursor: progress; }
   width: 100%;
   height: auto;
 }
+.project-image-after-text { margin: 0 0 var(--gap); }
 .project-description {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -309,10 +307,11 @@ body.is-navigating a { cursor: progress; }
   padding-block: 24px;
 }
 .project-heading, .project-story, .project-details { min-width: 0; }
-.project-subtitle { font-weight: 700; }
 .project-date { margin-top: 8px; }
 .project-story, .project-details { line-height: 1.4; }
-.project-story a, .project-details a { text-decoration: underline; text-underline-offset: .2em; }
+.project-story a, .project-details a { text-decoration: none; }
+.project-story a:hover, .project-details a:hover { text-decoration: underline; text-underline-offset: .2em; }
+.project-story a:has(> .icon):hover, .project-details a:has(> .icon):hover { text-decoration: none; }
 .project-gallery {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -323,7 +322,13 @@ body.is-navigating a { cursor: progress; }
 .gallery-span-3 { grid-column: span 3; }
 .gallery-span-4 { grid-column: span 4; }
 .gallery-span-6 { grid-column: 1 / -1; }
+.project-video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 .project-pagination nav { display: flex; gap: 24px; }
+.project-image-after-text .project-video { aspect-ratio: 1856 / 1044; height: auto; }
 @media (max-width: 1050px) {
   .site-header { flex-wrap: wrap; }
   .project-index ul { gap: 8px 20px; }
