@@ -163,6 +163,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
         physics.collide(letters,size,letter);
         updateHint();
         letters.forEach(render);
+        start();
       }
       letter.lastPX=event.clientX;letter.lastPY=event.clientY;letter.lastTime=now;
     } else if(event.pointerType!=='touch' && !reduced.matches && !identity.classList.contains('is-arriving')) {

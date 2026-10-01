@@ -9,7 +9,7 @@ class Element {
  querySelectorAll(selector){return this.children.flatMap(c=>[...(selector==='svg'?c.name==='svg':c.classes.has(selector.slice(1)))?[c]:[],...c.querySelectorAll(selector)]);}
  querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
  contains(el){return el===this||this.children.some(c=>c.contains(el));} closest(){return null;}
- getBBox(){return{x:0,y:0,width:100,height:124};} getBoundingClientRect(){return{width:390,height:844};}
+ getBBox(){return this.box??{x:0,y:0,width:100,height:124};} getBoundingClientRect(){return{width:390,height:844};}
  addEventListener(type,fn){(this.handlers[type]??=[]).push(fn);}
  setPointerCapture(id){this.capture=id;} hasPointerCapture(id){return this.capture===id;} releasePointerCapture(){this.capture=null;}
 }
@@ -18,6 +18,9 @@ function run(pointerEvents){
  const identity=new Element(),svg=new Element('svg'),entry=new Element(),letter=new Element();
  const hint=new Element('p'),scatterButton=new Element('button'),returnButton=new Element('button'),status=new Element('span');
  entry.classList.add('letter-entry');letter.classList.add('wordmark-letter');entry.append(letter);svg.append(entry);identity.append(svg);
+ const secondEntry=new Element(),secondLetter=new Element();
+ secondEntry.classList.add('letter-entry');secondLetter.classList.add('wordmark-letter');
+ secondLetter.box={x:125,y:0,width:100,height:124};secondEntry.append(secondLetter);svg.append(secondEntry);
  hint.classList.add('wordmark-hint');scatterButton.classList.add('wordmark-hint-default');returnButton.classList.add('wordmark-hint-return');status.classList.add('wordmark-status');
  returnButton.hidden=true;hint.append(scatterButton);hint.append(returnButton);identity.append(hint);identity.append(status);
  const window={PortfolioLetterPhysics:physics,addEventListener:(type,fn)=>(handlers[type]??=[]).push(fn)};
@@ -33,6 +36,14 @@ function run(pointerEvents){
   handlers[type].forEach(fn=>fn(event));
  };
  const advance=(seconds)=>{for(let i=0;i<seconds*120;i++){now+=1000/120;const pending=[...frames];frames.clear();pending.forEach(([,fn])=>fn(now));}};
+ const types=pointerEvents?['pointerdown','pointermove','pointerup']:['touchstart','touchmove','touchend'];
+ emit(types[0],26,422);now+=16;emit(types[1],50,422);
+ assert.equal(secondLetter.dataset.motion,'floating','La collision tactile réveille la lettre voisine');
+ const collisionTransform=secondLetter.attrs.transform;
+ advance(.2);
+ assert.notEqual(secondLetter.attrs.transform,collisionTransform,'La lettre percutée continue à bouger pendant le maintien du doigt');
+ assert.equal(letter.dataset.motion,'dragging');
+ emit(types[2],50,422);returnButton.handlers.click[0]();advance(8);
  scatterButton.handlers.click[0]();
  assert.equal(letter.dataset.motion,'floating','Bousculez-moi disperse la lettre');
  assert.equal(letter.attrs.transform,'translate(0.000 0.000) rotate(0.000 50 62)','La dispersion part de la position initiale');
@@ -52,7 +63,6 @@ function run(pointerEvents){
   assert.equal(letter.dataset.motion,'hover-returning','La sortie déclenche seulement le retour du survol');
   advance(4);assert.equal(letter.dataset.motion,'idle');
  }
- const types=pointerEvents?['pointerdown','pointermove','pointerup']:['touchstart','touchmove','touchend'];
  emit(types[0],26,422);now+=16;emit(types[1],290,150);emit(types[2],290,150);
  assert.equal(letter.dataset.motion,'floating');
  assert.ok(!svg.hasPointerCapture(7));

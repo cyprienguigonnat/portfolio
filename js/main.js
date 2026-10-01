@@ -249,6 +249,10 @@
     document.body.classList.add("is-navigating");
     shell().setAttribute("aria-busy", "true");
     const oldProject = shell().dataset.project;
+    // Les sorties de projet vers l'accueil ou la page d'origine sont immédiates.
+    const animateTransition = !reducedMotion.matches && !(oldProject &&
+      (options.link?.matches('.project-close') || /\/(?:index\.html)?$/.test(url.pathname) ||
+        (options.history === false && !/\/projets\/[a-z-]+\.html$/.test(url.pathname))));
     let source = null;
     let hiddenImage = null;
     let flight = null;
@@ -278,13 +282,11 @@
       if (queuedNavigation?.options.history === false) return;
       // Mesurer au dernier moment : un survol peut finir pendant le chargement.
       let sourceImage=null;
-      if (!reducedMotion.matches && options.link?.isConnected && options.link.matches('.project-link')) {
+      if (animateTransition && options.link?.isConnected && options.link.matches('.project-link')) {
         sourceImage=showPreview(options.link,true);
-      } else if (!reducedMotion.matches && oldProject && /\/(?:index\.html)?$/.test(url.pathname)) {
-        sourceImage=shell().querySelector('.hero-image');
       }
       source=imageBox(sourceImage);
-      if(!reducedMotion.matches)outgoing=snapshotPage(source?sourceImage:null);
+      if(animateTransition)outgoing=snapshotPage(source?sourceImage:null);
       inputLock=new AbortController();
       const stopScroll=event=>event.preventDefault();
       window.addEventListener('wheel',stopScroll,{passive:false,signal:inputLock.signal});
@@ -302,10 +304,9 @@
       let homeLink = null;
       if (next.dataset.page === "home" && oldProject) {
         homeLink = [...next.querySelectorAll(".project-link")].find(link => link.dataset.project === oldProject);
-        // Au retour d'un projet, le fondu commence dès le clic de fermeture.
-        target = source && homeLink ? showPreview(homeLink, true, 0) : null;
+        target = null;
       }
-      if (!reducedMotion.matches) {
+      if (animateTransition) {
         const destination = imageBox(target);
         if (source && destination) {
           hiddenImage = target;
