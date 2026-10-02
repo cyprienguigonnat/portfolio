@@ -94,7 +94,7 @@ async function settled(page) {
     assert.equal(await page.locator(':focus').textContent(),'Navigation');
     await page.keyboard.press('Enter');
     assert.equal(await page.locator(':focus').getAttribute('id'),'hdr');
-    assert.equal(await page.locator(':focus').evaluate(element => getComputedStyle(element).outlineStyle),'none');
+    assert.equal(await page.locator(':focus').evaluate(element => getComputedStyle(element).outlineStyle),'solid');
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus').getAttribute('id'),'nav-home');
     assert.equal(await page.locator(':focus').textContent(),'Accueil');
@@ -110,7 +110,7 @@ async function settled(page) {
     await page.locator('.skiplinks a').nth(1).focus();
     await page.keyboard.press('Enter');
     assert.equal(await page.locator(':focus').getAttribute('id'),'hdr');
-    assert.equal(await page.locator(':focus').evaluate(element => getComputedStyle(element).outlineStyle),'none');
+    assert.equal(await page.locator(':focus').evaluate(element => getComputedStyle(element).outlineStyle),'solid');
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus').getAttribute('id'),'nav-home');
     assert.equal((await page.locator(':focus').textContent()).trim(),'Fermer');

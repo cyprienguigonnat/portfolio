@@ -96,7 +96,7 @@ function documentPage({title, kind, prefix="", slug="", content}) {
   return '<!doctype html>\n<html lang="fr">\n<head>\n'+head(title,prefix)
     + '\n<script src="'+prefix+runtimeFile+'" defer></script>\n</head>\n'
     + '<body data-page="'+kind+'">\n'
-    + '<div id="site-loader" hidden role="status" aria-label="Chargement du site"><span aria-hidden="true">0 %</span></div>\n'
+    + '<div id="site-loader" hidden role="status" aria-label="Chargement du site"><span>0 %</span></div>\n'
     + skiplinks()+'\n'
     + '<div id="site-shell" data-page="'+kind+'"'+(slug?' data-project="'+slug+'"':'')+'>\n'
     + secureLinks(replaceIconTokens(content))+'\n</div>\n<div id="transition-layer" aria-hidden="true"></div>\n</body>\n</html>\n';

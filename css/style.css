@@ -53,7 +53,7 @@ a:focus-visible, button:focus-visible, [role="button"]:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 5px;
 }
-[tabindex="-1"]:focus { outline: none; }
+[tabindex="-1"]:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
 [id] { scroll-margin-top: var(--gutter); }
 ul { margin: 0; padding-left: 1em; }
 .visually-hidden {
