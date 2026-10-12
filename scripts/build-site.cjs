@@ -112,10 +112,10 @@ function srcset(image,prefix) {
 function imageMarkup(image, prefix, className, eager = false, span = 6) {
   const sizes=span===6?'calc(100vw - 32px)':'(max-width: 700px) calc(100vw - 32px), calc((100vw - 32px - clamp(20px, 1.7vw, 40px) * '+(6/span-1)+') / '+(6/span)+')';
   const source=srcset(image,prefix);
-  return (source?'<picture><source type="image/webp" srcset="'+source+'" sizes="'+sizes+'">':'')
+  return '<span class="project-image-frame"><span class="project-image-placeholder" aria-hidden="true">'+escape(image.alt)+'</span>'+(source?'<picture><source type="image/webp" srcset="'+source+'" sizes="'+sizes+'">':'')
     +'<img class="'+className+'" src="'+prefix+'img/projets/'+escape(image.file)+'" alt="'+escape(image.alt)
     +'" width="'+image.width+'" height="'+image.height+'" loading="'+(eager?'eager':'lazy')
-    +'" decoding="async"'+(eager?' fetchpriority="high"':'')+'>'+(source?'</picture>':'');
+    +'" decoding="async"'+(eager?' fetchpriority="high"':'')+'>'+(source?'</picture>':'')+'</span>';
 }
 
 const links = projects.map(project => {

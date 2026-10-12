@@ -59,6 +59,30 @@ async function settled(page) {
       await context.close();
     }
     const page = await browser.newPage({viewport:{width:1440,height:900}});
+    // Le bouton doit rester centré pendant et après le retour à l'accueil.
+    for (const width of [1440,390,320]) {
+      await page.setViewportSize({width,height:900});
+      await page.goto(base+'/informations.html'); await settled(page);
+      if(width<=700)await page.locator('.menu-toggle').click();
+      await page.locator('#nav-home').click();
+      await page.waitForSelector('#site-shell[data-page="home"] .wordmark-hint');
+      const positions = await page.evaluate(() => new Promise(resolve => {
+        const samples=[];
+        const start=performance.now();
+        function sample(now) {
+          const hint=document.querySelector('#site-shell .wordmark-hint');
+          const rect=hint.getBoundingClientRect();
+          const identity=hint.parentElement.getBoundingClientRect();
+          samples.push({center:rect.x+rect.width/2,expected:identity.x+identity.width/2,top:rect.top});
+          if(now-start<700)requestAnimationFrame(sample);else resolve(samples);
+        }
+        requestAnimationFrame(sample);
+      }));
+      assert.ok(positions.every(sample=>Math.abs(sample.center-sample.expected)<1),width+' wordmark button stays centered during navigation');
+      assert.ok(Math.max(...positions.map(sample=>sample.top))-Math.min(...positions.map(sample=>sample.top))<1,width+' wordmark button stays vertically stable');
+      await settled(page);
+    }
+    await page.setViewportSize({width:1440,height:900});
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(base+'/index.html'); await settled(page); await page.waitForTimeout(1200);
     const idleMutations = await page.evaluate(() => new Promise(resolve => {

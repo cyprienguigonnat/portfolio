@@ -33,6 +33,13 @@
     disposeMenu();
     disposeWordmark();
     document.body.dataset.page = shell().dataset.page;
+    shell().querySelectorAll('.project-image-frame').forEach(frame => {
+      const image = frame.querySelector('img');
+      const update = () => frame.classList.toggle('is-loaded', image.complete && image.naturalWidth > 0);
+      image.addEventListener('load', update);
+      image.addEventListener('error', update);
+      update();
+    });
     const closeLink = shell().querySelector('.project-close');
     if (closeLink && history.state?.returnTo) closeLink.href = history.state.returnTo;
     headerObserver?.disconnect();
@@ -50,7 +57,7 @@
     const selector = '#mn h1:not(.visually-hidden), #mn h2, #mn p, #mn li';
     const easing = getComputedStyle(document.documentElement).getPropertyValue('--ease').trim();
     const elements = [...page.querySelectorAll(selector)]
-      .filter(element => !element.querySelector(selector));
+      .filter(element => !element.querySelector(selector) && !element.closest('.home-identity'));
     elements.forEach((element, index) => {
       element.animate([
         {opacity:0.8, transform:'translateY(8px)'},
@@ -343,6 +350,8 @@
       if (queuedNavigation?.options.history === false) return;
       const doc = new DOMParser().parseFromString(html, "text/html");
       const next = doc.getElementById("site-shell");
+      const betweenProjects = Boolean(oldProject && next.dataset.page === "project");
+      const navigationEase = getComputedStyle(root).getPropertyValue('--ease').trim();
       const incomingHero = next.querySelector(".hero-image");
       if (incomingHero) {
         const loader = new Image();
@@ -370,6 +379,20 @@
       const stopScroll=event=>event.preventDefault();
       window.addEventListener('wheel',stopScroll,{passive:false,signal:inputLock.signal});
       window.addEventListener('touchmove',stopScroll,{passive:false,signal:inputLock.signal});
+      // Deux phases courtes évitent de superposer les contenus des projets.
+      if (animateTransition && betweenProjects) {
+        const departure = shell().animate([{opacity:1},{opacity:0}], {
+          duration:125, easing:navigationEase, fill:'forwards'
+        });
+        const snapshotDeparture = outgoing.animate([{opacity:1},{opacity:0}], {
+          duration:125, easing:navigationEase, fill:'forwards'
+        });
+        await Promise.allSettled([departure.finished, snapshotDeparture.finished]);
+        departure.cancel();
+        if (queuedNavigation?.options.history === false) return;
+        outgoing?.remove();
+        outgoing = null;
+      }
       if (options.history !== false) {
         history.replaceState({...history.state, scrollY:window.scrollY}, "", location.href);
         history.pushState({scrollY:0, ...closeDestinationFor(next.dataset.page)}, "", url);
@@ -379,7 +402,7 @@
       document.title = doc.title;
       initPage();
       scrollToDestination(url, options.scrollY);
-      if (!reducedMotion.matches) animateIncomingText(next);
+      if (!reducedMotion.matches && !betweenProjects) animateIncomingText(next);
       let target = next.querySelector(".hero-image");
       let homeLink = null;
       if (next.dataset.page === "home" && oldProject) {
@@ -395,7 +418,7 @@
         }
         const reveal = next.animate([
           {opacity:0}, {opacity:1}
-        ], {duration:flight?600:450, easing:"cubic-bezier(.22, 1, .36, 1)"});
+        ], {duration:betweenProjects?125:flight?600:450, easing:navigationEase});
         const dismiss=outgoing?.animate([{opacity:1},{opacity:0}],{duration:flight?500:450,easing:'ease-in-out',fill:'forwards'});
         await Promise.allSettled([reveal.finished, dismiss?.finished, flight?.animation.finished]);
       }
