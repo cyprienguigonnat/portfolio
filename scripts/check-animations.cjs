@@ -94,6 +94,7 @@ async function animatedNavigation(page,action,destination,{imageFlight=false}={}
       await instantNavigation(page,()=>page.getByRole('link',{name:'Accueil',exact:true}).click(),/\/index\.html$/);
       await page.goto(base+'/projets/infomaniak.html');await settled(page);
       await instantNavigation(page,()=>page.locator('.project-close').click(),/\/index\.html$/);
+      if(width<=700)await page.getByRole('button',{name:'Menu',exact:true}).click();
       await page.getByRole('link',{name:'Données du site',exact:true}).click();await settled(page);
       await page.locator('a[href="projets/infomaniak.html"]').click();await settled(page);
       await instantNavigation(page,()=>page.locator('.project-close').click(),/\/donnees-du-site\.html$/);

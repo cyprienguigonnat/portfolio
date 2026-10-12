@@ -82,12 +82,15 @@ function head(title, prefix) {
 }
 function header(active = "") {
   return '<header id="hdr" class="site-header" tabindex="-1">\n'
+    + '<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="header-menu" hidden>Menu</button>\n'
+    + '<div id="header-menu" class="header-menu">\n'
     + '<nav class="header-tabs" aria-label="Navigation principale">'
     + '<a id="nav-home" href="index.html"'+(active==="home"?' aria-current="page"':'')+'>Accueil</a>'
     + '<a href="informations.html"'+(active==="informations"?' aria-current="page"':'')+'>Informations</a>'
     + '<a href="donnees-du-site.html"'+(active==="donnees"?' aria-current="page"':'')+'>Données du site</a>'
-    + '</nav>\n<nav class="header-contacts" aria-label="Contacts et réseaux sociaux">'
-    + read("content/contacts.html")+'</nav>\n</header>';
+    + '</nav></div>\n<button class="contact-toggle" type="button" aria-expanded="false" aria-controls="header-contact" hidden>Contact</button>\n'
+    + '<div id="header-contact" class="header-contact"><nav class="header-contacts" aria-label="Contacts et réseaux sociaux">'
+    + read("content/contacts.html")+'</nav></div>\n</header>';
 }
 function skiplinks() {
   return '<nav class="skiplinks" aria-label="Accès rapide"><a href="#mn">Contenu</a><a href="#hdr">Navigation</a></nav>';

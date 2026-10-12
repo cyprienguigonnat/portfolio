@@ -25,7 +25,7 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const element = () => document.getElementById('site-loader');
   function paint() {
-    value = reduced ? target : value + (target - value) * .18;
+    value = reduced ? target : value + (target - value) * .12;
     if (Math.abs(target - value) < .4) value = target;
     const counter = element()?.querySelector('span');
     if (counter) counter.textContent = Math.round(value) + ' %';
@@ -72,7 +72,7 @@
           loader.classList.add('is-leaving');
         }
         setTimeout(release, reduced ? 0 : 250);
-      }, reduced ? 0 : 200);
+      }, reduced ? 0 : 350);
     });
     return completion;
   }
