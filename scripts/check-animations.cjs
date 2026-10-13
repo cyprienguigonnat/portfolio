@@ -68,6 +68,35 @@ async function animatedNavigation(page,action,destination,{imageFlight=false}={}
     const first=page.locator('.project-link').first();
     await first.hover();
     await page.waitForSelector('.home-thumbnail.is-visible');
+    const entrance=await page.locator('.home-thumbnail.is-visible').evaluate(image=>({
+      opacity:Number(getComputedStyle(image).opacity),
+      transitions:image.getAnimations().map(animation=>animation.transitionProperty)
+    }));
+    assert.ok(entrance.opacity<1,'Le premier aperçu doit apparaître progressivement');
+    assert.ok(entrance.transitions.includes('opacity')&&entrance.transitions.includes('transform'),'Transitions du premier aperçu absentes');
+    // Simuler un décodage lent : sortir du titre avant que son image soit prête.
+    await page.mouse.move(0,0);
+    await page.waitForFunction(()=>!document.querySelector('.home-thumbnail'));
+    await page.evaluate(()=>{
+      const decode=HTMLImageElement.prototype.decode;
+      HTMLImageElement.prototype.decode=function(){
+        const ready=decode.call(this);
+        return this.classList.contains('home-thumbnail')
+          ? Promise.all([ready,new Promise(resolve=>setTimeout(resolve,300))])
+          : ready;
+      };
+      window.latePreview=false;
+      const observer=new MutationObserver(()=>{
+        if(document.querySelector('.home-thumbnail.is-visible'))window.latePreview=true;
+      });
+      observer.observe(document.querySelector('.preview-stage'),{subtree:true,attributes:true,attributeFilter:['class']});
+      window.previewObserver=observer;
+    });
+    await first.hover();
+    await page.mouse.move(0,0);
+    await page.waitForFunction(()=>!document.querySelector('.home-thumbnail'));
+    assert.equal(await page.evaluate(()=>window.latePreview),false,'Un aperçu quitté pendant le décodage ne doit pas apparaître');
+    await page.evaluate(()=>window.previewObserver.disconnect());
     const letter=page.locator('.wordmark-letter').first();
     const initial=await letter.getAttribute('transform');
     await letter.hover();

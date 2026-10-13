@@ -173,8 +173,8 @@ projects.forEach((project,index)=>{
     const span=project.slug==='fabmanager' ? (fabManagerSpans[i] || 6) : project.slug==='infomaniak' || project.slug==='fontlibrary' ? (infomaniakSpans[i] || 6) : project.slug==='france-titres' ? (franceTitresSpans[i] || 6) : (rest.length===2?3:rest.length%2===1&&i===rest.length-1?6:(i%4===0||i%4===3?4:2));
     if(image.video) return '<figure class="gallery-image gallery-video gallery-span-'+span+'">'
       +'<video class="project-video" width="'+image.width+'" height="'+image.height+'" controls loop muted playsinline preload="none" poster="../img/projets/'+escape(image.poster)+'" aria-label="'+escape(image.alt)+'">'
-      +'<source src="../img/'+escape(image.video)+'" type="video/mp4"></video></figure>';
-    return '<figure class="gallery-image gallery-span-'+span+'">'+imageMarkup(image,"../","project-image",false,span)+'</figure>';
+      +'<source src="../img/'+escape(image.video)+'" type="video/mp4"></video>'+(image.caption?'<figcaption>'+escape(image.caption)+'</figcaption>':'')+'</figure>';
+    return '<figure class="gallery-image gallery-span-'+span+'">'+imageMarkup(image,"../","project-image",false,span)+(image.caption?'<figcaption>'+escape(image.caption)+'</figcaption>':'')+'</figure>';
   }).join("\n");
   write("projets/"+project.slug+".html",documentPage({
     title:project.title.replace(/^\d+\.\s*/,"")+" — Cyprien GUIGONNAT",kind:"project",prefix:"../",slug:project.slug,
@@ -188,7 +188,7 @@ projects.forEach((project,index)=>{
       +(project.slug==='fabmanager'?'<figure class="project-image-after-text">'+(() => {
         const image=project.images.find(image=>image.video);
         return image.video ? '<video class="project-video" width="'+image.width+'" height="'+image.height+'" controls loop muted playsinline preload="none" poster="../img/projets/'+escape(image.poster)+'" aria-label="Démonstration de la page d’accueil de Fab Manager"><source src="../img/'+escape(image.video)+'" type="video/mp4"></video>' : imageMarkup(image,"../","project-image",false);
-      })()+'</figure>\n':'')
+      })()+(project.images.find(image=>image.video)?.caption?'<figcaption>'+escape(project.images.find(image=>image.video).caption)+'</figcaption>':'')+'</figure>\n':'')
       +'<div class="project-gallery" role="group" aria-label="Images du projet">'+gallery+'</div>\n</main>\n'
       +'<footer class="page-footer project-pagination"><a href="../index.html">'+icon('rotate-ccw')+' Accueil</a>'
       +'<nav aria-label="Navigation entre les projets"><a href="'+previous.slug+'.html" rel="prev" aria-label="Projet précédent : '+escape(previous.title)+'">'+icon('arrow-left')+' Précédent</a>'

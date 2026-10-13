@@ -3,6 +3,7 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const pageCache = new Map();
   const previewTimers = new Set();
+  const previewPreloads = new Map();
   const layer = document.getElementById("transition-layer");
   let busy = false;
   let queuedNavigation = null;
@@ -125,6 +126,25 @@
     sync();
   }
 
+  function setPreviewSource(image, link) {
+    image.sizes = '(max-width: 700px) 76vw, (max-height: 580px) 40vw, (min-width: 1917px) 920px, 48vw';
+    if (link.dataset.srcset) image.srcset = link.dataset.srcset;
+    image.src = new URL(link.dataset.thumbnail, location.href).href;
+  }
+  function preloadPreviews() {
+    if (navigator.connection?.saveData) return;
+    shell().querySelectorAll('.project-link').forEach(link => {
+      const key = new URL(link.dataset.thumbnail, location.href).href;
+      if (previewPreloads.has(key)) return;
+      const image = new Image();
+      previewPreloads.set(key, image);
+      image.decoding = 'async';
+      image.fetchPriority = 'low';
+      setPreviewSource(image, link);
+      image.decode().catch(() => previewPreloads.delete(key));
+    });
+  }
+
   function showPreview(link, immediate = false, leaveDelay = null) {
     const stage = shell().querySelector(".preview-stage");
     if (!stage || (busy && !immediate)) return null;
@@ -140,9 +160,7 @@
     image.dataset.project = link.dataset.project;
     image.style.setProperty("--angle", (reducedMotion.matches ? 0 : (Math.random() * 14 - 7)).toFixed(2) + "deg");
     image.style.zIndex = String(++previewOrder);
-    image.sizes = '(max-width: 700px) 76vw, (max-height: 580px) 40vw, (min-width: 1917px) 920px, 48vw';
-    if (link.dataset.srcset) image.srcset = link.dataset.srcset;
-    image.src = new URL(link.dataset.thumbnail, location.href).href;
+    setPreviewSource(image, link);
     image.decoding = "async";
     image.draggable = false;
     stage.append(image);
@@ -150,7 +168,7 @@
     while (stage.children.length > 5) stage.firstElementChild.remove();
 
     function reveal() {
-      if (!image.isConnected) return;
+      if (!image.isConnected || image.classList.contains('is-leaving')) return;
       image.classList.add("is-visible");
       if(leaveDelay!==null)delayPreview(() => hidePreview(image), leaveDelay);
     }
@@ -160,8 +178,9 @@
     } else {
       image.decode().then(() => {
         if (!image.isConnected) return;
-        image.getBoundingClientRect();
-        requestAnimationFrame(reveal);
+        // Enregistrer l'état invisible avant la transition, même au premier survol.
+        getComputedStyle(image).opacity;
+        requestAnimationFrame(() => requestAnimationFrame(reveal));
       }).catch(() => image.remove());
     }
     return image;
@@ -515,6 +534,7 @@
     clearTimeout(timeout);
     await boot?.finish();
     updateHeaderHeight();
+    preloadPreviews();
     // Une navigation effectuée pendant le chargement ne réinitialise pas sa page.
     if (shell().dataset.page === 'home') {
       disposeWordmark();
