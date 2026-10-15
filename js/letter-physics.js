@@ -1,6 +1,24 @@
 // Physique en pixels CSS, indépendante de la taille du tracé et de l'écran.
 (function (root) {
   const COLLISION_SCALE = .82;
+  const NON_COLLIDING_MODES = new Set(['returning','gathering','hover','hover-returning']);
+
+  // Courbe partagée avec les transitions CSS, fournie par le contrôleur.
+  function glide(letter, dt, x, y, rotation) {
+    if(letter.motion?.mode!==letter.mode)letter.motion={mode:letter.mode,x:letter.x,y:letter.y,rotation:letter.rotation,elapsed:0};
+    const motion=letter.motion;
+    motion.elapsed+=dt;
+    const progress=Math.min(1,motion.elapsed/.2),ease=letter.ease?letter.ease(progress):progress;
+    letter.x=motion.x+(x-motion.x)*ease;
+    letter.y=motion.y+(y-motion.y)*ease;
+    letter.rotation=motion.rotation+(rotation-motion.rotation)*ease;
+    letter.vx=letter.vy=0;
+    if(progress===1) {
+      letter.motion=null;
+      if(letter.mode==='hover')letter.hoverSettled=true;
+      else letter.mode='idle';
+    }
+  }
 
   function contain(letter, viewport, bounce = true) {
     const angle = letter.rotation * Math.PI / 180;
@@ -15,6 +33,12 @@
     if (cy > maxY) { letter.y=maxY-letter.cy; if(bounce)letter.vy=-Math.abs(letter.vy)*.86; }
   }
   function step(letter, dt, time, viewport) {
+    if(letter.mode==='gathering') {
+      glide(letter,dt,0,0,0);
+      contain(letter,viewport,false);
+      return;
+    }
+    if(letter.mode==='hover' && letter.hoverSettled)return;
     if (letter.mode === 'floating') {
       // Champ de gravité lent et multidirectionnel, sans attraction vers l'origine.
       letter.vx += Math.sin(time*.57+letter.seed)*64*dt;
@@ -32,6 +56,9 @@
     } else return;
     letter.x += letter.vx*dt; letter.y += letter.vy*dt;
     contain(letter,viewport);
+    if(letter.mode==='hover' && Math.abs(letter.x-letter.hoverX)+Math.abs(letter.y-letter.hoverY)+Math.abs(letter.vx)+Math.abs(letter.vy)+Math.abs(letter.rotation)<.15) {
+      letter.x=letter.hoverX;letter.y=letter.hoverY;letter.vx=letter.vy=letter.rotation=0;letter.hoverSettled=true;
+    }
     if ((letter.mode === 'returning' || letter.mode === 'hover-returning') && Math.abs(letter.x)+Math.abs(letter.y)+Math.abs(letter.vx)+Math.abs(letter.vy)+Math.abs(letter.rotation)<.15) {
       letter.x=letter.y=letter.vx=letter.vy=letter.rotation=0; letter.mode='idle';
     }
@@ -45,7 +72,7 @@
     for(let i=0;i<letters.length;i++)for(let j=i+1;j<letters.length;j++) {
       const first=letters[i],second=letters[j];
       if(first.mode==='idle'&&second.mode==='idle')continue;
-      if(first.mode==='returning'||first.mode==='hover'||first.mode==='hover-returning'||second.mode==='returning'||second.mode==='hover'||second.mode==='hover-returning')continue;
+      if(NON_COLLIDING_MODES.has(first.mode)||NON_COLLIDING_MODES.has(second.mode))continue;
       const a=extents(first),b=extents(second);
       const dx=first.cx+first.x-second.cx-second.x,dy=first.cy+first.y-second.cy-second.y;
       const overlapX=a.x+b.x-Math.abs(dx),overlapY=a.y+b.y-Math.abs(dy);

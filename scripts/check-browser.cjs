@@ -96,14 +96,16 @@ async function settled(page) {
       return;
     }
     const scatterButton=page.getByRole('button',{name:/Bousculez-moi/});
-    await scatterButton.click();
+    await scatterButton.focus();await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>document.activeElement.matches('.wordmark-toggle')),true,'Le focus reste sur le bouton après dispersion');
     await page.waitForFunction(()=>[...document.querySelectorAll('.wordmark-letter')].every(letter=>letter.dataset.motion==='floating' && !letter.getAttribute('transform').startsWith('translate(0.000 0.000)')));
     assert.equal(await page.getByRole('button',{name:/Ramenez-moi/}).isVisible(),true);
     assert.equal(await page.locator('.wordmark-letter').evaluateAll(letters=>letters.every(letter=>{
       const transform=letter.getAttribute('transform');
       return transform && !transform.startsWith('translate(0.000 0.000)');
     })),true,'Le bouton Bousculez-moi disperse toutes les lettres');
-    await page.getByRole('button',{name:/Ramenez-moi/}).click();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>document.activeElement.matches('.wordmark-toggle')),true,'Le même bouton conserve le focus après retour');
     assert.equal(await page.getByRole('button',{name:/Bousculez-moi/}).isVisible(),true);
     await page.waitForFunction(()=>[...document.querySelectorAll('.wordmark-letter')].every(letter=>letter.dataset.motion==='idle'));
     assert.equal(await page.getByRole('button',{name:/Bousculez-moi/}).isVisible(),true);

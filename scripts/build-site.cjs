@@ -130,7 +130,7 @@ write("index.html",documentPage({
   title:"Cyprien GUIGONNAT",kind:"home",
   content:header("home")+'\n<main id="mn" class="home-page" tabindex="-1">\n'
     +'<div class="home-identity"><h1 class="visually-hidden">Cyprien GUIGONNAT — Portfolio</h1>'+read("content/wordmark.svg")
-    +'<p class="wordmark-hint"><button class="wordmark-hint-default" type="button">[ Bousculez-moi '+icon('arrow-up')+']</button><button class="wordmark-hint-return" type="button" hidden>[ Ramenez-moi '+icon('rotate-ccw')+']</button></p>'
+    +'<p class="wordmark-hint"><button class="wordmark-toggle" type="button"><span class="wordmark-hint-default">[ Bousculez-moi '+icon('arrow-up')+']</span><span class="wordmark-hint-return" hidden>[ Ramenez-moi '+icon('rotate-ccw')+']</span></button></p>'
     +'<span class="visually-hidden wordmark-status" aria-live="polite">Bousculez-moi</span></div>\n'
     +'<div class="preview-stage" aria-hidden="true"></div>\n'
     +'<nav id="projets" class="project-index" aria-label="Projets">\n'

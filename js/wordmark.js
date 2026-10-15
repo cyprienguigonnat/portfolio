@@ -1,8 +1,19 @@
 window.initPortfolioWordmark = function (animateEntry = true) {
   const identity=document.querySelector('#site-shell .home-identity');
   if(!identity)return ()=>{};
-  const svg=identity.querySelector('svg'),hint=identity.querySelector('.wordmark-hint'),scatterButton=hint?.querySelector('.wordmark-hint-default'),returnButton=hint?.querySelector('.wordmark-hint-return'),status=identity.querySelector('.wordmark-status'),physics=window.PortfolioLetterPhysics;
+  const svg=identity.querySelector('svg'),hint=identity.querySelector('.wordmark-hint'),toggleButton=hint?.querySelector('.wordmark-toggle'),scatterLabel=hint?.querySelector('.wordmark-hint-default'),returnLabel=hint?.querySelector('.wordmark-hint-return'),status=identity.querySelector('.wordmark-status'),physics=window.PortfolioLetterPhysics;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const [x1,y1,x2,y2]=getComputedStyle(identity).getPropertyValue('--ease').match(/-?[\d.]+/g).map(Number);
+  const bezier=(t,a,b)=>3*(1-t)*(1-t)*t*a+3*(1-t)*t*t*b+t*t*t;
+  function ease(progress) {
+    if(progress===0 || progress===1)return progress;
+    let low=0,high=1;
+    for(let i=0;i<16;i++) {
+      const mid=(low+high)/2;
+      if(bezier(mid,x1,x2)<progress)low=mid;else high=mid;
+    }
+    return bezier((low+high)/2,y1,y2);
+  }
   const controller=new AbortController(), options={signal:controller.signal};
   const layout=document.createElementNS('http://www.w3.org/2000/svg','g');
   layout.classList.add('wordmark-layout');
@@ -22,22 +33,25 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     entry.style.setProperty('--entry-offset',(Math.random()<.5?-1:1)*(90+Math.random()*65)+'px');
     return {el,box,glyphX:box.x+box.width/2,glyphY:box.y+box.height/2,
       cx:0,cy:0,width:0,height:0,x:0,y:0,vx:0,vy:0,rotation:0,mode:'idle',seed:index*.73,
-      disturbed:false,hoverX:Math.sin(index*1.91)*9,hoverY:-7-Math.abs(Math.cos(index*1.37))*8};
+      disturbed:false,ease,hoverSettled:false,hoverX:Math.sin(index*1.91)*9,hoverY:-7-Math.abs(Math.cos(index*1.37))*8};
   });
   svg.removeAttribute('aria-hidden');
   svg.setAttribute('role','group');
   svg.setAttribute('aria-label','Cyprien Guigonnat, lettres interactives');
-  let size={width:0,height:0},scale=1,frame=0,last=0,dragged=null,hovered=null,disposed=false,returningAll=false;
+  let size={width:0,height:0},scale=1,frame=0,last=0,dragged=null,hovered=null,disposed=false,returningAll=false,pendingScatter=false;
   let entranceTimer;
   const clamp=(n,max)=>Math.max(-max,Math.min(max,n));
   function render(letter) {
-    letter.el.setAttribute('transform','translate('+(letter.x/scale).toFixed(3)+' '+(letter.y/scale).toFixed(3)+') rotate('+letter.rotation.toFixed(3)+' '+letter.glyphX+' '+letter.glyphY+')');
-    letter.el.dataset.motion=letter.mode;
+    const transform='translate('+(letter.x/scale).toFixed(3)+' '+(letter.y/scale).toFixed(3)+') rotate('+letter.rotation.toFixed(3)+' '+letter.glyphX+' '+letter.glyphY+')';
+    if(transform!==letter.renderedTransform) {
+      letter.el.setAttribute('transform',transform);letter.renderedTransform=transform;
+    }
+    if(letter.el.dataset.motion!==letter.mode)letter.el.dataset.motion=letter.mode;
   }
   function updateHint() {
-    const returning=!returningAll && letters.some(letter=>letter.disturbed);
-    if(scatterButton)scatterButton.hidden=returning;
-    if(returnButton)returnButton.hidden=!returning;
+    const returning=pendingScatter || (!returningAll && letters.some(letter=>letter.disturbed));
+    if(scatterLabel)scatterLabel.hidden=returning;
+    if(returnLabel)returnLabel.hidden=!returning;
     if(status && status.dataset.returning!==String(returning)) {
       status.dataset.returning=String(returning);
       status.textContent=returning?'Ramenez-moi':'Bousculez-moi';
@@ -64,8 +78,9 @@ window.initPortfolioWordmark = function (animateEntry = true) {
       physics.contain(letter,size,false);render(letter);
     }
   }
+  const hasMotion=()=>letters.some(letter=>letter.mode!=='idle' && letter.mode!=='dragging' && !(letter.mode==='hover' && letter.hoverSettled));
   function start() {
-    if(!frame && !disposed && !document.hidden && !reduced.matches && letters.some(letter=>letter.mode!=='idle')) {
+    if(!frame && !disposed && !document.hidden && !reduced.matches && hasMotion()) {
       last=performance.now();frame=requestAnimationFrame(tick);
     }
   }
@@ -78,18 +93,19 @@ window.initPortfolioWordmark = function (animateEntry = true) {
       for(const letter of letters)if(letter!==dragged)physics.step(letter,elapsed/steps,now/1000,size);
       physics.collide(letters,size,dragged);
     }
+    if(pendingScatter && letters.every(letter=>letter.mode==='idle'))scatterLetters();
     for(const letter of letters)if(letter.disturbed && letter.mode==='idle')letter.disturbed=false;
     if(returningAll && !letters.some(letter=>letter.disturbed))returningAll=false;
     letters.forEach(render);
     updateHint();
-    if(letters.some(letter=>letter.mode!=='idle'))frame=requestAnimationFrame(tick);
+    if(hasMotion() && !frame)frame=requestAnimationFrame(tick);
   }
   function float(letter) {
     letter.mode='floating';
     render(letter);start();
   }
   function resetLetter(letter) {
-    letter.mode='returning';letter.vx=letter.vy=0;
+    letter.mode='returning';letter.motion=null;letter.vx=letter.vy=0;
     if(reduced.matches) {letter.x=letter.y=letter.rotation=0;letter.mode='idle';letter.disturbed=false;}
     render(letter);updateHint();start();
   }
@@ -97,7 +113,13 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     if(document.body.classList.contains('is-navigating'))return;
     clearTimeout(entranceTimer);identity.classList.remove('is-arriving');
     if(dragged)up({},true);
-    hovered=null;returningAll=false;
+    hovered=null;returningAll=false;pendingScatter=false;
+    // Une relance rejoint d'abord le nom composé, sans saut depuis le retour en cours.
+    if(!reduced.matches && letters.some(letter=>['returning','gathering','hover','hover-returning'].includes(letter.mode))) {
+      pendingScatter=true;
+      for(const letter of letters) {letter.mode='gathering';letter.motion=null;letter.vx=letter.vy=0;}
+      letters.forEach(render);updateHint();start();return;
+    }
     for(const letter of letters) {
       const angle=Math.random()*Math.PI*2,speed=220+Math.random()*300;
       let x=0,y=0;
@@ -107,7 +129,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
         y=halfHeight+Math.random()*Math.max(0,size.height-letter.height)-letter.cy;
       }
       Object.assign(letter,{x,y,rotation:0,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
-        mode:reduced.matches?'idle':'floating',disturbed:true});
+        mode:reduced.matches?'idle':'floating',disturbed:true,motion:null});
       physics.contain(letter,size,false);
     }
     letters.forEach(render);
@@ -117,7 +139,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     if(document.body.classList.contains('is-navigating'))return;
     clearTimeout(entranceTimer);identity.classList.remove('is-arriving');
     if(dragged)up({},true);
-    hovered=null;returningAll=true;
+    hovered=null;returningAll=true;pendingScatter=false;
     letters.forEach(resetLetter);
     updateHint();
   }
@@ -125,12 +147,27 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     for(const other of letters)if(other!==letter && other.mode==='hover')other.mode='hover-returning';
     if(letter===hovered && letter?.mode==='hover')return;
     hovered=letter;
-    if(letter?.mode==='idle') {
-      letter.mode='hover';letter.rotation=Math.sin(letter.seed)*2.2;start();
+    if(letter && (letter.mode==='idle' || letter.mode==='hover-returning')) {
+      letter.mode='hover';letter.hoverSettled=false;letter.motion=null;letter.rotation=Math.sin(letter.seed)*2.2;
     }
+    start();
   }
   function targetLetter(event) {
     if(event.target.closest?.('a,button,input,textarea,select'))return null;
+    if(event.pointerType==='touch' || event.pointerType==='pen') {
+      // Cibles de 44 px minimum : départ au plus près du tracé, sans modifier le SVG
+      // ni laisser l'ordre des lettres décider lorsque les zones se recouvrent.
+      let nearest=null,best=Infinity;
+      for(const letter of letters) {
+        const box=letter.el.getBoundingClientRect();
+        const padX=Math.max(0,(44-box.width)/2),padY=Math.max(0,(44-box.height)/2);
+        if(event.clientX<box.left-padX || event.clientX>box.right+padX || event.clientY<box.top-padY || event.clientY>box.bottom+padY)continue;
+        const dx=Math.max(box.left-event.clientX,0,event.clientX-box.right),dy=Math.max(box.top-event.clientY,0,event.clientY-box.bottom);
+        const distance=Math.hypot(dx,dy)+Math.hypot(event.clientX-box.x-box.width/2,event.clientY-box.y-box.height/2)*.001;
+        if(distance<best){nearest=letter;best=distance;}
+      }
+      return nearest;
+    }
     return letters.find(letter=>letter.el.contains(event.target))||null;
   }
   function down(event) {
@@ -139,7 +176,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     if(!letter)return;
     event.preventDefault();
     if(hovered?.mode==='hover')hovered.mode='hover-returning';
-    dragged=letter;hovered=null;returningAll=false;
+    dragged=letter;hovered=null;returningAll=false;pendingScatter=false;letter.motion=null;
     Object.assign(letter,{mode:'dragging',pointerId:event.pointerId,startX:letter.x,startY:letter.y,
       startPX:event.clientX,startPY:event.clientY,lastPX:event.clientX,lastPY:event.clientY,lastTime:performance.now(),moved:false,vx:0,vy:0});
     letter.el.classList.add('is-dragging');
@@ -175,9 +212,9 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     const letter=dragged;dragged=null;hovered=null;
     letter.el.classList.remove('is-dragging');
     if(letter.pointerId!==undefined && svg.hasPointerCapture?.(letter.pointerId))svg.releasePointerCapture(letter.pointerId);
-    if(!letter.moved && !cancelled)resetLetter(letter);
+    if(!letter.moved)resetLetter(letter);
     else {
-      if(performance.now()-letter.lastTime>100)letter.vx=letter.vy=0;
+      if(cancelled || performance.now()-letter.lastTime>100)letter.vx=letter.vy=0;
       float(letter);
     }
   }
@@ -186,7 +223,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     const directions={ArrowLeft:[-16,0],ArrowRight:[16,0],ArrowUp:[0,-16],ArrowDown:[0,16]};
     if(event.key==='Enter' || event.key===' ') {
       event.preventDefault();
-      returningAll=false;
+      returningAll=false;pendingScatter=false;
       if(letter.disturbed)resetLetter(letter);
       else {
         letter.disturbed=true;letter.y-=16;
@@ -195,7 +232,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
       }
     } else if(directions[event.key]) {
       event.preventDefault();
-      returningAll=false;
+      returningAll=false;pendingScatter=false;
       const [x,y]=directions[event.key];
       letter.x+=x;letter.y+=y;letter.disturbed=true;
       physics.contain(letter,size,false);
@@ -203,8 +240,10 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     } else return;
     updateHint();
   },options);
-  scatterButton?.addEventListener('click',scatterLetters,options);
-  returnButton?.addEventListener('click',resetLetters,options);
+  toggleButton?.addEventListener('click',()=>{
+    if(pendingScatter || (!returningAll && letters.some(letter=>letter.disturbed)))resetLetters();
+    else scatterLetters();
+  },options);
   // Écoute sur toute la fenêtre et capture du pointeur : souris, stylet et tactile.
   if('PointerEvent' in window) {
     for(const letter of letters) {

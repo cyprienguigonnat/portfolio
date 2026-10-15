@@ -23,17 +23,14 @@ async function instantNavigation(page,action,destination){
   }
 }
 async function animatedNavigation(page,action,destination,{imageFlight=false,sourceBox=null}={}){
+  await page.evaluate(()=>window.transitionEvidence={snapshots:0,images:0,flight:null});
   await action();
-  await page.waitForFunction(()=>document.body.classList.contains('is-navigating'));
-  await page.waitForSelector('.transition-snapshot');
+  // Conserver la preuve dans la page : une transition courte peut être terminée
+  // avant le prochain aller-retour du pilote, surtout sur une machine chargée.
+  await page.waitForFunction(()=>window.transitionEvidence.snapshots>0);
   if(imageFlight){
-    await page.waitForSelector('.transition-image');
-    const flight=await page.locator('.transition-image').evaluate(image=>{
-      const animation=image.getAnimations()[0];
-      const frames=animation?.effect?.getKeyframes()??[];
-      const start=new DOMMatrix(frames[0]?.transform);
-      return {complete:image.complete,naturalWidth:image.naturalWidth,frames:frames.map(frame=>frame.transform),x:start.e,y:start.f,width:parseFloat(image.style.width),height:parseFloat(image.style.height)};
-    });
+    await page.waitForFunction(()=>window.transitionEvidence.flight);
+    const flight=await page.evaluate(()=>window.transitionEvidence.flight);
     assert.ok(flight.complete&&flight.naturalWidth>0,'Image de transition non décodée');
     assert.equal(flight.frames.length,2,'Trajectoire de transition absente');
     assert.notEqual(flight.frames[0],flight.frames[1],'Image de transition immobile');
@@ -42,7 +39,7 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
       assert.equal(await page.locator('.home-thumbnail').count(),0,'Aucun aperçu central sur mobile');
     }
   }
-  const active=await page.evaluate(()=>({snapshots:document.querySelectorAll('.transition-snapshot').length,images:document.querySelectorAll('.transition-image').length}));
+  const active=await page.evaluate(()=>window.transitionEvidence);
   assert.ok(active.snapshots>0,'Instantané de transition absent');
   if(imageFlight)assert.ok(active.images>0,'Animation d’image absente');
   await page.waitForURL(destination);
@@ -56,19 +53,33 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
   const errors=[];
   try{
     const page=await browser.newPage({viewport:{width:1440,height:900}});
-    await page.addInitScript(()=>{
+    const observeAnimations=()=>{
       window.navigationAnimations=[];
+      window.wordmarkEntered=false;
+      document.addEventListener('animationstart',event=>{
+        if(event.animationName==='letter-arrive')window.wordmarkEntered=true;
+      });
       const animate=Element.prototype.animate;
       Element.prototype.animate=function(...args){
         if(this.matches('#site-shell,.transition-snapshot,.transition-image'))window.navigationAnimations.push(this.className||this.id);
+        const evidence=window.transitionEvidence;
+        if(evidence && this.matches('#site-shell,.transition-snapshot,.transition-image')) {
+          evidence.snapshots=Math.max(evidence.snapshots,document.querySelectorAll('.transition-snapshot').length);
+          evidence.images=Math.max(evidence.images,document.querySelectorAll('.transition-image').length);
+          if(this.matches('.transition-image')) {
+            const frames=args[0],start=new DOMMatrix(frames[0].transform);
+            evidence.flight={complete:this.complete,naturalWidth:this.naturalWidth,frames:frames.map(frame=>frame.transform),x:start.e,y:start.f,width:parseFloat(this.style.width),height:parseFloat(this.style.height)};
+          }
+        }
         return animate.apply(this,args);
       };
-    });
+    };
+    await page.addInitScript(observeAnimations);
     page.on('pageerror',error=>errors.push(error.message));
     page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
     await page.goto(base+'/index.html');
     await page.waitForSelector('.home-identity.wordmark-ready');
-    await page.waitForFunction(()=>document.querySelector('.home-identity').classList.contains('is-arriving'));
+    await page.waitForFunction(()=>window.wordmarkEntered);
     await settled(page);
     const first=page.locator('.project-link').first();
     await first.hover();
@@ -106,6 +117,14 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
     const initial=await letter.getAttribute('transform');
     await letter.hover();
     await page.waitForFunction(value=>document.querySelector('.wordmark-letter').getAttribute('transform')!==value,initial);
+    await page.waitForTimeout(2500);
+    const settledHoverMutations=await page.evaluate(()=>new Promise(resolve=>{
+      let mutations=0;
+      const observer=new MutationObserver(records=>mutations+=records.length);
+      observer.observe(document.querySelector('.home-identity'),{subtree:true,attributes:true});
+      setTimeout(()=>{observer.disconnect();resolve(mutations);},300);
+    }));
+    assert.equal(settledHoverMutations,0,'Aucune mutation au survol une fois la lettre stabilisée');
     const box=await letter.boundingBox();
     await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
     await page.mouse.down();
@@ -135,6 +154,7 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
     }
     assert.deepEqual(errors,[]);
     const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await mobile.addInitScript(observeAnimations);
     mobile.on('pageerror',error=>errors.push(error.message));
     await mobile.goto(base+'/index.html');await settled(mobile);
     const thumbnailBox=await mobile.locator('.project-mobile-thumbnail').first().boundingBox();
@@ -153,6 +173,32 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
     await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
     await mobile.getByRole('button',{name:/Ramenez-moi/}).click();
     await mobile.waitForFunction(()=>[...document.querySelectorAll('.wordmark-letter')].every(letter=>letter.dataset.motion==='idle'));
+    for(const width of [390,320]) {
+      await mobile.setViewportSize({width,height:844});
+      await mobile.waitForFunction(width=>document.querySelector('.home-identity > svg').viewBox.baseVal.width===width,width);
+      const fineLetter=mobile.locator('.wordmark-letter').nth(4),fineBox=await fineLetter.boundingBox();
+      const point={x:fineBox.x+fineBox.width/2,y:fineBox.y-8};
+      await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});
+      assert.equal(await fineLetter.getAttribute('data-motion'),'dragging','La marge tactile du I fonctionne à '+width+' px');
+      for(let i=1;i<=6;i++) {
+        await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:point.x+i*10,y:point.y-i*12}]});
+        await mobile.evaluate(()=>new Promise(requestAnimationFrame));
+      }
+      const held=await fineLetter.getAttribute('transform');
+      const heldBox=await fineLetter.boundingBox();
+      assert.ok(Math.abs(heldBox.x+heldBox.width/2-fineBox.x-fineBox.width/2-60)<1,'La lettre suit le doigt horizontalement, sans saut à la prise');
+      assert.ok(Math.abs(heldBox.y+heldBox.height/2-fineBox.y-fineBox.height/2+72)<1,'La marge tactile conserve le décalage vertical du doigt');
+      assert.equal(await fineLetter.getAttribute('data-motion'),'dragging');
+      await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+      assert.equal(await fineLetter.getAttribute('data-motion'),'floating','Le lâcher conserve la physique');
+      await mobile.waitForFunction(value=>document.querySelectorAll('.wordmark-letter')[4].getAttribute('transform')!==value,held);
+      await mobile.getByRole('button',{name:/Ramenez-moi/}).click();
+      await mobile.waitForFunction(()=>[...document.querySelectorAll('.wordmark-letter')].every(letter=>letter.dataset.motion==='idle'));
+      await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});
+      await touch.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
+      assert.equal(await mobile.locator('.is-dragging').count(),0,'Une interruption tactile libère la lettre');
+      await mobile.waitForFunction(()=>[...document.querySelectorAll('.wordmark-letter')].every(letter=>letter.dataset.motion==='idle'));
+    }
     await mobile.close();
     assert.deepEqual(errors,[]);
     const local=await browser.newPage({viewport:{width:1440,height:900}});

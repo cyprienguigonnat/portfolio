@@ -197,8 +197,12 @@ a:has(> .icon):hover {
   font: inherit;
   cursor: pointer;
 }
-.wordmark-hint button[hidden] { display: none; }
+.wordmark-hint button > span { display: inline-flex; align-items: center; gap: .25em; }
+.wordmark-hint [hidden] { display: none; }
 .wordmark-hint button:hover { text-decoration: none; }
+@media (pointer: coarse) {
+  .wordmark-hint button { min-height: 44px; padding: 11px 8px; margin: -11px -8px; }
+}
 .home-identity.is-arriving .letter-entry {
   transform-box: fill-box;
   transform-origin: center;
