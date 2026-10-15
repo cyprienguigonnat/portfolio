@@ -146,6 +146,7 @@
   }
 
   function showPreview(link, immediate = false, leaveDelay = null) {
+    if (mobileMenu.matches) return link.querySelector('.project-mobile-thumbnail');
     const stage = shell().querySelector(".preview-stage");
     if (!stage || (busy && !immediate)) return null;
     const previous = [...stage.children].find(image =>

@@ -22,7 +22,7 @@ async function instantNavigation(page,action,destination){
     assert.equal(await page.locator('.home-identity.is-arriving').count(),0,'Pas de nouvelle animation d’entrée au retour');
   }
 }
-async function animatedNavigation(page,action,destination,{imageFlight=false}={}){
+async function animatedNavigation(page,action,destination,{imageFlight=false,sourceBox=null}={}){
   await action();
   await page.waitForFunction(()=>document.body.classList.contains('is-navigating'));
   await page.waitForSelector('.transition-snapshot');
@@ -31,11 +31,16 @@ async function animatedNavigation(page,action,destination,{imageFlight=false}={}
     const flight=await page.locator('.transition-image').evaluate(image=>{
       const animation=image.getAnimations()[0];
       const frames=animation?.effect?.getKeyframes()??[];
-      return {complete:image.complete,naturalWidth:image.naturalWidth,frames:frames.map(frame=>frame.transform)};
+      const start=new DOMMatrix(frames[0]?.transform);
+      return {complete:image.complete,naturalWidth:image.naturalWidth,frames:frames.map(frame=>frame.transform),x:start.e,y:start.f,width:parseFloat(image.style.width),height:parseFloat(image.style.height)};
     });
     assert.ok(flight.complete&&flight.naturalWidth>0,'Image de transition non décodée');
     assert.equal(flight.frames.length,2,'Trajectoire de transition absente');
     assert.notEqual(flight.frames[0],flight.frames[1],'Image de transition immobile');
+    if(sourceBox){
+      for(const key of ['x','y','width','height'])assert.ok(Math.abs(flight[key]-sourceBox[key])<1,'La transition doit partir de la miniature mobile : '+key);
+      assert.equal(await page.locator('.home-thumbnail').count(),0,'Aucun aperçu central sur mobile');
+    }
   }
   const active=await page.evaluate(()=>({snapshots:document.querySelectorAll('.transition-snapshot').length,images:document.querySelectorAll('.transition-image').length}));
   assert.ok(active.snapshots>0,'Instantané de transition absent');
@@ -132,6 +137,9 @@ async function animatedNavigation(page,action,destination,{imageFlight=false}={}
     const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     mobile.on('pageerror',error=>errors.push(error.message));
     await mobile.goto(base+'/index.html');await settled(mobile);
+    const thumbnailBox=await mobile.locator('.project-mobile-thumbnail').first().boundingBox();
+    await animatedNavigation(mobile,()=>mobile.locator('.project-link').first().tap(),/\/projets\/infomaniak\.html$/,{imageFlight:true,sourceBox:thumbnailBox});
+    await mobile.locator('.project-close').tap();await mobile.waitForURL(/\/index\.html$/);await settled(mobile);
     await mobile.waitForFunction(()=>!document.querySelector('.home-identity').classList.contains('is-arriving'));
     const touch=await mobile.context().newCDPSession(mobile);
     const boxes=await Promise.all([0,1].map(i=>mobile.locator('.wordmark-letter').nth(i).boundingBox()));

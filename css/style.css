@@ -236,6 +236,7 @@ a:has(> .icon):hover {
   margin: 0;
   font-weight: 400;
 }
+.project-mobile-thumbnail { display: none; }
 .preview-stage {
   position: absolute;
   inset: 0;
@@ -414,6 +415,8 @@ body.is-navigating a { cursor: progress; }
   .home-thumbnail { width: 76vw; }
   .project-index ul { gap: 5px 16px; }
   .project-index li { text-align: center; }
+  .project-link h2 { display: inline-flex; align-items: center; gap: 8px; line-height: 1.4; }
+  .project-mobile-thumbnail { display: block; flex: none; width: auto; height: 1.54em; }
   .information-grid, .project-description { grid-template-columns: 1fr; gap: 24px; }
   .project-gallery { grid-template-columns: 1fr; }
   .gallery-image { grid-column: 1 / -1; }

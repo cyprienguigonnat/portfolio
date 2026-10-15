@@ -123,7 +123,7 @@ const links = projects.map(project => {
   return '<li>'
     + '<a class="project-link" href="projets/'+project.slug+'.html" data-project="'+project.slug
     + '" data-thumbnail="img/projets/'+escape(first.file)+'" data-srcset="'+srcset(first,'')+'" data-width="'+first.width+'" data-height="'+first.height+'">'
-    + '<h2>'+escape(project.title)+'</h2></a>'
+    + '<h2>'+escape(project.title)+'<img class="project-mobile-thumbnail" src="img/projets/'+escape(first.file)+'" srcset="'+srcset(first,'')+'" sizes="44px" width="'+first.width+'" height="'+first.height+'" alt="" loading="eager" decoding="async"></h2></a>'
     + '</li>';
 }).join("\n");
 write("index.html",documentPage({
