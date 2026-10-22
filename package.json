@@ -6,7 +6,8 @@
     "images": "node scripts/optimize-images.cjs",
     "test": "node scripts/check-boot.cjs && node scripts/check-letter-physics.cjs && node scripts/check-wordmark-input.cjs && node scripts/check-site.cjs",
     "test:animations": "node scripts/check-animations.cjs",
-    "test:browser": "node scripts/check-browser.cjs"
+    "test:browser": "node scripts/check-browser.cjs",
+    "check": "npm test"
   },
   "engines": { "node": ">=22" },
   "devDependencies": {

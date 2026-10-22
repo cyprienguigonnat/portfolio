@@ -1,0 +1,6 @@
+#!/bin/sh
+# Vérifications du projet avant chaque commit (tous agents et humains).
+# Sautées si l'agent vient de les réussir sur exactement ce code (empreinte écrite par stop-check).
+stamp="$(git rev-parse --git-dir)/agent-check-ok"
+[ -f "$stamp" ] && [ "$(git write-tree)" = "$(cat "$stamp")" ] && exit 0
+npm run check --silent || { echo "pre-commit : npm run check échoue, commit annulé." >&2; exit 1; }

@@ -1,3 +1,7 @@
 node_modules/
 dist/
 .DS_Store
+
+# Claude Code / Impeccable (local)
+.claude/settings.local.json
+.impeccable/config.local.json
