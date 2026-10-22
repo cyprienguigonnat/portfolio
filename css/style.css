@@ -24,7 +24,7 @@
   font-display: swap;
 }
 *, *::before, *::after { box-sizing: border-box; }
-html { background: var(--blue); scrollbar-gutter: stable; }
+html { background: var(--blue); scrollbar-gutter: stable; -webkit-tap-highlight-color: transparent; }
 body {
   margin: 0;
   display: flex;
@@ -49,6 +49,11 @@ h1, h2, h3, p, span, li, a, b, i, strong { font-size: inherit; }
 h1, h2 { font-weight: 700; }
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: .2em; }
+@media (hover: hover) and (pointer: fine) {
+  a > .icon { transition: transform 180ms var(--ease); }
+  a:hover > .icon { transform: translateX(2px); }
+  a.project-close:hover > .icon { transform: none; }
+}
 a:focus-visible, button:focus-visible, [role="button"]:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 5px;
@@ -256,7 +261,7 @@ a:has(> .icon):hover {
   height: auto;
   opacity: 0;
   transform: translate(-50%, -50%) rotate(var(--angle)) scale(.94) translateY(16px);
-  transition: transform .65s var(--ease), opacity .45s ease;
+  transition: transform .5s var(--ease), opacity .3s var(--ease);
   will-change: opacity, transform;
 }
 .home-thumbnail.is-visible {
@@ -266,7 +271,7 @@ a:has(> .icon):hover {
 .home-thumbnail.is-leaving {
   opacity: 0;
   transform: translate(-50%, -50%) rotate(var(--angle)) scale(1.025) translateY(-12px);
-  transition-duration: .6s;
+  transition-duration: .32s;
 }
 .home-thumbnail.is-immediate:not(.is-leaving) { transition: none; }
 body.is-navigating { cursor: progress; }
@@ -403,7 +408,7 @@ body.is-navigating a { cursor: progress; }
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
-    transition-duration: 200ms, 200ms, 0s;
+    transition-duration: 240ms, 180ms, 0s;
     transition-delay: 0s;
   }
   .menu-ready .header-tabs, .menu-ready .header-contacts { flex-direction: column; align-items: flex-start; gap: 12px; }

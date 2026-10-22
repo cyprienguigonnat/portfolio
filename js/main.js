@@ -12,6 +12,8 @@
   let headerObserver;
   let disposeWordmark = () => {};
   const mobileMenu = window.matchMedia('(max-width: 700px)');
+  // Un même rythme pour toutes les routes ; le trajet de l'image est le temps fort.
+  const motion = {page: 360, exit: 240, projectExit: 140, projectEntry: 260, image: 650};
   let disposeMenu = () => {};
   history.scrollRestoration = "manual";
 
@@ -52,19 +54,6 @@
     }
     updateHeaderHeight();
     if (animateWordmark && shell().dataset.page === 'home') disposeWordmark = window.initPortfolioWordmark(false);
-  }
-
-  function animateIncomingText(page) {
-    const selector = '#mn h1:not(.visually-hidden), #mn h2, #mn p, #mn li';
-    const easing = getComputedStyle(document.documentElement).getPropertyValue('--ease').trim();
-    const elements = [...page.querySelectorAll(selector)]
-      .filter(element => !element.querySelector(selector) && !element.closest('.home-identity'));
-    elements.forEach((element, index) => {
-      element.animate([
-        {opacity:0.8, transform:'translateY(8px)'},
-        {opacity:1, transform:'translateY(0)'}
-      ], {duration:300, delay:(index % 4) * 50, easing, fill:'both'});
-    });
   }
 
   function initMenu(header) {
@@ -189,7 +178,7 @@
   function hidePreview(image) {
     if(!image?.isConnected || image.classList.contains('is-leaving'))return;
     image.classList.add('is-leaving');
-    delayPreview(()=>image.remove(),reducedMotion.matches?0:600);
+    delayPreview(()=>image.remove(),reducedMotion.matches?0:320);
   }
 
   async function fetchPage(url) {
@@ -275,7 +264,7 @@
     const animation = image.animate([
       {transform:"translate("+from.x+"px, "+from.y+"px) rotate("+from.angle+"deg) scale(1)",opacity:1},
       {transform:"translate("+finalX+"px, "+finalY+"px) rotate("+to.angle+"deg) scale("+finalScale+")",opacity:fadeOut?0:1}
-    ], {duration:800, easing:"cubic-bezier(.22, 1, .36, 1)", fill:"both"});
+    ], {duration:motion.image, easing:getComputedStyle(root).getPropertyValue('--ease').trim(), fill:"both"});
     return {image, animation};
   }
 
@@ -352,10 +341,7 @@
     document.body.classList.add("is-navigating");
     shell().setAttribute("aria-busy", "true");
     const oldProject = shell().dataset.project;
-    // Les sorties de projet vers l'accueil ou la page d'origine sont immédiates.
-    const animateTransition = !reducedMotion.matches && !(oldProject &&
-      (options.link?.matches('.project-close') || /\/(?:index\.html)?$/.test(url.pathname) ||
-        (options.history === false && !/\/projets\/[a-z-]+\.html$/.test(url.pathname))));
+    const animateTransition = !reducedMotion.matches;
     let source = null;
     let hiddenImage = null;
     let flight = null;
@@ -402,10 +388,10 @@
       // Deux phases courtes évitent de superposer les contenus des projets.
       if (animateTransition && betweenProjects) {
         const departure = shell().animate([{opacity:1},{opacity:0}], {
-          duration:125, easing:navigationEase, fill:'forwards'
+          duration:motion.projectExit, easing:navigationEase, fill:'forwards'
         });
         const snapshotDeparture = outgoing.animate([{opacity:1},{opacity:0}], {
-          duration:125, easing:navigationEase, fill:'forwards'
+          duration:motion.projectExit, easing:navigationEase, fill:'forwards'
         });
         await Promise.allSettled([departure.finished, snapshotDeparture.finished]);
         departure.cancel();
@@ -422,7 +408,6 @@
       document.title = doc.title;
       initPage();
       scrollToDestination(url, options.scrollY);
-      if (!reducedMotion.matches && !betweenProjects) animateIncomingText(next);
       let target = next.querySelector(".hero-image");
       let homeLink = null;
       if (next.dataset.page === "home" && oldProject) {
@@ -438,8 +423,8 @@
         }
         const reveal = next.animate([
           {opacity:0}, {opacity:1}
-        ], {duration:betweenProjects?125:flight?600:450, easing:navigationEase});
-        const dismiss=outgoing?.animate([{opacity:1},{opacity:0}],{duration:flight?500:450,easing:'ease-in-out',fill:'forwards'});
+        ], {duration:betweenProjects?motion.projectEntry:motion.page, easing:navigationEase});
+        const dismiss=outgoing?.animate([{opacity:1},{opacity:0}],{duration:motion.exit,easing:navigationEase,fill:'forwards'});
         await Promise.allSettled([reveal.finished, dismiss?.finished, flight?.animation.finished]);
       }
       if (hiddenImage) hiddenImage.style.visibility = "";

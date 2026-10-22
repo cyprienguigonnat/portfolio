@@ -13,10 +13,10 @@ const server=http.createServer((request,response)=>{
   fs.createReadStream(file).pipe(response);
 });
 async function settled(page){await page.waitForFunction(()=>!document.documentElement.classList.contains('is-booting')&&!document.body.classList.contains('is-navigating'));}
-async function instantNavigation(page,action,destination){
+async function returnNavigation(page,action,destination){
   await page.evaluate(()=>window.navigationAnimations=[]);
   await action();await page.waitForURL(destination);await settled(page);
-  assert.deepEqual(await page.evaluate(()=>window.navigationAnimations),[],'Le retour de projet ne doit lancer aucune transition');
+  assert.ok((await page.evaluate(()=>window.navigationAnimations)).includes('site-shell'),'Le retour de projet doit rester fluide');
   assert.equal(await page.locator('#transition-layer > *').count(),0);
   if(await page.locator('.home-identity').count()){
     assert.equal(await page.locator('.home-identity.is-arriving').count(),0,'Pas de nouvelle animation d’entrée au retour');
@@ -42,6 +42,17 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
   const active=await page.evaluate(()=>window.transitionEvidence);
   assert.ok(active.snapshots>0,'Instantané de transition absent');
   if(imageFlight)assert.ok(active.images>0,'Animation d’image absente');
+  if(imageFlight && process.env.MOTION_OUTPUT){
+    const output=path.resolve(process.env.MOTION_OUTPUT);
+    fs.mkdirSync(output,{recursive:true});
+    await page.evaluate(()=>{
+      window.capturedMotion=document.getAnimations().filter(animation=>animation.effect.target.matches('#site-shell,.transition-image,.transition-snapshot'));
+      const elapsed=window.capturedMotion.find(animation=>animation.effect.target.matches('.transition-image')).effect.getTiming().duration*.5;
+      window.capturedMotion.forEach(animation=>{animation.pause();animation.currentTime=Math.min(elapsed,animation.effect.getTiming().duration);});
+    });
+    await page.screenshot({path:path.join(output,'transition-'+page.viewportSize().width+'.png')});
+    await page.evaluate(()=>{window.capturedMotion.forEach(animation=>animation.play());delete window.capturedMotion;});
+  }
   await page.waitForURL(destination);
   await settled(page);
   assert.equal(await page.locator('#transition-layer > *').count(),0,'Calque de transition non nettoyé');
@@ -81,13 +92,20 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
     await page.waitForSelector('.home-identity.wordmark-ready');
     await page.waitForFunction(()=>window.wordmarkEntered);
     await settled(page);
+    // Mesurer au moment de l'apparition, sans dépendre de la latence du pilote.
+    await page.evaluate(()=>{
+      const observer=new MutationObserver(()=>{
+        const image=document.querySelector('.home-thumbnail.is-visible');
+        if(!image)return;
+        window.previewEntrance={opacity:Number(getComputedStyle(image).opacity),transitions:image.getAnimations().map(animation=>animation.transitionProperty)};
+        observer.disconnect();
+      });
+      observer.observe(document.querySelector('.preview-stage'),{subtree:true,attributes:true,attributeFilter:['class']});
+    });
     const first=page.locator('.project-link').first();
     await first.hover();
-    await page.waitForSelector('.home-thumbnail.is-visible');
-    const entrance=await page.locator('.home-thumbnail.is-visible').evaluate(image=>({
-      opacity:Number(getComputedStyle(image).opacity),
-      transitions:image.getAnimations().map(animation=>animation.transitionProperty)
-    }));
+    await page.waitForFunction(()=>window.previewEntrance);
+    const entrance=await page.evaluate(()=>window.previewEntrance);
     assert.ok(entrance.opacity<1,'Le premier aperçu doit apparaître progressivement');
     assert.ok(entrance.transitions.includes('opacity')&&entrance.transitions.includes('transform'),'Transitions du premier aperçu absentes');
     // Simuler un décodage lent : sortir du titre avant que son image soit prête.
@@ -135,23 +153,39 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
     await animatedNavigation(page,()=>page.locator('[rel=next]').click(),/\/projets\/france-titres\.html$/);
     await animatedNavigation(page,()=>page.locator('[rel=prev]').click(),/\/projets\/infomaniak\.html$/);
     assert.match(await page.locator('.project-close').getAttribute('href'),/\/index\.html$/);
-    await instantNavigation(page,()=>page.locator('.project-close').click(),/\/index\.html$/);
+    await returnNavigation(page,()=>page.locator('.project-close').click(),/\/index\.html$/);
     await animatedNavigation(page,()=>page.getByRole('link',{name:'Informations',exact:true}).click(),/\/informations\.html$/);
     await animatedNavigation(page,()=>page.getByRole('link',{name:'Données du site',exact:true}).click(),/\/donnees-du-site\.html$/);
     await animatedNavigation(page,()=>page.locator('a[href="projets/infomaniak.html"]').click(),/\/projets\/infomaniak\.html$/);
     assert.match(await page.locator('.project-close').getAttribute('href'),/\/donnees-du-site\.html$/);
-    await instantNavigation(page,()=>page.locator('.project-close').click(),/\/donnees-du-site\.html$/);
+    await returnNavigation(page,()=>page.locator('.project-close').click(),/\/donnees-du-site\.html$/);
     for(const width of [1440,390]){
       await page.setViewportSize({width,height:900});
       await page.goto(base+'/projets/infomaniak.html');await settled(page);
-      await instantNavigation(page,()=>page.getByRole('link',{name:'Accueil',exact:true}).click(),/\/index\.html$/);
+      await returnNavigation(page,()=>page.getByRole('link',{name:'Accueil',exact:true}).click(),/\/index\.html$/);
       await page.goto(base+'/projets/infomaniak.html');await settled(page);
-      await instantNavigation(page,()=>page.locator('.project-close').click(),/\/index\.html$/);
+      await returnNavigation(page,()=>page.locator('.project-close').click(),/\/index\.html$/);
       if(width<=700)await page.getByRole('button',{name:'Menu',exact:true}).click();
       await page.getByRole('link',{name:'Données du site',exact:true}).click();await settled(page);
       await page.locator('a[href="projets/infomaniak.html"]').click();await settled(page);
-      await instantNavigation(page,()=>page.locator('.project-close').click(),/\/donnees-du-site\.html$/);
+      await returnNavigation(page,()=>page.locator('.project-close').click(),/\/donnees-du-site\.html$/);
     }
+    // Un retour navigateur pendant le trajet doit finir sur l'accueil sans calque résiduel.
+    await page.goto(base+'/index.html');await settled(page);
+    await page.locator('.project-link').first().click();
+    await page.waitForSelector('.transition-image');
+    await page.goBack();
+    await page.waitForFunction(()=>document.querySelector('#site-shell').dataset.page==='home');
+    await settled(page);
+    assert.equal(await page.locator('#transition-layer > *').count(),0);
+    assert.match(page.url(),/\/index\.html$/);
+    // La préférence de réduction du mouvement conserve une navigation immédiate.
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await page.evaluate(()=>window.navigationAnimations=[]);
+    await page.locator('.project-link').first().click();await settled(page);
+    await page.locator('.project-close').click();
+    await page.waitForFunction(()=>document.querySelector('#site-shell').dataset.page==='home');await settled(page);
+    assert.deepEqual(await page.evaluate(()=>window.navigationAnimations),[]);
     assert.deepEqual(errors,[]);
     const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     await mobile.addInitScript(observeAnimations);
@@ -212,6 +246,6 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
     await localLetter.hover();
     await local.waitForFunction(()=>document.querySelector('.wordmark-letter').dataset.motion==='hover');
     assert.deepEqual(localErrors,[]);
-    process.stdout.write('Entrée, aperçu, lettres, transitions conservées, retours sans animation (desktop/mobile) et ouverture locale : OK\n');
+    process.stdout.write('Entrée, aperçu, lettres, transitions conservées, retours fluides (desktop/mobile) et ouverture locale : OK\n');
   }finally{await browser.close();server.close();}
 })().catch(error=>{process.stderr.write(error.stack+'\n');server.close();process.exitCode=1;});
