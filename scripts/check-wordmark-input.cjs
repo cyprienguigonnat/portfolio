@@ -43,6 +43,12 @@ function run(pointerEvents){
  };
  const advance=(seconds)=>{for(let i=0;i<seconds*120;i++){now+=1000/120;const pending=[...frames];frames.clear();pending.forEach(([,fn])=>fn(now));}};
  const types=pointerEvents?['pointerdown','pointermove','pointerup']:['touchstart','touchmove','touchend'];
+ emit(types[0],26,422);now+=8;emit(types[1],200,422);
+ assert.equal(secondLetter.dataset.motion,'floating','Un événement rapide traversant la voisine déclenche immédiatement le choc');
+ emit(types[2],200,422);toggleButton.handlers.click[0]();advance(8);
+ emit(types[0],26,422);now+=8;emit(types[2],200,422);
+ assert.equal(secondLetter.dataset.motion,'floating','La dernière position du relâchement participe aussi aux collisions');
+ toggleButton.handlers.click[0]();advance(8);
  emit(types[0],26,422);now+=16;emit(types[1],50,422);
  assert.equal(secondLetter.dataset.motion,'floating','La collision tactile réveille la lettre voisine');
  const collisionTransform=secondLetter.attrs.transform;

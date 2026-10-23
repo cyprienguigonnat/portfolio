@@ -9,6 +9,7 @@ Site statique en français, sans framework ni dépendance JavaScript à installe
 - `content/wordmark.svg` : tracés des lettres.
 - `content/htaccess.conf` : configuration Apache source ; l’empreinte du script de chargement est ajoutée automatiquement.
 - `js/` et `css/` : sources lisibles. `css/reset.css` conserve seulement les règles de normalisation utiles au site.
+- `js/vendor/lenis-1.1.13.min.js` : Lenis fourni dans la référence de défilement, licence MIT conservée dans le bundle et `js/vendor/LICENSE-lenis.txt`. Molette amortie (`lerp: 0.11`, multiplicateur `1`) et inertie tactile courte hors accueil ; amorti atténué avec la réduction du mouvement. La boucle s'arrête au repos et le contrôleur est recréé après chaque navigation. Les images de galerie apparaissent une fois en descendant de 18 px, avec un fondu et un flou léger de 4 px qui disparaît (600 ms, fondu bref en réduction du mouvement), après décodage ; la couverture conserve sa transition existante.
 - `img/projets/*.png` : originaux et repli des images ; ne pas les supprimer lorsque le HTML ou le catalogue les référence.
 - `content/images.json` : manifeste généré des variantes WebP.
 - `dist/` : site compilé complet, généré par la construction et ignoré par Git. Modifier les sources puis reconstruire.
@@ -30,7 +31,7 @@ npm run test:animations
 npm audit
 ```
 
-Les WebP déjà à jour ne sont pas recalculés. Après modification d’un PNG ou du catalogue, exécuter `npm run images` avant `npm run build`. La construction regroupe et minifie les styles ainsi que les trois scripts dans un bundle classique unique. Ce format conserve les animations lors d’une ouverture locale du site et réduit les requêtes sans introduire de chargeur de modules.
+Les WebP déjà à jour ne sont pas recalculés. Après modification d’un PNG ou du catalogue, exécuter `npm run images` avant `npm run build`. La construction regroupe et minifie les styles ainsi que les scripts du site dans un bundle classique unique. Ce format conserve les animations lors d’une ouverture locale du site et réduit les requêtes sans introduire de chargeur de modules.
 
 Les images WebP sont compressées sans perte. Les petites variantes sont redimensionnées ; la variante à la résolution d’origine conserve les mêmes pixels. Lorsqu’un WebP pèserait plus lourd que le PNG, le candidat PNG est conservé dans le jeu de sources. Les images, scripts et styles générés portent une empreinte dans leur nom pour éviter les problèmes de cache.
 

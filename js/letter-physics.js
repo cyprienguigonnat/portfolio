@@ -1,7 +1,13 @@
 // Physique en pixels CSS, indépendante de la taille du tracé et de l'écran.
 (function (root) {
   const COLLISION_SCALE = .82;
-  const NON_COLLIDING_MODES = new Set(['returning','gathering','hover','hover-returning']);
+  // Seule la lettre tenue peut interrompre un retour ou un regroupement.
+  const PROTECTED_MODES = new Set(['returning','gathering']);
+  // Passes de relaxation entre lettres libres tant qu'une lettre est tenue.
+  const SETTLE_PASSES = 4;
+  // Tampons réutilisés : aucune allocation par frame dans le solveur.
+  const bounds = [];
+  let struck = new Uint8Array(32), pinned = new Uint8Array(32);
 
   // Courbe partagée avec les transitions CSS, fournie par le contrôleur.
   function glide(letter, dt, x, y, rotation) {
@@ -63,44 +69,115 @@
       letter.x=letter.y=letter.vx=letter.vy=letter.rotation=0; letter.mode='idle';
     }
   }
-  function extents(letter) {
-    const angle=letter.rotation*Math.PI/180;
-    return {x:(Math.abs(Math.cos(angle))*letter.width+Math.abs(Math.sin(angle))*letter.height)*COLLISION_SCALE/2,
-      y:(Math.abs(Math.sin(angle))*letter.width+Math.abs(Math.cos(angle))*letter.height)*COLLISION_SCALE/2};
+  function extents(letter, out = {x:0,y:0}) {
+    const angle=letter.rotation*Math.PI/180,cos=Math.abs(Math.cos(angle)),sin=Math.abs(Math.sin(angle));
+    out.x=(cos*letter.width+sin*letter.height)*COLLISION_SCALE/2;
+    out.y=(sin*letter.width+cos*letter.height)*COLLISION_SCALE/2;
+    return out;
   }
-  function collide(letters, viewport, dragged = null) {
-    for(let i=0;i<letters.length;i++)for(let j=i+1;j<letters.length;j++) {
-      const first=letters[i],second=letters[j];
-      if(first.mode==='idle'&&second.mode==='idle')continue;
-      if(NON_COLLIDING_MODES.has(first.mode)||NON_COLLIDING_MODES.has(second.mode))continue;
-      const a=extents(first),b=extents(second);
-      const dx=first.cx+first.x-second.cx-second.x,dy=first.cy+first.y-second.cy-second.y;
-      const overlapX=a.x+b.x-Math.abs(dx),overlapY=a.y+b.y-Math.abs(dy);
-      if(overlapX<=0||overlapY<=0)continue;
-      const alongX=overlapX<overlapY,direction=(alongX?dx:dy)>=0?1:-1;
-      const penetration=(alongX?overlapX:overlapY)+1;
-      const firstFixed=first===dragged,secondFixed=second===dragged;
-      const firstShare=firstFixed?0:secondFixed?1:.5,secondShare=secondFixed?0:firstFixed?1:.5;
-      if(alongX) {
-        first.x+=direction*penetration*firstShare;second.x-=direction*penetration*secondShare;
-        const relative=first.vx-second.vx,impact=Math.max(42,Math.abs(relative)*.72);
-        if(!firstFixed)first.vx=direction*impact*.72;
-        if(!secondFixed)second.vx=-direction*impact*.72;
-      } else {
-        first.y+=direction*penetration*firstShare;second.y-=direction*penetration*secondShare;
-        const relative=first.vy-second.vy,impact=Math.max(42,Math.abs(relative)*.72);
-        if(!firstFixed)first.vy=direction*impact*.72;
-        if(!secondFixed)second.vy=-direction*impact*.72;
+  // La lettre tenue est toujours solide. Entre lettres libres, une paire
+  // n'interagit que si l'une d'elles flotte : le nom composé reste au repos.
+  function interacts(first, second, held) {
+    if(first===held || second===held)return true;
+    if(PROTECTED_MODES.has(first.mode) || PROTECTED_MODES.has(second.mode))return false;
+    return first.mode==='floating' || second.mode==='floating';
+  }
+  function knock(letter, alongX, velocity) {
+    if(alongX)letter.vx=velocity;else letter.vy=velocity;
+    letter.mode='floating';letter.hoverSettled=false;letter.disturbed=true;
+  }
+  // Une lettre calée contre un bord ne peut pas reculer sur cet axe.
+  function blocked(letter, bound, alongX, shift, viewport) {
+    if(!shift)return false;
+    const half=(alongX?bound.x:bound.y)/COLLISION_SCALE,size=alongX?viewport.width:viewport.height;
+    const centre=(alongX?letter.cx+letter.x:letter.cy+letter.y)+shift;
+    return centre-half<2 || centre+half>size-2;
+  }
+  // Sépare la paire i/j si elle se recouvre ; renvoie true s'il y avait contact.
+  function separate(letters, i, j, held, viewport) {
+    const first=letters[i],second=letters[j],a=bounds[i],b=bounds[j];
+    const dx=first.cx+first.x-second.cx-second.x,dy=first.cy+first.y-second.cy-second.y;
+    const overlapX=a.x+b.x-Math.abs(dx),overlapY=a.y+b.y-Math.abs(dy);
+    if(overlapX<=0||overlapY<=0)return false;
+    // Propagation du choc : une lettre déjà poussée par la lettre tenue reste
+    // en place face aux suivantes, la file se range en une passe.
+    const firstFixed=first===held || pinned[i],secondFixed=second===held || pinned[j];
+    const firstShare=firstFixed===secondFixed?.5:firstFixed?0:1;
+    if(firstFixed!==secondFixed)pinned[firstFixed?j:i]=1;
+    // Axe de moindre recouvrement, sauf si une lettre est calée contre un bord :
+    // elle s'échappe alors par l'autre axe. À égalité, côtés alternés.
+    let alongX=overlapX<overlapY;
+    for(let tries=0;tries<2;tries++) {
+      const offset=alongX?dx:dy,direction=offset>0 || (!offset && j&1)?1:-1;
+      const depth=((alongX?overlapX:overlapY)+1)*direction;
+      if(tries || (!blocked(first,a,alongX,depth*firstShare,viewport) && !blocked(second,b,alongX,-depth*(1-firstShare),viewport))) {
+        if(alongX){first.x+=depth*firstShare;second.x-=depth*(1-firstShare);}
+        else {first.y+=depth*firstShare;second.y-=depth*(1-firstShare);}
+        // La lettre tenue frappe toujours ; entre lettres libres, impulsion
+        // seulement si elles se rapprochent. Une seule par lettre et par appel :
+        // un amas dense ne fait pas tourner ses lettres en boucle.
+        const relative=alongX?first.vx-second.vx:first.vy-second.vy;
+        if(first===held || second===held || relative*direction<=0) {
+          // Entre lettres libres, la vitesse commune (la gravité) est conservée et
+          // seul l'écart rebondit : un amas continue de tomber au lieu de flotter.
+          const hit=first===held || second===held,speed=Math.abs(relative),spin=direction*(alongX?3:-3);
+          const shared=hit?0:(alongX?first.vx+second.vx:first.vy+second.vy)/2;
+          const bounce=direction*(hit?Math.max(42,speed*.72)*.72:speed*.36);
+          if(first!==held && !struck[i]){struck[i]=1;knock(first,alongX,shared+bounce);first.rotation+=spin;extents(first,a);}
+          if(second!==held && !struck[j]){struck[j]=1;knock(second,alongX,shared-bounce);second.rotation+=spin;extents(second,b);}
+        }
+        break;
       }
-      for(const letter of [first,second])if(letter!==dragged) {
-        letter.rotation+=direction*(alongX?3:-3);
-        letter.mode='floating';letter.disturbed=true;
-        contain(letter,viewport);
-      }
-      if(dragged)contain(dragged,viewport,false);
+      alongX=!alongX;
     }
+    if(first!==held)contain(first,viewport);
+    if(second!==held)contain(second,viewport);
+    return true;
   }
-  const api={contain,step,collide};
+  // Prépare les tampons d'un appel et renvoie l'indice de la lettre tenue.
+  function prepare(letters, held) {
+    const count=letters.length;
+    for(let i=0;i<count;i++)bounds[i]=extents(letters[i],bounds[i]);
+    if(struck.length<count){struck=new Uint8Array(count);pinned=new Uint8Array(count);}
+    struck.fill(0,0,count);
+    return held?letters.indexOf(held):-1;
+  }
+  // La lettre tenue est cinématique : elle écarte entièrement chaque lettre
+  // qu'elle touche. Coût linéaire.
+  function clear(letters, h, viewport) {
+    for(let j=0;j<letters.length;j++)if(j!==h)separate(letters,h,j,letters[h],viewport);
+  }
+  // Les passes propagent le choc au groupe ; la lettre tenue écarte ensuite
+  // tout ce qui la touche encore, rien ne reste dessous au rendu.
+  function solve(letters, viewport, held, h, passes) {
+    const count=letters.length;
+    pinned.fill(0,0,count);
+    for(let pass=0;pass<passes;pass++) {
+      let touched=false;
+      for(let i=0;i<count;i++)for(let j=i+1;j<count;j++)
+        if(interacts(letters[i],letters[j],held) && separate(letters,i,j,held,viewport))touched=true;
+      if(!touched)break;
+    }
+    if(held)clear(letters,h,viewport);
+  }
+  // Le déplacement est découpé en pas plus courts que la demi-lettre tenue :
+  // elle ne peut plus sauter par-dessus une lettre, même lorsqu'un seul
+  // événement traverse tout le nom. Un geste lent reste en un seul pas.
+  function drag(held, x, y, letters, viewport) {
+    const h=prepare(letters,held),fromX=held.x,fromY=held.y,a=bounds[h];
+    held.x=x;held.y=y;contain(held,viewport,false);
+    const dx=held.x-fromX,dy=held.y-fromY;
+    const steps=Math.max(1,Math.ceil(Math.max(Math.abs(dx)/a.x,Math.abs(dy)/a.y)));
+    for(let k=1;k<=steps;k++) {
+      held.x=fromX+dx*k/steps;held.y=fromY+dy*k/steps;
+      solve(letters,viewport,held,h,1);
+    }
+    solve(letters,viewport,held,h,SETTLE_PASSES);
+  }
+  function collide(letters, viewport, held = null) {
+    solve(letters,viewport,held,prepare(letters,held),held?SETTLE_PASSES:1);
+  }
+  const api={contain,step,collide,drag};
   if(typeof module==='object' && module.exports)module.exports=api;
   else root.PortfolioLetterPhysics=api;
 })(typeof window==='undefined'?globalThis:window);

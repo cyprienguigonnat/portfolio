@@ -18,7 +18,9 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   const layout=document.createElementNS('http://www.w3.org/2000/svg','g');
   layout.classList.add('wordmark-layout');
   const entries=[...svg.querySelectorAll('.letter-entry')];
-  entries.forEach(entry=>layout.append(entry));
+  const rows=[0,1].map(()=>document.createElementNS(svg.namespaceURI,'g'));
+  rows.forEach(row=>layout.append(row));
+  entries.forEach((entry,index)=>rows[index<7?0:1].append(entry));
   svg.append(layout);
   const letters=entries.map((entry,index)=>{
     const el=entry.querySelector('.wordmark-letter'), box=el.getBBox();
@@ -31,9 +33,15 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     hitbox.setAttribute('width',box.width+6);hitbox.setAttribute('height',box.height+6);
     el.prepend(hitbox);
     entry.style.setProperty('--entry-offset',(Math.random()<.5?-1:1)*(90+Math.random()*65)+'px');
-    return {el,box,glyphX:box.x+box.width/2,glyphY:box.y+box.height/2,
+    return {el,box,index,glyphX:box.x+box.width/2,glyphY:box.y+box.height/2,
       cx:0,cy:0,width:0,height:0,x:0,y:0,vx:0,vy:0,rotation:0,mode:'idle',seed:index*.73,
       disturbed:false,ease,hoverSettled:false,hoverX:Math.sin(index*1.91)*9,hoverY:-7-Math.abs(Math.cos(index*1.37))*8};
+  });
+  const rowBounds=rows.map((row,index)=>{
+    const boxes=letters.filter(letter=>(letter.index<7?0:1)===index).map(letter=>letter.box);
+    const left=boxes.length?Math.min(...boxes.map(box=>box.x)):0;
+    const right=boxes.length?Math.max(...boxes.map(box=>box.x+box.width)):0;
+    return {left,width:right-left};
   });
   svg.removeAttribute('aria-hidden');
   svg.setAttribute('role','group');
@@ -61,15 +69,21 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     const old=size;
     const viewport=identity.getBoundingClientRect();
     size={width:viewport.width,height:viewport.height};
-    scale=Math.max(.01,(size.width-32)/1841);
-    identity.style.setProperty('--wordmark-height',(124*scale)+'px');
+    const stacked=size.width<700 && rowBounds[1].width>0;
+    const width=stacked?Math.max(...rowBounds.map(row=>row.width)):1841;
+    const height=stacked?284:124;
+    const offsets=rowBounds.map((row,index)=>({x:stacked?(width-row.width)/2-row.left:0,y:stacked?index*160:0}));
+    scale=Math.max(.01,(size.width-32)/width);
+    identity.style.setProperty('--wordmark-height',(height*scale)+'px');
     svg.setAttribute('viewBox','0 0 '+size.width+' '+size.height);
     identity.classList.add('wordmark-ready');
-    layout.setAttribute('transform','translate(16 '+(size.height-124*scale)/2+') scale('+scale+')');
+    layout.setAttribute('transform','translate(16 '+(size.height-height*scale)/2+') scale('+scale+')');
+    rows.forEach((row,index)=>row.setAttribute('transform','translate('+offsets[index].x+' '+offsets[index].y+')'));
     for(const letter of letters) {
       const oldX=letter.cx+letter.x,oldY=letter.cy+letter.y;
-      letter.cx=16+letter.glyphX*scale;
-      letter.cy=(size.height-124*scale)/2+letter.glyphY*scale;
+      const offset=offsets[letter.index<7?0:1];
+      letter.cx=16+(letter.glyphX+offset.x)*scale;
+      letter.cy=(size.height-height*scale)/2+(letter.glyphY+offset.y)*scale;
       letter.width=letter.box.width*scale;letter.height=letter.box.height*scale;
       if(old.width && letter.mode!=='idle') {
         letter.x=oldX*size.width/old.width-letter.cx;
@@ -160,7 +174,8 @@ window.initPortfolioWordmark = function (animateEntry = true) {
       let nearest=null,best=Infinity;
       for(const letter of letters) {
         const box=letter.el.getBoundingClientRect();
-        const padX=Math.max(0,(44-box.width)/2),padY=Math.max(0,(44-box.height)/2);
+        const margin=size.width<700?8:0;
+        const padX=Math.max(margin,(44-box.width)/2),padY=Math.max(margin,(44-box.height)/2);
         if(event.clientX<box.left-padX || event.clientX>box.right+padX || event.clientY<box.top-padY || event.clientY>box.bottom+padY)continue;
         const dx=Math.max(box.left-event.clientX,0,event.clientX-box.right),dy=Math.max(box.top-event.clientY,0,event.clientY-box.bottom);
         const distance=Math.hypot(dx,dy)+Math.hypot(event.clientX-box.x-box.width/2,event.clientY-box.y-box.height/2)*.001;
@@ -180,6 +195,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     Object.assign(letter,{mode:'dragging',pointerId:event.pointerId,startX:letter.x,startY:letter.y,
       startPX:event.clientX,startPY:event.clientY,lastPX:event.clientX,lastPY:event.clientY,lastTime:performance.now(),moved:false,vx:0,vy:0});
     letter.el.classList.add('is-dragging');
+    svg.classList.add('is-dragging');
     if(event.pointerId!==undefined && 'PointerEvent' in window)svg.setPointerCapture(event.pointerId);
     render(letter);
   }
@@ -191,13 +207,11 @@ window.initPortfolioWordmark = function (animateEntry = true) {
       const dx=event.clientX-letter.startPX,dy=event.clientY-letter.startPY;
       letter.moved ||= Math.hypot(dx,dy)>5;
       if(letter.moved) {
-        letter.x=letter.startX+dx;letter.y=letter.startY+dy;
         letter.disturbed=true;
         letter.vx=clamp((event.clientX-letter.lastPX)/dt,650);
         letter.vy=clamp((event.clientY-letter.lastPY)/dt,650);
         letter.rotation=clamp(letter.vx*.02,14);
-        physics.contain(letter,size,false);
-        physics.collide(letters,size,letter);
+        physics.drag(letter,letter.startX+dx,letter.startY+dy,letters,size);
         updateHint();
         letters.forEach(render);
         start();
@@ -209,8 +223,12 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   }
   function up(event,cancelled=false) {
     if(!dragged || (event.pointerId!==undefined && event.pointerId!==dragged.pointerId))return;
+    // Le relâchement peut porter une dernière position absente de pointermove.
+    if(!cancelled && Number.isFinite(event.clientX) && Number.isFinite(event.clientY) &&
+      (event.clientX!==dragged.lastPX || event.clientY!==dragged.lastPY))move(event);
     const letter=dragged;dragged=null;hovered=null;
     letter.el.classList.remove('is-dragging');
+    svg.classList.remove('is-dragging');
     if(letter.pointerId!==undefined && svg.hasPointerCapture?.(letter.pointerId))svg.releasePointerCapture(letter.pointerId);
     if(!letter.moved)resetLetter(letter);
     else {

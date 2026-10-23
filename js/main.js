@@ -13,11 +13,79 @@
   let disposeWordmark = () => {};
   const mobileMenu = window.matchMedia('(max-width: 700px)');
   // Un même rythme pour toutes les routes ; le trajet de l'image est le temps fort.
-  const motion = {page: 360, exit: 240, projectExit: 140, projectEntry: 260, image: 650};
+  const motion = {page: 360, exit: 240, projectExit: 140, projectEntry: 260, image: 650, reveal: 600};
   let disposeMenu = () => {};
+  let smoothScroll = null;
+  let scrollFrame = 0;
+  let imageObserver;
   history.scrollRestoration = "manual";
 
   function shell() { return document.getElementById("site-shell"); }
+  function disposeSmoothScroll() {
+    cancelAnimationFrame(scrollFrame);
+    scrollFrame = 0;
+    smoothScroll?.destroy();
+    smoothScroll = null;
+  }
+  function initSmoothScroll() {
+    disposeSmoothScroll();
+    // L'accueil tient dans la fenêtre et conserve la manipulation des lettres.
+    if (busy || shell().dataset.page === 'home' || !window.Lenis) return;
+    const calm = reducedMotion.matches;
+    smoothScroll = new window.Lenis({
+      lerp: calm ? .25 : .11, wheelMultiplier: 1,
+      syncTouch: true, syncTouchLerp: calm ? .3 : .14,
+      touchInertiaMultiplier: calm ? 12 : 20,
+      prevent: element => element.matches('.header-menu, .header-contact')
+    });
+    if (root.classList.contains('sheet-open')) smoothScroll.stop();
+    function tick(time) {
+      scrollFrame = 0;
+      smoothScroll.raf(time);
+      if (smoothScroll.isScrolling === 'smooth') scrollFrame = requestAnimationFrame(tick);
+    }
+    smoothScroll.on('virtual-scroll', () => {
+      if (scrollFrame || document.hidden) return;
+      // Éviter un grand pas de temps quand une nouvelle impulsion suit le repos.
+      smoothScroll.time = performance.now();
+      scrollFrame = requestAnimationFrame(tick);
+    });
+  }
+  reducedMotion.addEventListener('change', initSmoothScroll);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) disposeSmoothScroll();
+    else initSmoothScroll();
+  });
+  window.addEventListener('pagehide', disposeSmoothScroll);
+  window.addEventListener('pageshow', initSmoothScroll);
+  function initImageReveals() {
+    imageObserver?.disconnect();
+    if (!('IntersectionObserver' in window)) return;
+    imageObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const frame = entry.target;
+        imageObserver.unobserve(frame);
+        // L'apparition commence sur l'image décodée, pas sur son espace réservé.
+        frame.querySelector('img').decode().catch(() => {}).then(() => {
+          frame.classList.remove('image-reveal-pending');
+          if (!frame.isConnected || !frame.classList.contains('is-loaded')) return;
+          const frames = reducedMotion.matches
+            ? [{opacity:0}, {opacity:1}]
+            : [{transform:'translateY(-18px)', opacity:0, filter:'blur(4px)'},
+              {transform:'translateY(0)', opacity:1, filter:'blur(0px)'}];
+          frame.animate(frames, {duration:reducedMotion.matches ? 120 : motion.reveal,
+            easing:getComputedStyle(root).getPropertyValue('--ease').trim()});
+        });
+      }
+    }, {rootMargin:'0px 0px -24px 0px'});
+    shell().querySelectorAll('.project-image-frame').forEach(frame => {
+      // Préserver la couverture, la position restaurée et les images déjà à l'écran.
+      if (frame.closest('.project-hero') || frame.getBoundingClientRect().top < innerHeight) return;
+      frame.classList.add('image-reveal-pending');
+      imageObserver.observe(frame);
+    });
+  }
   function delayPreview(callback, delay) {
     const timer = setTimeout(() => { previewTimers.delete(timer); callback(); }, delay);
     previewTimers.add(timer);
@@ -53,6 +121,8 @@
       headerObserver.observe(header);
     }
     updateHeaderHeight();
+    if (!busy) initImageReveals();
+    initSmoothScroll();
     if (animateWordmark && shell().dataset.page === 'home') disposeWordmark = window.initPortfolioWordmark(false);
   }
 
@@ -63,55 +133,108 @@
     ];
     const controller = new AbortController();
     const options = {signal: controller.signal};
-    function setOpen(group, value, restoreFocus = false) {
-      group.panel.classList.toggle('is-open', value);
-      group.panel.inert = mobileMenu.matches && !value;
-      group.toggle.setAttribute('aria-expanded', String(value));
-      if (restoreFocus) group.toggle.focus({preventScroll: true});
+    const sheet = document.createElement('dialog');
+    sheet.className = 'mobile-sheet';
+    sheet.setAttribute('aria-labelledby', 'mobile-sheet-title');
+    sheet.innerHTML = '<div class="sheet-heading"><h2 id="mobile-sheet-title"></h2><button class="sheet-close" type="button" autofocus>Fermer <span aria-hidden="true">×</span></button></div>';
+    document.body.append(sheet);
+    let active = null;
+    let closeTimer;
+    let outsidePress = false;
+    groups.forEach(group => {
+      group.anchor = document.createComment('mobile-panel');
+      group.panel.before(group.anchor);
+      group.toggle.setAttribute('aria-haspopup', 'dialog');
+    });
+    function unlock() {
+      root.classList.remove('sheet-open');
+      root.style.removeProperty('--sheet-scrollbar-width');
+      smoothScroll?.start();
     }
-    function closeAll() { groups.forEach(group => setOpen(group, false)); }
+    function finishClose(restoreFocus = true) {
+      clearTimeout(closeTimer);
+      const previous = active;
+      active = null;
+      sheet.classList.remove('is-open');
+      if (sheet.open) sheet.close();
+      groups.forEach(group => {
+        group.anchor.after(group.panel);
+        group.panel.inert = mobileMenu.matches;
+      });
+      unlock();
+      if (restoreFocus && previous?.toggle.isConnected && mobileMenu.matches) previous.toggle.focus({preventScroll: true});
+    }
+    function close(restoreFocus = true) {
+      if (!active) return;
+      active.toggle.setAttribute('aria-expanded', 'false');
+      sheet.classList.remove('is-open');
+      clearTimeout(closeTimer);
+      // Conserver la modalité et le verrouillage jusqu'à la fin de la sortie.
+      if (reducedMotion.matches) finishClose(restoreFocus);
+      else closeTimer = setTimeout(() => finishClose(restoreFocus), 280);
+    }
+    function open(group, focusLink = false) {
+      if (!mobileMenu.matches) return;
+      clearTimeout(closeTimer);
+      groups.forEach(item => item.toggle.setAttribute('aria-expanded', String(item === group)));
+      if (active && active !== group) {
+        active.anchor.after(active.panel);
+        active.panel.inert = true;
+      }
+      active = group;
+      group.panel.inert = false;
+      sheet.querySelector('h2').textContent = group.toggle.textContent;
+      sheet.append(group.panel);
+      if (!sheet.open) root.style.setProperty('--sheet-scrollbar-width', (innerWidth - root.clientWidth) + 'px');
+      root.classList.add('sheet-open');
+      smoothScroll?.stop();
+      if (!sheet.open) {
+        sheet.showModal();
+        // Enregistrer la position basse avant de lancer la transition CSS.
+        getComputedStyle(sheet).transform;
+      }
+      sheet.classList.add('is-open');
+      (focusLink ? group.panel.querySelector('a') : sheet.querySelector('button')).focus({preventScroll: true});
+    }
     function sync() {
-      const focusedPanel = groups.find(group => group.panel.contains(document.activeElement));
-      closeAll();
+      const previous = active;
+      groups.forEach(group => group.toggle.setAttribute('aria-expanded', 'false'));
+      finishClose(false);
       groups.forEach(group => { group.toggle.hidden = !mobileMenu.matches; });
-      if (mobileMenu.matches && focusedPanel) focusedPanel.toggle.focus({preventScroll: true});
+      if (previous) (mobileMenu.matches ? previous.toggle : previous.panel.querySelector('a')).focus({preventScroll: true});
       updateHeaderHeight();
     }
     header.classList.add('menu-ready');
     groups.forEach(group => {
       group.toggle.addEventListener('click', () => {
-        const value = group.toggle.getAttribute('aria-expanded') !== 'true';
-        closeAll();
-        setOpen(group, value);
+        if (active === group && sheet.classList.contains('is-open')) close();
+        else open(group);
       }, options);
       group.toggle.addEventListener('keydown', event => {
         if (event.key !== 'ArrowDown' || !mobileMenu.matches) return;
         event.preventDefault();
-        closeAll();
-        setOpen(group, true);
-        group.panel.querySelector('a').focus();
+        open(group, true);
       }, options);
       group.panel.addEventListener('click', event => {
-        if (mobileMenu.matches && event.target.closest('a[href]')) setOpen(group, false, true);
+        if (mobileMenu.matches && event.target.closest('a[href]')) close();
       }, options);
     });
-    document.addEventListener('click', event => {
-      if (!header.contains(event.target)) closeAll();
+    sheet.querySelector('button').addEventListener('click', () => close(), options);
+    sheet.addEventListener('cancel', event => {
+      event.preventDefault();
+      close();
     }, options);
-    document.addEventListener('focusin', event => {
-      groups.forEach(group => {
-        if (!group.panel.contains(event.target) && event.target !== group.toggle) setOpen(group, false);
-      });
-    }, options);
-    header.addEventListener('keydown', event => {
-      const group = groups.find(item => item.toggle.getAttribute('aria-expanded') === 'true');
-      if (event.key === 'Escape' && group) {
-        event.preventDefault();
-        setOpen(group, false, true);
-      }
+    function isOutside(event) {
+      const box = sheet.getBoundingClientRect();
+      return event.target === sheet && (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom);
+    }
+    sheet.addEventListener('pointerdown', event => { outsidePress = isOutside(event); }, options);
+    sheet.addEventListener('click', event => {
+      if (outsidePress && isOutside(event)) close();
+      outsidePress = false;
     }, options);
     mobileMenu.addEventListener('change', sync, options);
-    disposeMenu = () => { closeAll(); controller.abort(); };
+    disposeMenu = () => { finishClose(false); controller.abort(); sheet.remove(); };
     sync();
   }
 
@@ -338,6 +461,8 @@
       return;
     }
     busy = true;
+    // Figer l'inertie avant la capture et l'enregistrement de la position.
+    disposeSmoothScroll();
     document.body.classList.add("is-navigating");
     shell().setAttribute("aria-busy", "true");
     const oldProject = shell().dataset.project;
@@ -408,6 +533,7 @@
       document.title = doc.title;
       initPage();
       scrollToDestination(url, options.scrollY);
+      initImageReveals();
       let target = next.querySelector(".hero-image");
       let homeLink = null;
       if (next.dataset.page === "home" && oldProject) {
@@ -446,6 +572,7 @@
       shell()?.removeAttribute("aria-busy");
       document.body.classList.remove("is-navigating");
       busy = false;
+      initSmoothScroll();
       if (queuedNavigation) {
         const pending = queuedNavigation;
         queuedNavigation = null;
@@ -477,6 +604,7 @@
         state.returnDepth += 1;
       }
       history.pushState(state, "", url);
+      smoothScroll?.reset();
       target.focus({preventScroll:true});
       target.scrollIntoView({block:"start", behavior:"instant"});
       return;
@@ -500,6 +628,7 @@
     }, 120);
   }, {passive:true});
   document.addEventListener("keydown", event => {
+    if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(event.key)) smoothScroll?.reset();
     if (event.key !== "Escape" || busy || shell().dataset.page !== "project") return;
     const link = document.querySelector(".project-close");
     event.preventDefault();

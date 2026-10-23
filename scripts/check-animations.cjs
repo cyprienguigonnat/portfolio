@@ -4,7 +4,7 @@ const http=require('node:http');
 const assert=require('node:assert/strict');
 const {pathToFileURL}=require('node:url');
 const {chromium}=require('playwright');
-const root=path.resolve(__dirname,'..','dist');
+const root=path.resolve(process.env.SITE_ROOT || path.join(__dirname,'..','dist'));
 const types={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'text/javascript','.woff2':'font/woff2','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon'};
 const server=http.createServer((request,response)=>{
   const file=path.resolve(root,'.'+decodeURIComponent(new URL(request.url,'http://localhost').pathname).replace(/\/$/,'/index.html'));
@@ -234,6 +234,63 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
       await mobile.waitForFunction(()=>[...document.querySelectorAll('.wordmark-letter')].every(letter=>letter.dataset.motion==='idle'));
     }
     await mobile.close();
+    assert.deepEqual(errors,[]);
+    // Dévoilement réel au scroll : une seule fois, sans déplacement de la grille.
+    for (const width of [1440,390,320]) {
+      const gallery=await browser.newPage({viewport:{width,height:900}});
+      await gallery.addInitScript(()=>{
+        window.galleryReveals=[];
+        const animate=Element.prototype.animate;
+        Element.prototype.animate=function(frames,options){
+          const animation=animate.call(this,frames,options);
+          if(this.matches('.project-image-frame'))window.galleryReveals.push({element:this,animation,frames});
+          return animation;
+        };
+      });
+      gallery.on('pageerror',error=>errors.push(error.message));
+      await gallery.goto(base+'/projets/infomaniak.html');await settled(gallery);
+      assert.equal(await gallery.locator('.project-hero .image-reveal-pending').count(),0,'La couverture reste visible');
+      const frame=gallery.locator('.project-gallery .project-image-frame').first();
+      assert.ok(await frame.evaluate(element=>element.classList.contains('image-reveal-pending')));
+      const before=await frame.boundingBox();
+      await gallery.mouse.move(150,500);
+      await gallery.mouse.wheel(0,Math.ceil(before.y-750));
+      await gallery.waitForFunction(()=>window.galleryReveals.length>0);
+      const reveal=await gallery.evaluate(()=>{
+        const {element,animation,frames}=window.galleryReveals[0];
+        animation.pause();animation.currentTime=animation.effect.getTiming().duration*.25;
+        const style=getComputedStyle(element);
+        return {frames,clip:style.clipPath,y:new DOMMatrix(style.transform).m42,
+          opacity:Number(style.opacity),blur:parseFloat(style.filter.replace('blur(','')),
+          decoded:element.querySelector('img').naturalWidth>0};
+      });
+      assert.equal(reveal.clip,'none','L’image reste entière, sans masque');
+      assert.ok(reveal.y>-18 && reveal.y<0,'L’image descend vers sa position finale');
+      assert.ok(reveal.opacity>0 && reveal.opacity<1,'Fondu progressif');
+      assert.ok(reveal.blur>0 && reveal.blur<4,'Le flou disparaît progressivement');
+      assert.equal(reveal.decoded,true);
+      if(process.env.MOTION_OUTPUT){
+        fs.mkdirSync(process.env.MOTION_OUTPUT,{recursive:true});
+        await gallery.screenshot({path:path.join(process.env.MOTION_OUTPUT,'gallery-reveal-'+width+'.png')});
+      }
+      await gallery.evaluate(()=>window.galleryReveals.forEach(({animation})=>animation.finish()));
+      const after=await frame.boundingBox();
+      assert.ok(Math.abs(before.width-after.width)<1 && Math.abs(before.height-after.height)<1,'Dimensions conservées');
+      await gallery.waitForFunction(()=>!document.documentElement.classList.contains('lenis-scrolling'));
+      await gallery.keyboard.press('Home');await gallery.waitForFunction(()=>scrollY===0);
+      await gallery.mouse.wheel(0,Math.ceil(before.y-750));
+      await gallery.waitForFunction(()=>!document.documentElement.classList.contains('lenis-scrolling'));
+      assert.equal(await gallery.evaluate(()=>window.galleryReveals.filter(item=>item.element===document.querySelector('.project-gallery .project-image-frame')).length),1,'Une seule apparition');
+      await gallery.emulateMedia({reducedMotion:'reduce'});
+      await gallery.goto(base+'/index.html');await settled(gallery);
+      await gallery.goto(base+'/projets/infomaniak.html');await settled(gallery);
+      const calmFrame=gallery.locator('.project-gallery .project-image-frame').first();
+      const calmBox=await calmFrame.boundingBox();
+      await gallery.mouse.wheel(0,Math.ceil(calmBox.y-750));
+      await gallery.waitForFunction(()=>window.galleryReveals.length>0);
+      assert.equal(await gallery.evaluate(()=>window.galleryReveals[0].frames.some(frame=>'transform' in frame || 'filter' in frame)),false,'Fondu seul en mouvement réduit');
+      await gallery.close();
+    }
     assert.deepEqual(errors,[]);
     const local=await browser.newPage({viewport:{width:1440,height:900}});
     const localErrors=[];

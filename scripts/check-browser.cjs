@@ -29,6 +29,7 @@ async function settled(page) {
   const base = 'http://127.0.0.1:' + server.address().port;
   const browser = await chromium.launch({headless:true, ...(process.env.BROWSER_CHANNEL ? {channel:process.env.BROWSER_CHANNEL} : {}), ...(process.env.BROWSER_EXECUTABLE ? {executablePath:process.env.BROWSER_EXECUTABLE} : {})});
   const errors = [], results = [];
+  let bottomSheets;
   try {
     for (const width of widths) {
       const context = await browser.newContext({viewport:{width,height:900}, deviceScaleFactor:1});
@@ -158,7 +159,7 @@ async function settled(page) {
     assert.equal(await letter.getAttribute('data-motion'),'floating');
     await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.querySelector('.wordmark-letter').dataset.motion==='idle');
-    const mobileContext = await browser.newContext({viewport:{width:390,height:844}});
+    const mobileContext = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const mobile = await mobileContext.newPage();
     mobile.on('pageerror', error => errors.push(error.message));
     await mobile.goto(base+'/index.html'); await settled(mobile);
@@ -172,53 +173,109 @@ async function settled(page) {
     assert.equal(await contact.isVisible(),false);
     assert.ok((await menuButton.boundingBox()).x < (await contactButton.boundingBox()).x);
     if(output)await mobile.screenshot({path:path.join(output,'menu-mobile-closed.png')});
-    await menuButton.click();
-    await mobile.waitForFunction(()=>getComputedStyle(document.querySelector('.header-menu')).opacity==='1');
+    const sheet = mobile.locator('.mobile-sheet');
+    const closed = () => mobile.waitForFunction(()=>!document.querySelector('.mobile-sheet').open);
+    const opened = () => mobile.waitForFunction(()=>{
+      const sheet=document.querySelector('.mobile-sheet');
+      return sheet.open && getComputedStyle(sheet).transform==='matrix(1, 0, 0, 1, 0, 0)';
+    });
+    await menuButton.tap(); await opened();
     assert.equal(await menu.getByRole('link').count(),3);
-    assert.equal(await mobile.locator('main').evaluate(element=>element.inert),false);
-    const menuBox=await menu.boundingBox();
-    assert.ok(menuBox.y >= (await menuButton.boundingBox()).y + 44);
-    assert.ok(menuBox.height < 250, 'Dropdown must not fill the screen');
+    assert.equal(await sheet.evaluate(element=>element.matches(':modal')),true);
+    const menuBox=await sheet.boundingBox();
+    assert.ok(Math.abs(menuBox.y+menuBox.height-844)<1,'Sheet anchored to bottom');
+    assert.ok(menuBox.width>=389,'Sheet fills mobile width');
     await mobile.keyboard.press('Tab');
     assert.equal(await mobile.locator(':focus').textContent(),'Accueil');
+    // Le navigateur maintient le focus dans le dialogue, même après un tour complet.
+    for(let i=0;i<5;i++)await mobile.keyboard.press('Tab');
+    assert.equal(await sheet.evaluate(element=>element.contains(document.activeElement)),true);
     assert.equal((await new AxeBuilder({page:mobile}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','best-practice']).analyze()).violations.length,0);
     if(output)await mobile.screenshot({path:path.join(output,'menu-mobile-open.png')});
     await mobile.keyboard.press('Escape');
     assert.equal(await menuButton.getAttribute('aria-expanded'),'false');
+    await closed();
     assert.equal(await mobile.locator(':focus').textContent(),'Menu');
-    await menuButton.click();
-    await contactButton.click();
-    assert.equal(await menuButton.getAttribute('aria-expanded'),'false');
-    assert.equal(await contactButton.getAttribute('aria-expanded'),'true');
+    await contactButton.click(); await opened();
     assert.equal(await contact.getByRole('link').count(),4);
-    await mobile.waitForFunction(()=>getComputedStyle(document.querySelector('.header-contact')).opacity==='1');
     assert.equal((await new AxeBuilder({page:mobile}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','best-practice']).analyze()).violations.length,0);
     if(output)await mobile.screenshot({path:path.join(output,'contact-mobile-open.png')});
-    await contactButton.click();
+    await mobile.getByRole('button',{name:'Fermer'}).click(); await closed();
     assert.equal(await contactButton.getAttribute('aria-expanded'),'false');
     await contactButton.focus();
     await mobile.keyboard.press('ArrowDown');
     assert.match(await mobile.locator(':focus').textContent(),/contact\(at\)/);
-    await mobile.mouse.click(10,350);
+    await opened();
+    await mobile.mouse.click(10,100); await closed();
     assert.equal(await contactButton.getAttribute('aria-expanded'),'false');
-    await menuButton.click();
+    // Échantillonner les vraies transitions CSS sans dépendre de la charge machine.
+    const frames=await mobile.evaluate(()=>{
+      const sheet=document.querySelector('.mobile-sheet');
+      const button=document.querySelector('.menu-toggle');
+      button.click();
+      getComputedStyle(sheet).transform;
+      const entrance=sheet.getAnimations().find(animation=>animation.transitionProperty==='transform');
+      if(!entrance)throw new Error('Missing entry transform transition');
+      entrance.currentTime=100;
+      const entering=getComputedStyle(sheet).transform;
+      sheet.querySelector('button').click();
+      getComputedStyle(sheet).transform;
+      const exit=sheet.getAnimations().find(animation=>animation.transitionProperty==='transform');
+      if(!exit)throw new Error('Missing exit transform transition');
+      exit.currentTime=exit.effect.getTiming().duration/2;
+      const exiting=getComputedStyle(sheet).transform;
+      button.click();
+      return {entering,exiting,open:sheet.open};
+    });
+    assert.notEqual(frames.entering,'matrix(1, 0, 0, 1, 0, 0)','Entry has intermediate frames');
+    assert.notEqual(frames.entering,frames.exiting,'Transition moves between frames');
+    assert.equal(frames.open,true);
+    await opened();
+    await mobile.keyboard.press('Escape'); await closed();
+    for(let i=0;i<8;i++){
+      await menuButton.click();
+      await mobile.keyboard.press('Escape'); await closed();
+      assert.equal(await mobile.locator('html').evaluate(element=>element.classList.contains('sheet-open')),false);
+    }
+    await menuButton.click(); await opened();
     await menu.getByRole('link',{name:'Informations',exact:true}).click();
     await mobile.waitForURL('**/informations.html'); await settled(mobile);
+    assert.equal(await mobile.locator('.mobile-sheet').count(),1,'No orphan dialog after navigation');
     assert.equal(await mobile.locator('.header-menu').isVisible(),false);
-    await mobile.getByRole('button',{name:'Menu',exact:true}).click();
-    await mobile.setViewportSize({width:1440,height:900});
+    // Le scroll est verrouillé dans le sheet puis reprend après sa fermeture.
+    await mobile.evaluate(()=>scrollTo(0,150));
+    await mobile.getByRole('button',{name:'Menu',exact:true}).click(); await opened();
+    const lockedY=await mobile.evaluate(()=>scrollY);
+    await mobile.mouse.move(20,100); await mobile.mouse.wheel(0,500);
+    await mobile.evaluate(()=>new Promise(resolve=>setTimeout(resolve,350)));
+    assert.equal(await mobile.evaluate(()=>scrollY),lockedY);
+    await mobile.setViewportSize({width:1440,height:900}); await closed();
     assert.equal(await mobile.getByRole('button',{name:'Menu',exact:true}).isVisible(),false);
     assert.equal(await mobile.getByRole('button',{name:'Contact',exact:true}).isVisible(),false);
     assert.equal(await mobile.getByRole('link',{name:'Accueil',exact:true}).isVisible(),true);
+    assert.equal(await mobile.locator('.header-menu').evaluate(element=>element.inert),false);
+    assert.equal(await mobile.locator('html').evaluate(element=>element.classList.contains('sheet-open')),false);
     if(output)await mobile.screenshot({path:path.join(output,'menu-desktop.png')});
+    for(const viewport of [{width:320,height:568},{width:390,height:844},{width:700,height:320}]){
+      await mobile.setViewportSize(viewport);
+      await mobile.getByRole('button',{name:'Contact',exact:true}).click(); await opened();
+      assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+      const box=await sheet.boundingBox();
+      assert.ok(box.x>=0 && box.x+box.width<=viewport.width);
+      assert.ok(box.y>=0 && Math.abs(box.y+box.height-viewport.height)<1);
+      // Le dernier lien reste accessible, même en paysage court.
+      await contact.getByRole('link').last().scrollIntoViewIfNeeded();
+      assert.equal(await contact.getByRole('link').last().isVisible(),true);
+      await mobile.keyboard.press('Escape'); await closed();
+    }
     await mobile.setViewportSize({width:320,height:568});
     await mobile.emulateMedia({reducedMotion:'reduce'});
     await mobile.getByRole('button',{name:'Contact',exact:true}).click();
-    assert.equal(await contact.evaluate(element=>getComputedStyle(element).transitionDuration),'0s');
-    assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-    const narrowBox=await contact.boundingBox();
-    assert.ok(narrowBox.x >= 0 && narrowBox.x+narrowBox.width <= 320);
-    await mobile.keyboard.press('Escape');
+    assert.equal(await sheet.evaluate(element=>getComputedStyle(element).transitionDuration),'0s');
+    await mobile.keyboard.press('Escape'); await closed();
+    await mobile.mouse.move(150,400); await mobile.mouse.wheel(0,500);
+    await mobile.waitForFunction(y=>scrollY!==y,lockedY);
+    bottomSheets={widths:[320,390,700],touch:true,focus:true,escape:true,backdrop:true,scrollLock:true,rapidCycles:8,animationFrames:frames,reducedMotion:true};
     await mobileContext.close();
     const noJS = await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
     const staticPage=await noJS.newPage();await staticPage.goto(base+'/index.html');
@@ -233,7 +290,51 @@ async function settled(page) {
     assert.equal(await page.locator('.wordmark-letter').first().getAttribute('data-motion'),'idle');
     await page.locator('.project-link').first().click();await page.waitForURL('**/projets/infomaniak.html');await settled(page);
     await page.keyboard.press('Escape');await page.waitForURL('**/index.html');await settled(page);
-    const report={results,idleMutations,errors};
+    // La molette progresse réellement sur plusieurs images, y compris avec un amorti atténué.
+    for (const reducedMotion of ['no-preference','reduce']) {
+      await page.emulateMedia({reducedMotion});
+      await page.goto(base+'/projets/infomaniak.html');await settled(page);
+      await page.evaluate(()=>{
+        window.scrollProof=[];
+        window.addEventListener('wheel',()=>{
+          for(const ms of [0,32,80,160,400,1600])setTimeout(()=>window.scrollProof.push(scrollY),ms);
+        },{once:true});
+      });
+      await page.mouse.move(600,500);await page.mouse.wheel(0,900);
+      await page.waitForFunction(()=>window.scrollProof.length===6);
+      const positions=await page.evaluate(()=>window.scrollProof);
+      assert.ok(new Set(positions).size>=3,'La molette doit être amortie : '+reducedMotion);
+      assert.ok(Math.abs(positions.at(-1)-900)<=2,'La distance de molette doit être conservée');
+      await page.waitForFunction(()=>!document.documentElement.classList.contains('lenis-scrolling'));
+      const idleFrames=await page.evaluate(()=>new Promise(resolve=>{
+        const raf=window.requestAnimationFrame;let calls=0;
+        window.requestAnimationFrame=function(callback){calls++;return raf.call(this,callback);};
+        setTimeout(()=>{window.requestAnimationFrame=raf;resolve(calls);},250);
+      }));
+      assert.equal(idleFrames,0,'Aucune boucle de défilement au repos');
+      await page.keyboard.press('Home');await page.waitForFunction(()=>scrollY===0);
+      await page.getByRole('link',{name:'Projet suivant : 2. France Titres - ANTS'}).click();await settled(page);
+      assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('lenis')),true,'Le contrôleur reprend après navigation');
+    }
+    // Un vrai geste tactile suit le doigt, puis termine son inertie sans boucle permanente.
+    const touchContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    const touchPage=await touchContext.newPage();
+    touchPage.on('pageerror',error=>errors.push(error.message));
+    await touchPage.goto(base+'/projets/infomaniak.html');await settled(touchPage);
+    const touchSession=await touchContext.newCDPSession(touchPage);
+    await touchSession.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:180,y:650}]});
+    for(const y of [600,550,500,450,400]){
+      await touchSession.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:180,y}]});
+      await touchPage.evaluate(()=>new Promise(requestAnimationFrame));
+    }
+    const heldScroll=await touchPage.evaluate(()=>scrollY);
+    assert.ok(heldScroll>150,'Le document suit le doigt');
+    await touchSession.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await touchPage.waitForFunction(y=>scrollY>y,heldScroll);
+    await touchPage.waitForFunction(()=>!document.documentElement.classList.contains('lenis-scrolling'));
+    assert.equal(await touchPage.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    await touchContext.close();
+    const report={results,idleMutations,errors,bottomSheets};
     if(output)fs.writeFileSync(path.join(output,'browser.json'),JSON.stringify(report,null,2));
     if(!baseline){assert.equal(idleMutations,0,'Animation must sleep at rest');assert.deepEqual(errors,[]);}
     process.stdout.write(JSON.stringify({pages:results.length,idleMutations,errors,violations:results.filter(r=>r.violations.length).map(r=>({route:r.route,width:r.width,ids:r.violations.map(v=>v.id)}))})+'\n');
