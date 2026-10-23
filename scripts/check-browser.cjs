@@ -316,7 +316,7 @@ async function settled(page) {
       await page.getByRole('link',{name:'Projet suivant : 2. France Titres - ANTS'}).click();await settled(page);
       assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('lenis')),true,'Le contrôleur reprend après navigation');
     }
-    // Un vrai geste tactile suit le doigt, puis termine son inertie sans boucle permanente.
+    // Un vrai geste tactile suit le doigt en défilement natif, sans boucle permanente.
     const touchContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const touchPage=await touchContext.newPage();
     touchPage.on('pageerror',error=>errors.push(error.message));
@@ -330,7 +330,6 @@ async function settled(page) {
     const heldScroll=await touchPage.evaluate(()=>scrollY);
     assert.ok(heldScroll>150,'Le document suit le doigt');
     await touchSession.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-    await touchPage.waitForFunction(y=>scrollY>y,heldScroll);
     await touchPage.waitForFunction(()=>!document.documentElement.classList.contains('lenis-scrolling'));
     assert.equal(await touchPage.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await touchContext.close();

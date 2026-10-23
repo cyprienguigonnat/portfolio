@@ -13,7 +13,7 @@
   let disposeWordmark = () => {};
   const mobileMenu = window.matchMedia('(max-width: 700px)');
   // Un même rythme pour toutes les routes ; le trajet de l'image est le temps fort.
-  const motion = {page: 360, exit: 240, projectExit: 140, projectEntry: 260, image: 650, reveal: 600};
+  const motion = {page: 300, exit: 200, projectExit: 140, projectEntry: 240, image: 520, reveal: 600};
   let disposeMenu = () => {};
   let smoothScroll = null;
   let scrollFrame = 0;
@@ -32,10 +32,9 @@
     // L'accueil tient dans la fenêtre et conserve la manipulation des lettres.
     if (busy || shell().dataset.page === 'home' || !window.Lenis) return;
     const calm = reducedMotion.matches;
+    // Le tactile garde le défilement natif du système, plus direct qu'une inertie simulée.
     smoothScroll = new window.Lenis({
-      lerp: calm ? .25 : .11, wheelMultiplier: 1,
-      syncTouch: true, syncTouchLerp: calm ? .3 : .14,
-      touchInertiaMultiplier: calm ? 12 : 20,
+      lerp: calm ? .3 : .2, wheelMultiplier: 1, syncTouch: false,
       prevent: element => element.matches('.header-menu, .header-contact')
     });
     if (root.classList.contains('sheet-open')) smoothScroll.stop();
@@ -311,8 +310,8 @@
         if (!response.ok) throw new Error("Page unavailable");
         return response.text();
       }).then(html => {
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        if (!doc.getElementById("site-shell")) throw new Error("Unknown page");
+        // Analyser le document seulement à la navigation, pas à chaque préchargement.
+        if (!html.includes('id="site-shell"')) throw new Error("Unknown page");
         return html;
       }).catch(error => {
         pageCache.delete(key);
@@ -321,6 +320,18 @@
       pageCache.set(key, request);
     }
     return pageCache.get(key);
+  }
+
+  const siteRoute = /(?:\/|\/index\.html|\/informations\.html|\/donnees-du-site\.html|\/projets\/[a-z-]+\.html)$/;
+  // Les pages liées sont légères : les avoir en cache rend chaque clic immédiat, au tactile aussi.
+  function prefetchPages() {
+    if (navigator.connection?.saveData || location.protocol === 'file:') return;
+    const run = () => shell().querySelectorAll('a[href]').forEach(link => {
+      const url = new URL(link.href, location.href);
+      if (url.origin === location.origin && url.pathname !== location.pathname && siteRoute.test(url.pathname)) fetchPage(url).catch(() => {});
+    });
+    if (window.requestIdleCallback) requestIdleCallback(run, {timeout: 2000});
+    else setTimeout(run, 200);
   }
 
   function previewLink(link, immediate = false) {
@@ -439,7 +450,8 @@
       copy.removeAttribute('id');
       if(original.tagName==='IMG') {
         copy.removeAttribute('srcset');
-        copy.src=original.currentSrc||original.src;
+        // Une image différée non chargée ne doit pas télécharger son PNG d'origine.
+        if(original.currentSrc)copy.src=original.currentSrc;else copy.removeAttribute('src');
       }
       if(original.tagName==='SOURCE')copy.removeAttribute('srcset');
       if(original.matches('.home-thumbnail,.letter-entry')) {
@@ -484,6 +496,7 @@
       const betweenProjects = Boolean(oldProject && next.dataset.page === "project");
       const navigationEase = getComputedStyle(root).getPropertyValue('--ease').trim();
       const incomingHero = next.querySelector(".hero-image");
+      let heroReady = Promise.resolve();
       if (incomingHero) {
         const loader = new Image();
         const source = incomingHero.parentElement.querySelector('source');
@@ -496,14 +509,16 @@
         }
         loader.src = new URL(incomingHero.getAttribute("src"), url).href;
         // Les dimensions sont réservées dans le HTML, même si le réseau est lent.
-        await Promise.race([loader.decode().catch(() => {}), new Promise(resolve => setTimeout(resolve, 900))]);
+        heroReady = Promise.race([loader.decode().catch(() => {}), new Promise(resolve => setTimeout(resolve, 900))]);
       }
-      if (queuedNavigation?.options.history === false) return;
-      // Mesurer au dernier moment : un survol peut finir pendant le chargement.
       let sourceImage=null;
       if (animateTransition && options.link?.isConnected && options.link.matches('.project-link')) {
         sourceImage=showPreview(options.link,true);
       }
+      // Sans image en vol, la couverture doit être prête ; sinon elle charge pendant le vol.
+      if (!imageBox(sourceImage) && !(animateTransition && betweenProjects)) await heroReady;
+      if (queuedNavigation?.options.history === false) return;
+      // Mesurer au dernier moment : un survol peut finir pendant le chargement.
       source=imageBox(sourceImage);
       if(animateTransition)outgoing=snapshotPage(source?sourceImage:null);
       inputLock=new AbortController();
@@ -518,7 +533,7 @@
         const snapshotDeparture = outgoing.animate([{opacity:1},{opacity:0}], {
           duration:motion.projectExit, easing:navigationEase, fill:'forwards'
         });
-        await Promise.allSettled([departure.finished, snapshotDeparture.finished]);
+        await Promise.allSettled([departure.finished, snapshotDeparture.finished, heroReady]);
         departure.cancel();
         if (queuedNavigation?.options.history === false) return;
         outgoing?.remove();
@@ -552,6 +567,8 @@
         ], {duration:betweenProjects?motion.projectEntry:motion.page, easing:navigationEase});
         const dismiss=outgoing?.animate([{opacity:1},{opacity:0}],{duration:motion.exit,easing:navigationEase,fill:'forwards'});
         await Promise.allSettled([reveal.finished, dismiss?.finished, flight?.animation.finished]);
+        // L'image en vol reste en place jusqu'au décodage de la couverture.
+        if (flight) await heroReady;
       }
       if (hiddenImage) hiddenImage.style.visibility = "";
       flight?.image.remove();
@@ -560,6 +577,7 @@
       // Le clavier arrive dans la nouvelle page, ou retrouve son titre à l'accueil.
       const focusTarget = homeLink || next.querySelector("#mn");
       focusTarget?.focus({preventScroll:true});
+      prefetchPages();
     } catch (error) {
       // Tous les liens fonctionnent aussi sans l'amélioration JavaScript.
       if (options.history === false) location.replace(url.href);
@@ -586,8 +604,7 @@
     if (!link || link.target === "_blank" || link.hasAttribute("download") ||
         event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
     const url = new URL(link.href, location.href);
-    if (url.origin !== location.origin ||
-        !/(?:\/|\/index\.html|\/informations\.html|\/donnees-du-site\.html|\/projets\/[a-z-]+\.html)$/.test(url.pathname)) return;
+    if (url.origin !== location.origin || !siteRoute.test(url.pathname)) return;
     const samePage = url.pathname === location.pathname && url.search === location.search;
     if (samePage) {
       if (!url.hash || !link.closest(".skiplinks")) return;
@@ -650,6 +667,7 @@
     await boot?.finish();
     updateHeaderHeight();
     preloadPreviews();
+    prefetchPages();
     // Une navigation effectuée pendant le chargement ne réinitialise pas sa page.
     if (shell().dataset.page === 'home') {
       disposeWordmark();
