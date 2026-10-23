@@ -303,8 +303,10 @@
     delayPreview(()=>image.remove(),reducedMotion.matches?0:320);
   }
 
+  // « / » et « /index.html » sont la même page : une seule entrée de cache.
+  const pagePath = path => path.replace(/\/index\.html$/, '/');
   async function fetchPage(url) {
-    const key = url.origin + url.pathname + url.search;
+    const key = url.origin + pagePath(url.pathname) + url.search;
     if (!pageCache.has(key)) {
       const request = fetch(key, {credentials:"same-origin"}).then(response => {
         if (!response.ok) throw new Error("Page unavailable");
@@ -328,7 +330,7 @@
     if (navigator.connection?.saveData || location.protocol === 'file:') return;
     const run = () => shell().querySelectorAll('a[href]').forEach(link => {
       const url = new URL(link.href, location.href);
-      if (url.origin === location.origin && url.pathname !== location.pathname && siteRoute.test(url.pathname)) fetchPage(url).catch(() => {});
+      if (url.origin === location.origin && pagePath(url.pathname) !== pagePath(location.pathname) && siteRoute.test(url.pathname)) fetchPage(url).catch(() => {});
     });
     if (window.requestIdleCallback) requestIdleCallback(run, {timeout: 2000});
     else setTimeout(run, 200);
@@ -451,7 +453,7 @@
       if(original.tagName==='IMG') {
         copy.removeAttribute('srcset');
         // Une image différée non chargée ne doit pas télécharger son PNG d'origine.
-        if(original.currentSrc)copy.src=original.currentSrc;else copy.removeAttribute('src');
+        if(original.currentSrc)copy.src=original.currentSrc;else{copy.removeAttribute('src');copy.alt='';}
       }
       if(original.tagName==='SOURCE')copy.removeAttribute('srcset');
       if(original.matches('.home-thumbnail,.letter-entry')) {
@@ -516,7 +518,7 @@
         sourceImage=showPreview(options.link,true);
       }
       // Sans image en vol, la couverture doit être prête ; sinon elle charge pendant le vol.
-      if (!imageBox(sourceImage) && !(animateTransition && betweenProjects)) await heroReady;
+      if (!imageBox(sourceImage)) await heroReady;
       if (queuedNavigation?.options.history === false) return;
       // Mesurer au dernier moment : un survol peut finir pendant le chargement.
       source=imageBox(sourceImage);
@@ -533,7 +535,7 @@
         const snapshotDeparture = outgoing.animate([{opacity:1},{opacity:0}], {
           duration:motion.projectExit, easing:navigationEase, fill:'forwards'
         });
-        await Promise.allSettled([departure.finished, snapshotDeparture.finished, heroReady]);
+        await Promise.allSettled([departure.finished, snapshotDeparture.finished]);
         departure.cancel();
         if (queuedNavigation?.options.history === false) return;
         outgoing?.remove();
@@ -568,7 +570,7 @@
         const dismiss=outgoing?.animate([{opacity:1},{opacity:0}],{duration:motion.exit,easing:navigationEase,fill:'forwards'});
         await Promise.allSettled([reveal.finished, dismiss?.finished, flight?.animation.finished]);
         // L'image en vol reste en place jusqu'au décodage de la couverture.
-        if (flight) await heroReady;
+        if (source) await heroReady;
       }
       if (hiddenImage) hiddenImage.style.visibility = "";
       flight?.image.remove();

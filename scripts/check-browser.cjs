@@ -85,7 +85,11 @@ async function settled(page) {
     }
     await page.setViewportSize({width:1440,height:900});
     page.on('pageerror', error => errors.push(error.message));
+    const prefetched = [];
+    page.on('request', request => { if(request.resourceType()==='fetch')prefetched.push(new URL(request.url()).pathname); });
     await page.goto(base+'/index.html'); await settled(page); await page.waitForTimeout(1200);
+    assert.ok(prefetched.includes('/informations.html') && prefetched.some(path=>path.startsWith('/projets/')),'Les pages liées sont préchargées au repos : '+prefetched);
+    assert.ok(!prefetched.some(path=>path==='/'||path==='/index.html'),'L’accueil ne se précharge pas lui-même : '+prefetched);
     const idleMutations = await page.evaluate(() => new Promise(resolve => {
       let count=0;const observer=new MutationObserver(records=>count+=records.length);
       observer.observe(document.querySelector('.home-identity'),{subtree:true,attributes:true});
