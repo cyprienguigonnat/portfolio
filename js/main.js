@@ -18,6 +18,12 @@
   let smoothScroll = null;
   let scrollFrame = 0;
   let imageObserver;
+  let heroMotion = null;
+  const {gsap, CustomEase} = window;
+  gsap.registerPlugin(CustomEase);
+  // Reprendre la courbe CSS --ease pour que GSAP et les transitions CSS gardent le même rythme.
+  const cssEase = getComputedStyle(root).getPropertyValue('--ease').match(/cubic-bezier\(([^)]+)\)/);
+  CustomEase.create('navigation', cssEase ? cssEase[1] : '.22,1,.36,1');
   history.scrollRestoration = "manual";
 
   function shell() { return document.getElementById("site-shell"); }
@@ -85,6 +91,29 @@
       imageObserver.observe(frame);
     });
   }
+  function initHeroParallax() {
+    heroMotion?.revert();
+    heroMotion = null;
+    const image = shell().querySelector('.project-hero img');
+    if (!image) return;
+    heroMotion = gsap.matchMedia();
+    // La couverture défile un peu moins vite que la page, dans son propre cadre.
+    // Écrire la position à chaque défilement, sans tween ni ticker : aucune boucle au repos.
+    heroMotion.add('(prefers-reduced-motion: no-preference)', () => {
+      const frame = image.closest('.project-image-frame');
+      const setY = gsap.quickSetter(image, 'yPercent');
+      const update = () => {
+        const box = frame.getBoundingClientRect();
+        setY(gsap.utils.clamp(0, 1, -box.top / box.height) * 10);
+      };
+      update();
+      window.addEventListener('scroll', update, {passive: true});
+      return () => {
+        window.removeEventListener('scroll', update);
+        gsap.set(image, {clearProps: 'transform'});
+      };
+    });
+  }
   function delayPreview(callback, delay) {
     const timer = setTimeout(() => { previewTimers.delete(timer); callback(); }, delay);
     previewTimers.add(timer);
@@ -121,6 +150,7 @@
     }
     updateHeaderHeight();
     if (!busy) initImageReveals();
+    initHeroParallax();
     initSmoothScroll();
     if (animateWordmark && shell().dataset.page === 'home') disposeWordmark = window.initPortfolioWordmark(false);
   }
@@ -397,10 +427,10 @@
     const finalScale = to.width / from.width;
     const finalX = to.x + (to.width - from.width) / 2;
     const finalY = to.y + (to.height - from.height) / 2;
-    const animation = image.animate([
-      {transform:"translate("+from.x+"px, "+from.y+"px) rotate("+from.angle+"deg) scale(1)",opacity:1},
-      {transform:"translate("+finalX+"px, "+finalY+"px) rotate("+to.angle+"deg) scale("+finalScale+")",opacity:fadeOut?0:1}
-    ], {duration:motion.image, easing:getComputedStyle(root).getPropertyValue('--ease').trim(), fill:"both"});
+    const animation = gsap.fromTo(image,
+      {x:from.x, y:from.y, rotation:from.angle, scale:1, opacity:1},
+      {x:finalX, y:finalY, rotation:to.angle, scale:finalScale, opacity:fadeOut?0:1,
+        duration:motion.image/1000, ease:'navigation'});
     return {image, animation};
   }
 
@@ -527,16 +557,11 @@
       const stopScroll=event=>event.preventDefault();
       window.addEventListener('wheel',stopScroll,{passive:false,signal:inputLock.signal});
       window.addEventListener('touchmove',stopScroll,{passive:false,signal:inputLock.signal});
-      // Deux phases courtes évitent de superposer les contenus des projets.
+      // Entre projets, un fondu en deux phases courtes évite de superposer les contenus.
       if (animateTransition && betweenProjects) {
-        const departure = shell().animate([{opacity:1},{opacity:0}], {
-          duration:motion.projectExit, easing:navigationEase, fill:'forwards'
-        });
-        const snapshotDeparture = outgoing.animate([{opacity:1},{opacity:0}], {
-          duration:motion.projectExit, easing:navigationEase, fill:'forwards'
-        });
-        await Promise.allSettled([departure.finished, snapshotDeparture.finished]);
-        departure.cancel();
+        gsap.set(shell(), {opacity:0});
+        await gsap.to(outgoing, {opacity:0, duration:motion.projectExit/1000, ease:'navigation'});
+        gsap.set(shell(), {clearProps:'opacity'});
         if (queuedNavigation?.options.history === false) return;
         outgoing?.remove();
         outgoing = null;
@@ -546,6 +571,7 @@
         history.pushState({scrollY:0, ...closeDestinationFor(next.dataset.page)}, "", url);
       }
       clearPreviews();
+      heroMotion?.revert();
       shell().replaceWith(next);
       document.title = doc.title;
       initPage();
@@ -564,11 +590,11 @@
           target.style.visibility = "hidden";
           flight = animateImage(source, destination, Boolean(oldProject && next.dataset.page === "home"));
         }
-        const reveal = next.animate([
-          {opacity:0}, {opacity:1}
-        ], {duration:betweenProjects?motion.projectEntry:motion.page, easing:navigationEase});
+        const reveal = next.animate([{opacity:0}, {opacity:1}], {
+          duration:betweenProjects?motion.projectEntry:motion.page, easing:navigationEase
+        }).finished;
         const dismiss=outgoing?.animate([{opacity:1},{opacity:0}],{duration:motion.exit,easing:navigationEase,fill:'forwards'});
-        await Promise.allSettled([reveal.finished, dismiss?.finished, flight?.animation.finished]);
+        await Promise.allSettled([reveal, dismiss?.finished, flight?.animation.then()]);
         // L'image en vol reste en place jusqu'au décodage de la couverture.
         if (source) await heroReady;
       }
@@ -586,6 +612,7 @@
       else location.assign(url.href);
     } finally {
       if (hiddenImage) hiddenImage.style.visibility = "";
+      flight?.animation.kill();
       flight?.image.remove();
       outgoing?.remove();
       inputLock?.abort();

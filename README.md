@@ -10,6 +10,7 @@ Site statique en français, sans framework ni dépendance JavaScript à installe
 - `content/htaccess.conf` : configuration Apache source ; l’empreinte du script de chargement est ajoutée automatiquement.
 - `js/` et `css/` : sources lisibles. `css/reset.css` conserve seulement les règles de normalisation utiles au site.
 - `js/vendor/lenis-1.1.13.min.js` : Lenis fourni dans la référence de défilement, licence MIT conservée dans le bundle et `js/vendor/LICENSE-lenis.txt`. Molette amortie (`lerp: 0.2`, multiplicateur `1`) hors accueil, défilement tactile natif ; amorti atténué avec la réduction du mouvement. La boucle s'arrête au repos et le contrôleur est recréé après chaque navigation. Les images de galerie apparaissent une fois en descendant de 18 px, avec un fondu et un flou léger de 4 px qui disparaît (600 ms, fondu bref en réduction du mouvement), après décodage ; la couverture conserve sa transition existante.
+- GSAP 3.13 (cœur et CustomEase, licence standard GSAP) est copié depuis `node_modules` dans le bundle. Il anime le trajet de l’image vers une couverture, le fondu entre projets et le parallaxe de la couverture (10 % de sa hauteur au défilement, écrit directement sans tween pour qu’aucune boucle ne tourne au repos). La courbe reprend `--ease` ; rien de cela ne s’exécute en réduction du mouvement.
 - `img/projets/*.png` : originaux et repli des images ; ne pas les supprimer lorsque le HTML ou le catalogue les référence.
 - `content/images.json` : manifeste généré des variantes WebP.
 - `dist/` : site compilé complet, généré par la construction et ignoré par Git. Modifier les sources puis reconstruire.
@@ -18,7 +19,7 @@ Site statique en français, sans framework ni dépendance JavaScript à installe
 
 ## Construire et vérifier
 
-Utiliser Node.js 22 ou une version ultérieure. Les quatre dépendances sont réservées à la construction ou aux tests : esbuild, sharp, Playwright et axe-core/Playwright. Le fichier de verrouillage fixe leurs versions.
+Utiliser Node.js 22 ou une version ultérieure. Les cinq dépendances sont réservées à la construction ou aux tests : esbuild, sharp, GSAP, Playwright et axe-core/Playwright. Le fichier de verrouillage fixe leurs versions.
 
 ```sh
 npm ci
@@ -39,7 +40,9 @@ Le build supprime puis recrée `dist/` afin qu’aucun ancien fichier compilé n
 
 ## Mise en ligne
 
-Chaque push sur `main` déclenche le workflow GitHub Actions qui installe les dépendances, construit `dist/`, exécute les tests puis publie ce dossier sur GitHub Pages.
+Chaque push sur `main` déclenche le workflow GitHub Actions qui installe les dépendances, construit `dist/`, exécute les tests puis exécute `wrangler deploy` (secret `CLOUDFLARE_API_TOKEN`, modèle « Modifier les Workers Cloudflare »).
+
+Cloudflare Workers (ressources statiques) : `npm run build` puis `wrangler deploy`, configuré par `wrangler.jsonc`. Les adresses en `.html` sont conservées (`html_handling: "none"`) ; `worker.mjs` sert l’accueil sur `/` et `404.html` avec le statut 404 pour toute autre adresse inconnue. Les en-têtes (CSP, cache) viennent de `_headers`, généré depuis `content/headers.conf` ; `.htaccess` est exclu par `.assetsignore`. Le Worker répond sur `cyprienguigonnat.fr` et `www` (domaines personnalisés déclarés dans `routes`) ; l’adresse workers.dev est désactivée.
 
 Pour une mise en ligne FTP, exécuter `npm run build` puis transférer tout le contenu de `dist/` à la racine du site. Aucun lancement de Node.js n’est nécessaire en production.
 

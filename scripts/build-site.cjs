@@ -16,7 +16,6 @@ fs.rmSync(outputRoot, {recursive:true, force:true});
 fs.mkdirSync(outputRoot, {recursive:true});
 for(const directory of ['fonts','img'])fs.cpSync(path.join(root,directory),path.join(outputRoot,directory),{recursive:true});
 fs.copyFileSync(path.join(root,'google66e96974197762e4.html'),path.join(outputRoot,'google66e96974197762e4.html'));
-write('.nojekyll','');
 const projects = JSON.parse(read("content/projects.json"));
 const images = JSON.parse(read('content/images.json'));
 if(new Set(projects.map(project=>project.slug)).size!==projects.length)throw new Error('Identifiant de projet répété');
@@ -45,7 +44,7 @@ function replaceIconTokens(html) {
     .replace(/&#8599;|↗/g, icon('arrow-up-right'))
     .replace(/&#10551;|⤷/g, icon('corner-down-right'));
 }
-const runtime = ['js/vendor/lenis-1.1.13.min.js','js/letter-physics.js','js/wordmark.js','js/main.js'].map(read).join('\n');
+const runtime = ['js/vendor/lenis-1.1.13.min.js','node_modules/gsap/dist/gsap.min.js','node_modules/gsap/dist/CustomEase.min.js','js/letter-physics.js','js/wordmark.js','js/main.js'].map(read).join('\n');
 const runtimeOutput = esbuild.transformSync(runtime,{minify:true,target:'es2022',legalComments:'eof'}).code;
 const runtimeHash = crypto.createHash('sha256').update(runtimeOutput).digest('hex').slice(0,8).toUpperCase();
 const runtimeFile = 'assets/site-'+runtimeHash+'.js';
@@ -63,6 +62,8 @@ const boot=read('content/boot.html')
   .replace(/<style>([\s\S]*?)<\/style>/,(_,code)=>'<style>'+esbuild.transformSync(code,{minify:true,loader:'css'}).code.trim()+'</style>');
 const bootHash=crypto.createHash('sha256').update(boot.match(/<script>([\s\S]*?)<\/script>/)[1]).digest('base64');
 write('.htaccess',read('content/htaccess.conf').replace('{{BOOT_HASH}}',bootHash));
+write('_headers',read('content/headers.conf').replace(/^#.*\n/,'').replace('{{BOOT_HASH}}',bootHash));
+write('.assetsignore','.htaccess\n');
 
 function secureLinks(html) {
   return html.replace(/<a\b[^>]*>/g,tag=>{
@@ -92,11 +93,22 @@ function header(active = "") {
     + '<div id="header-contact" class="header-contact"><nav class="header-contacts" aria-label="Contacts et réseaux sociaux">'
     + read("content/contacts.html")+'</nav></div>\n</header>';
 }
+// Pied de page commun, absent de l’accueil ; `extra` y loge la pagination des projets.
+function siteFooter(prefix="", extra="") {
+  return '<footer class="site-footer">'+extra+'<div class="site-footer-info"><p>© '+new Date().getFullYear()+' Cyprien GUIGONNAT</p>'
+    + '<nav aria-label="Pied de page"><a href="'+prefix+'informations.html">Informations</a>'
+    + '<a href="'+prefix+'donnees-du-site.html">Données du site</a></nav></div></footer>';
+}
 function skiplinks() {
   return '<nav class="skiplinks" aria-label="Accès rapide"><a href="#mn">Contenu</a><a href="#hdr">Navigation</a></nav>';
 }
-function documentPage({title, kind, prefix="", slug="", content}) {
-  return '<!doctype html>\n<html lang="fr">\n<head>\n'+head(title,prefix)
+const siteUrl='https://cyprienguigonnat.fr/';
+// `url` : chemin canonique ; null pour la 404, servie par l’hébergeur à n’importe quelle adresse.
+function documentPage({title, kind, prefix="", slug="", url, content, extraHead=""}) {
+  const meta=url===null?'<meta name="robots" content="noindex">':'<link rel="canonical" href="'+siteUrl+url+'">';
+  // <base> doit précéder toute adresse relative du <head> pour la 404 servie sous un sous-dossier.
+  const base=url===null?'<base href="/">\n':'';
+  return '<!doctype html>\n<html lang="fr">\n<head>\n'+base+head(title,prefix)+'\n'+meta+extraHead
     + '\n<script src="'+prefix+runtimeFile+'" defer></script>\n</head>\n'
     + '<body data-page="'+kind+'">\n'
     + '<div id="site-loader" hidden role="status" aria-label="Chargement du site"><span>0 %</span></div>\n'
@@ -126,10 +138,20 @@ const links = projects.map(project => {
     + '<h2>'+escape(project.title)+'<img class="project-mobile-thumbnail" src="img/projets/'+escape(first.file)+'" srcset="'+srcset(first,'')+'" sizes="44px" width="'+first.width+'" height="'+first.height+'" alt="" loading="eager" decoding="async"></h2></a>'
     + '</li>';
 }).join("\n");
+const person={
+  '@context':'https://schema.org','@type':'Person',
+  name:'Cyprien Guigonnat',jobTitle:'Product Designer (UX/UI)',url:siteUrl,email:'mailto:contact@cyprienguigonnat.fr',
+  image:siteUrl+'img/site-preview.png',
+  description:'Product Designer (UX/UI) avec 3 ans d’expérience, spécialisé en accessibilité numérique et design system, à la recherche d’un CDI ou d’un CDD dans le bassin grenoblois ou en télétravail en France.',
+  knowsAbout:['Design UX/UI','Accessibilité numérique','Design system','Design tokens'],
+  address:{'@type':'PostalAddress',addressLocality:'Grenoble',addressCountry:'FR'},
+  sameAs:['https://www.linkedin.com/in/cyprien-guigonnat-0674bb1b6/','https://www.instagram.com/cyprienguigonnat/']
+};
 write("index.html",documentPage({
-  title:"Cyprien GUIGONNAT",kind:"home",
+  title:"Cyprien GUIGONNAT",kind:"home",url:"",
+  extraHead:'\n<script type="application/ld+json">'+JSON.stringify(person).replace(/</g,'\\u003c')+'</script>',
   content:header("home")+'\n<main id="mn" class="home-page" tabindex="-1">\n'
-    +'<div class="home-identity"><h1 class="visually-hidden">Cyprien GUIGONNAT — Portfolio</h1>'+read("content/wordmark.svg")
+    +'<div class="home-identity"><h1 class="visually-hidden">Cyprien GUIGONNAT — Portfolio</h1>'+read("content/home-intro.html").trim()+read("content/wordmark.svg")
     +'<p class="wordmark-hint"><button class="wordmark-toggle" type="button"><span class="wordmark-hint-default">[ Bousculez-moi '+icon('arrow-up')+']</span><span class="wordmark-hint-return" hidden>[ Ramenez-moi '+icon('rotate-ccw')+']</span></button></p>'
     +'<span class="visually-hidden wordmark-status" aria-live="polite">Bousculez-moi</span></div>\n'
     +'<div class="preview-stage" aria-hidden="true"></div>\n'
@@ -156,8 +178,8 @@ for(const entry of [
     .replace('{{PROJECT_LINKS}}', projects.map(p=>'<li><a href="#'+p.anchor+'">'+escape(p.title)+'</a></li>').join('\n'))
     .replace(/href="#([^"]+)"/g,rewriteSiteLink);
   write(entry.file+".html",documentPage({
-    title:entry.title+" — Cyprien GUIGONNAT",kind:entry.kind,
-    content:header(entry.kind)+'\n<main id="mn" class="information-page" tabindex="-1">'+content+'</main>'
+    title:entry.title+" — Cyprien GUIGONNAT",kind:entry.kind,url:entry.file+".html",
+    content:header(entry.kind)+'\n<main id="mn" class="information-page" tabindex="-1">'+content+'</main>\n'+siteFooter()
   }));
 }
 
@@ -177,7 +199,7 @@ projects.forEach((project,index)=>{
     return '<figure class="gallery-image gallery-span-'+span+'">'+imageMarkup(image,"../","project-image",false,span)+(image.caption?'<figcaption>'+escape(image.caption)+'</figcaption>':'')+'</figure>';
   }).join("\n");
   write("projets/"+project.slug+".html",documentPage({
-    title:project.title.replace(/^\d+\.\s*/,"")+" — Cyprien GUIGONNAT",kind:"project",prefix:"../",slug:project.slug,
+    title:project.title.replace(/^\d+\.\s*/,"")+" — Cyprien GUIGONNAT",kind:"project",prefix:"../",slug:project.slug,url:"projets/"+project.slug+".html",
     content:'<header id="hdr" class="project-header" tabindex="-1"><a id="nav-home" href="../index.html" class="project-close" aria-label="Fermer le projet et revenir à la page précédente">Fermer '+icon('x')+'</a></header>\n'
       +'<main id="mn" class="project-page" tabindex="-1">\n'
       +'<figure class="project-hero">'+imageMarkup(project.images[0],"../","hero-image",true)+'</figure>\n'
@@ -190,9 +212,25 @@ projects.forEach((project,index)=>{
         return image.video ? '<video class="project-video" width="'+image.width+'" height="'+image.height+'" controls loop muted playsinline preload="none" poster="../img/projets/'+escape(image.poster)+'" aria-label="Démonstration de la page d’accueil de Fab Manager"><source src="../img/'+escape(image.video)+'" type="video/mp4"></video>' : imageMarkup(image,"../","project-image",false);
       })()+(project.images.find(image=>image.video)?.caption?'<figcaption>'+escape(project.images.find(image=>image.video).caption)+'</figcaption>':'')+'</figure>\n':'')
       +'<div class="project-gallery" role="group" aria-label="Images du projet">'+gallery+'</div>\n</main>\n'
-      +'<footer class="page-footer project-pagination"><a href="../index.html">'+icon('rotate-ccw')+' Accueil</a>'
+      +siteFooter("../",'<div class="page-footer project-pagination"><a href="../index.html">'+icon('rotate-ccw')+' Accueil</a>'
       +'<nav aria-label="Navigation entre les projets"><a href="'+previous.slug+'.html" rel="prev" aria-label="Projet précédent : '+escape(previous.title)+'">'+icon('arrow-left')+' Précédent</a>'
-      +'<a href="'+next.slug+'.html" rel="next" aria-label="Projet suivant : '+escape(next.title)+'">Suivant '+icon('arrow-right')+'</a></nav></footer>'
+      +'<a href="'+next.slug+'.html" rel="next" aria-label="Projet suivant : '+escape(next.title)+'">Suivant '+icon('arrow-right')+'</a></nav></div>')
   }));
 });
-process.stdout.write('Accueil, informations, données et '+projects.length+' projets générés.\n');
+write("404.html",documentPage({
+  title:"Page introuvable — Cyprien GUIGONNAT",kind:"informations",url:null,
+  content:header()+'\n<main id="mn" class="information-page" tabindex="-1">'
+    +read("content/404.html").replace('<section ', '<section class="information-grid" ')
+      .replace('{{PROJECT_LINKS}}', projects.map(p=>'<li><a href="projets/'+p.slug+'.html">'+escape(p.title)+'</a></li>').join('\n'))
+    +'</main>\n'+siteFooter()
+}));
+
+const sitemapUrls=['','informations.html','donnees-du-site.html',...projects.map(p=>'projets/'+p.slug+'.html')];
+// shortcut: lastmod = date du build pour toutes les pages, passer aux dates git par source si le sitemap devient plus grand.
+const lastmod=new Date().toISOString().slice(0,10);
+write('sitemap.xml','<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+  +sitemapUrls.map(url=>'  <url><loc>'+siteUrl+url+'</loc><lastmod>'+lastmod+'</lastmod></url>').join('\n')+'\n</urlset>\n');
+write('robots.txt','User-agent: *\nAllow: /\n\nSitemap: '+siteUrl+'sitemap.xml\n');
+write('llms.txt',read('content/llms.txt').replace('{{PROJECT_LINKS}}',
+  projects.map(p=>'- ['+p.title.replace(/^\d+\.\s*/,'')+']('+siteUrl+'projets/'+p.slug+'.html) : '+p.subtitle).join('\n')));
+process.stdout.write('Accueil, informations, données, 404 et '+projects.length+' projets générés.\n');

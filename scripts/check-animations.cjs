@@ -47,11 +47,13 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
     fs.mkdirSync(output,{recursive:true});
     await page.evaluate(()=>{
       window.capturedMotion=document.getAnimations().filter(animation=>animation.effect.target.matches('#site-shell,.transition-image,.transition-snapshot'));
-      const elapsed=window.capturedMotion.find(animation=>animation.effect.target.matches('.transition-image')).effect.getTiming().duration*.5;
+      const flight=gsap.getTweensOf('.transition-image')[0];
+      const elapsed=flight.duration()*500;
+      flight.pause().progress(.5);
       window.capturedMotion.forEach(animation=>{animation.pause();animation.currentTime=Math.min(elapsed,animation.effect.getTiming().duration);});
     });
     await page.screenshot({path:path.join(output,'transition-'+page.viewportSize().width+'.png')});
-    await page.evaluate(()=>{window.capturedMotion.forEach(animation=>animation.play());delete window.capturedMotion;});
+    await page.evaluate(()=>{gsap.getTweensOf('.transition-image').forEach(tween=>tween.play());window.capturedMotion.forEach(animation=>animation.play());delete window.capturedMotion;});
   }
   await page.waitForURL(destination);
   await settled(page);
@@ -84,6 +86,30 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
         }
         return animate.apply(this,args);
       };
+      // Les transitions entre projets et le trajet de l'image passent par GSAP.
+      const seen=new WeakSet();
+      const watchGsap=()=>{
+        if(!window.gsap)return requestAnimationFrame(watchGsap);
+        gsap.ticker.add(()=>{
+          for(const tween of gsap.globalTimeline.getChildren(true,true,false)){
+            if(seen.has(tween))continue;
+            seen.add(tween);
+            for(const target of tween.targets()){
+              if(!(target instanceof Element)||!target.matches('#site-shell,.transition-snapshot,.transition-image'))continue;
+              window.navigationAnimations.push(target.className||target.id);
+              const evidence=window.transitionEvidence;
+              if(!evidence)continue;
+              evidence.snapshots=Math.max(evidence.snapshots,document.querySelectorAll('.transition-snapshot').length);
+              evidence.images=Math.max(evidence.images,document.querySelectorAll('.transition-image').length);
+              if(target.matches('.transition-image')){
+                const start=tween.vars.startAt,end=tween.vars,frame=values=>values.x+','+values.y+','+values.rotation+','+values.scale;
+                evidence.flight={complete:target.complete,naturalWidth:target.naturalWidth,frames:[frame(start),frame(end)],x:start.x,y:start.y,width:parseFloat(target.style.width),height:parseFloat(target.style.height)};
+              }
+            }
+          }
+        });
+      };
+      watchGsap();
     };
     await page.addInitScript(observeAnimations);
     page.on('pageerror',error=>errors.push(error.message));
