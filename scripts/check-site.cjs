@@ -64,4 +64,13 @@ assert.match(llms,/^# .+\n\n> .+/);
 assert.match(llms,/^## When to use$/m);
 assert.doesNotMatch(llms,/\{\{/);
 for(const url of indexable.filter(Boolean))assert.ok(llms.includes(siteUrl+url),'llms.txt : '+url);
-process.stdout.write(pages.length+' pages : ressources, ancres, titres, images, liens externes et empreinte CSP valides ; sitemap, robots, llms.txt et JSON-LD valides.\n');
+// Routage du Worker contre dist/, avec une liaison ASSETS simulée.
+import(require('node:url').pathToFileURL(path.join(root,'worker.mjs'))).then(async ({default:worker})=>{
+  const ASSETS={fetch:async target=>new Response('',{status:fs.existsSync(path.join(siteRoot,new URL(target).pathname))?200:404})};
+  const route=async pathname=>{const response=await worker.fetch(new Request(new URL(pathname,siteUrl)),{ASSETS});return response.status+' '+(response.headers.get('location')||'');};
+  assert.equal(await route('/'),'200 ');
+  assert.equal(await route('/informations?a=1'),'301 '+siteUrl+'informations.html?a=1');
+  assert.equal(await route('/projets/'+projects[0].slug),'301 '+siteUrl+'projets/'+projects[0].slug+'.html');
+  for(const pathname of ['/nexiste','/projets','/nexiste.html'])assert.equal(await route(pathname),'404 ',pathname);
+  process.stdout.write(pages.length+' pages : ressources, ancres, titres, images, liens externes et empreinte CSP valides ; sitemap, robots, llms.txt, JSON-LD et routage du Worker valides.\n');
+});

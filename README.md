@@ -42,7 +42,7 @@ Le build supprime puis recrée `dist/` afin qu’aucun ancien fichier compilé n
 
 Chaque push sur `main` déclenche le workflow GitHub Actions qui installe les dépendances, construit `dist/`, exécute les tests puis exécute `wrangler deploy` (secret `CLOUDFLARE_API_TOKEN`, modèle « Modifier les Workers Cloudflare »).
 
-Cloudflare Workers (ressources statiques) : `npm run build` puis `wrangler deploy`, configuré par `wrangler.jsonc`. Les adresses en `.html` sont conservées (`html_handling: "none"`) ; `worker.js` sert l’accueil sur `/` et `404.html` avec le statut 404 pour toute autre adresse inconnue. Les en-têtes (CSP, cache) viennent de `_headers`, généré depuis `content/headers.conf` ; `.htaccess` est exclu par `.assetsignore`. Le Worker répond sur `cyprienguigonnat.fr` et `www` (domaines personnalisés déclarés dans `routes`) ; l’adresse workers.dev est désactivée.
+Cloudflare Workers (ressources statiques) : `npm run build` puis `wrangler deploy`, configuré par `wrangler.jsonc`. Les adresses en `.html` sont conservées (`html_handling: "none"`) ; `worker.mjs` sert l’accueil sur `/` et `404.html` avec le statut 404 pour toute autre adresse inconnue. Les en-têtes (CSP, cache) viennent de `_headers`, généré depuis `content/headers.conf` ; `.htaccess` est exclu par `.assetsignore`. Le Worker répond sur `cyprienguigonnat.fr` et `www` (domaines personnalisés déclarés dans `routes`) ; l’adresse workers.dev est désactivée.
 
 Pour une mise en ligne FTP, exécuter `npm run build` puis transférer tout le contenu de `dist/` à la racine du site. Aucun lancement de Node.js n’est nécessaire en production.
 
