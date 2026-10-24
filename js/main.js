@@ -499,14 +499,6 @@
     return snapshot;
   }
 
-  // 1 vers le projet suivant, -1 vers le précédent, d'après la pagination affichée.
-  function projectDirection(url) {
-    const target = pagePath(url.pathname);
-    const linked = [...shell().querySelectorAll('.project-pagination a[rel]')]
-      .find(link => pagePath(new URL(link.href, location.href).pathname) === target);
-    return linked?.rel === 'prev' ? -1 : 1;
-  }
-
   async function navigate(url, options = {}) {
     if (busy) {
       queuedNavigation = {url, options};
@@ -565,12 +557,10 @@
       const stopScroll=event=>event.preventDefault();
       window.addEventListener('wheel',stopScroll,{passive:false,signal:inputLock.signal});
       window.addEventListener('touchmove',stopScroll,{passive:false,signal:inputLock.signal});
-      // Entre projets, la page glisse dans le sens de la pagination, en deux phases courtes
-      // pour ne pas superposer les contenus.
-      const direction = betweenProjects ? projectDirection(url) : 0;
+      // Entre projets, un fondu en deux phases courtes évite de superposer les contenus.
       if (animateTransition && betweenProjects) {
         gsap.set(shell(), {opacity:0});
-        await gsap.to(outgoing, {x:-direction*48, opacity:0, duration:motion.projectExit/1000, ease:'navigation'});
+        await gsap.to(outgoing, {opacity:0, duration:motion.projectExit/1000, ease:'navigation'});
         gsap.set(shell(), {clearProps:'opacity'});
         if (queuedNavigation?.options.history === false) return;
         outgoing?.remove();
@@ -600,10 +590,9 @@
           target.style.visibility = "hidden";
           flight = animateImage(source, destination, Boolean(oldProject && next.dataset.page === "home"));
         }
-        const reveal = betweenProjects
-          ? gsap.fromTo(next, {x:direction*48, opacity:0},
-            {x:0, opacity:1, duration:motion.projectEntry/1000, ease:'navigation', clearProps:'transform,opacity'}).then()
-          : next.animate([{opacity:0}, {opacity:1}], {duration:motion.page, easing:navigationEase}).finished;
+        const reveal = next.animate([{opacity:0}, {opacity:1}], {
+          duration:betweenProjects?motion.projectEntry:motion.page, easing:navigationEase
+        }).finished;
         const dismiss=outgoing?.animate([{opacity:1},{opacity:0}],{duration:motion.exit,easing:navigationEase,fill:'forwards'});
         await Promise.allSettled([reveal, dismiss?.finished, flight?.animation.then()]);
         // L'image en vol reste en place jusqu'au décodage de la couverture.
