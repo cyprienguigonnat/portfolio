@@ -36,6 +36,11 @@ for(const project of projects)for(const image of project.images.filter(image=>!i
   const entry=require('../content/images.json')[image.file];
   const source=fs.readFileSync(path.join(root,'img/projets',image.file));
   assert.equal(entry.digest,crypto.createHash('sha256').update(source).digest('hex'),'Relancer npm run images : '+image.file);
+  assert.equal(entry.quality,image.webpQuality || 92,'Qualité WebP périmée : '+image.file);
+  for(const variant of entry.variants) {
+    assert.ok(variant.width<=image.width,'Variante agrandie artificiellement : '+variant.file);
+    assert.equal(fs.statSync(path.join(root,'img/projets',variant.file)).size,variant.bytes,'Poids WebP incorrect : '+variant.file);
+  }
 }
 assert.ok(fs.existsSync(path.join(siteRoot,'.nojekyll')),'.nojekyll absent');
 process.stdout.write('7 pages : ressources, ancres, titres, images, liens externes et empreinte CSP valides.\n');

@@ -25,27 +25,28 @@
       {
         "file": "infomaniak-03.png",
         "alt": "Montage de vues mobiles d’Infomaniak Calendar pour la création et la gestion d’un événement",
-        "width": 1672,
-        "height": 941
+        "width": 3712,
+        "height": 2088
       },
       {
         "file": "infomaniak-04.png",
         "alt": "Deux collègues utilisent une interface Infomaniak dans un espace de travail",
-        "width": 1672,
-        "height": 941
+        "width": 3712,
+        "height": 2088,
+        "webpQuality": 86
       },
       {
         "file": "infomaniak-05.png",
         "alt": "Composition de composants Infomaniak Calendar : champs de titre, états d’événement, actions et aperçu de l’agenda",
-        "width": 912,
-        "height": 1216,
+        "width": 1824,
+        "height": 2432,
         "caption": "Les composants de Calendar inscrivent la refonte dans le design system existant."
       },
       {
         "file": "infomaniak-06.png",
         "alt": "Vue mobile d’Infomaniak Calendar dans un téléphone",
-        "width": 1672,
-        "height": 2229
+        "width": 1824,
+        "height": 2432
       },
       {
         "file": "infomaniak-07.png",
@@ -74,7 +75,8 @@
         "file": "france-titres-01.png",
         "alt": "Une personne consulte le site France Titres sur son ordinateur portable",
         "width": 1672,
-        "height": 941
+        "height": 941,
+        "webpQuality": 86
       },
       {
         "video": "projets/france-titres-video.mp4",
@@ -87,26 +89,27 @@
       {
         "file": "france-titres-03.png",
         "alt": "Atelier de conception réunissant l’équipe autour du parcours France Titres",
-        "width": 1856,
-        "height": 1044
+        "width": 3712,
+        "height": 2088
       },
       {
         "file": "france-titres-04.png",
         "alt": "Planche d’ambiance et éléments de direction artistique pour France Titres",
-        "width": 1672,
-        "height": 941
+        "width": 2016,
+        "height": 1134,
+        "webpQuality": 86
       },
       {
         "file": "france-titres-05.png",
         "alt": "Interface mobile France Titres présentée dans un téléphone",
-        "width": 912,
-        "height": 1216
+        "width": 1824,
+        "height": 2432
       },
       {
         "file": "france-titres-06.png",
         "alt": "Espace personnel mobile France Titres permettant de commencer une démarche en ligne",
-        "width": 912,
-        "height": 1216
+        "width": 1824,
+        "height": 2432
       },
       {
         "file": "france-titres-07.png",
@@ -136,7 +139,8 @@
         "file": "fontlibrary-01.png",
         "alt": "Interface de Font Library en trois colonnes sur un ordinateur portable utilisé en extérieur",
         "width": 1672,
-        "height": 941
+        "height": 941,
+        "webpQuality": 86
       },
       {
         "video": "projets/fontlibrary-video.mp4",
@@ -149,33 +153,34 @@
       {
         "file": "fontlibrary-03.png",
         "alt": "Grille de résultats de polices avec prévisualisation typographique",
-        "width": 1856,
-        "height": 1044,
+        "width": 3712,
+        "height": 2088,
         "caption": "La prévisualisation typographique permet de comparer les polices dans les résultats."
       },
       {
         "file": "fontlibrary-04.png",
         "alt": "Écran de gestion de la collection personnelle de polices",
         "width": 1856,
-        "height": 1044
+        "height": 1044,
+        "webpQuality": 86
       },
       {
         "file": "fontlibrary-05.png",
         "alt": "Vue mobile du panneau de filtres de Font Library",
-        "width": 912,
-        "height": 1216
+        "width": 1824,
+        "height": 2432
       },
       {
         "file": "fontlibrary-06.png",
         "alt": "Vue mobile des résultats typographiques de Font Library",
-        "width": 912,
-        "height": 1216
+        "width": 1824,
+        "height": 2432
       },
       {
         "file": "fontlibrary-07.png",
         "alt": "Interface de Font Library avec ses trois espaces de navigation",
-        "width": 1856,
-        "height": 1044
+        "width": 1920,
+        "height": 1080
       },
       {
         "file": "fontlibrary-08.png",
@@ -198,7 +203,8 @@
         "file": "fabmanager-01.png",
         "alt": "Page d’accueil de Fab Manager affichée sur un ordinateur portable utilisé en extérieur",
         "width": 1672,
-        "height": 941
+        "height": 941,
+        "webpQuality": 86
       },
       {
         "video": "projets/fabmanager-video.mp4",
@@ -213,25 +219,26 @@
         "alt": "Présentation des typographies Epilogue et Work Sans choisies pour Fab Manager",
         "width": 1856,
         "height": 1044,
-        "caption": "Epilogue pour les titres et Work Sans pour les textes structurent la nouvelle identité."
+        "caption": "Epilogue pour les titres et Work Sans pour les textes structurent la nouvelle identité.",
+        "webpQuality": 86
       },
       {
         "file": "fabmanager-04.png",
         "alt": "Déclinaison de la nouvelle charte graphique et palette de couleurs de Fab Manager",
-        "width": 912,
-        "height": 1216
+        "width": 1824,
+        "height": 2432
       },
       {
         "file": "fabmanager-05.png",
         "alt": "Écran de présentation de l’interface Fab Manager",
-        "width": 912,
-        "height": 1216
+        "width": 1824,
+        "height": 2432
       },
       {
         "file": "fabmanager-06.png",
         "alt": "Écran complémentaire de l’interface Fab Manager",
-        "width": 1856,
-        "height": 2799
+        "width": 3712,
+        "height": 5598
       },
       {
         "file": "fabmanager-07.png",

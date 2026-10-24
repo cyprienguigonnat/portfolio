@@ -1,6 +1,7 @@
 {
   "infomaniak-01.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 92,
     "digest": "69d22db56f4669715a66be24bb54355c684472db96df464ea8ee6d10e19420a6",
     "originalBytes": 3021827,
     "variants": [
@@ -27,105 +28,140 @@
     ]
   },
   "infomaniak-03.png": {
-    "recipe": 3,
-    "digest": "b13da09fe6742682160c144faf41184d6480b4e4af5ca6f6d4aa97a59460508a",
-    "originalBytes": 418612,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "3006f6d83d11247c7fdce6b2d98a2adfca81affb12a28eb420f432e9b4eb9c80",
+    "originalBytes": 548207,
     "variants": [
       {
-        "file": "infomaniak-03-640-6386A485.webp",
+        "file": "infomaniak-03-640-529339B3.webp",
         "width": 640,
-        "bytes": 31070
+        "bytes": 30966
       },
       {
-        "file": "infomaniak-03-960-DDCE86E6.webp",
+        "file": "infomaniak-03-960-DBCE903D.webp",
         "width": 960,
-        "bytes": 54896
+        "bytes": 55198
       },
       {
-        "file": "infomaniak-03-1280-604781AF.webp",
+        "file": "infomaniak-03-1280-1F98E884.webp",
         "width": 1280,
-        "bytes": 84286
+        "bytes": 85532
       },
       {
-        "file": "infomaniak-03-1672-D451C5A1.webp",
-        "width": 1672,
-        "bytes": 120496
+        "file": "infomaniak-03-1920-05509152.webp",
+        "width": 1920,
+        "bytes": 148200
+      },
+      {
+        "file": "infomaniak-03-2560-3DE5271B.webp",
+        "width": 2560,
+        "bytes": 215166
+      },
+      {
+        "file": "infomaniak-03-3712-22AE69A2.webp",
+        "width": 3712,
+        "bytes": 330686
       }
     ]
   },
   "infomaniak-04.png": {
-    "recipe": 3,
-    "digest": "190d204078633aa7db60d313790d037f39831d75ca9c0d5177043199aca00857",
-    "originalBytes": 2697960,
+    "recipe": 4,
+    "quality": 86,
+    "digest": "ee33477a70ce7526ebd23204b0b3d35689a80550eeb8bafb564b542a22edd794",
+    "originalBytes": 13863317,
     "variants": [
       {
-        "file": "infomaniak-04-640-281E4433.webp",
+        "file": "infomaniak-04-640-D36E00F5.webp",
         "width": 640,
-        "bytes": 39840
+        "bytes": 27154
       },
       {
-        "file": "infomaniak-04-960-E1D228D4.webp",
+        "file": "infomaniak-04-960-9EA635BF.webp",
         "width": 960,
-        "bytes": 73646
+        "bytes": 49232
       },
       {
-        "file": "infomaniak-04-1280-9F549122.webp",
+        "file": "infomaniak-04-1280-3C87EF86.webp",
         "width": 1280,
-        "bytes": 110596
+        "bytes": 74832
       },
       {
-        "file": "infomaniak-04-1672-70F2AD2D.webp",
-        "width": 1672,
-        "bytes": 170050
+        "file": "infomaniak-04-1920-6DAEC196.webp",
+        "width": 1920,
+        "bytes": 142728
+      },
+      {
+        "file": "infomaniak-04-2560-D1D6B11D.webp",
+        "width": 2560,
+        "bytes": 232932
+      },
+      {
+        "file": "infomaniak-04-3712-DEF0E79D.webp",
+        "width": 3712,
+        "bytes": 451736
       }
     ]
   },
   "infomaniak-05.png": {
-    "recipe": 3,
-    "digest": "61b6574c959f0005ada6fb2601026b88a511ca833fdf02f2bd771c5021de0bfa",
-    "originalBytes": 157585,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "fca03a2a9a8915936def4532c45d5954ebf31d01a104a210aa431c9ceabf182b",
+    "originalBytes": 245562,
     "variants": [
       {
-        "file": "infomaniak-05-640-56DF1D72.webp",
+        "file": "infomaniak-05-640-F483B1C8.webp",
         "width": 640,
-        "bytes": 43670
+        "bytes": 44510
       },
       {
-        "file": "infomaniak-05-912-6185B16C.webp",
-        "width": 912,
-        "bytes": 66810
+        "file": "infomaniak-05-960-DEF49F63.webp",
+        "width": 960,
+        "bytes": 74554
+      },
+      {
+        "file": "infomaniak-05-1280-222D8786.webp",
+        "width": 1280,
+        "bytes": 106840
+      },
+      {
+        "file": "infomaniak-05-1824-D1F12F50.webp",
+        "width": 1824,
+        "bytes": 162932
       }
     ]
   },
   "infomaniak-06.png": {
-    "recipe": 3,
-    "digest": "49efb881af04f4c610cc5695e0cf8267a59733857c69503ea3dc8fb10da0be99",
-    "originalBytes": 478410,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "a8d61c6d9753f47c90ae2ceba26027eb7ee52580f9ebd9cfecf7c926a77f3366",
+    "originalBytes": 392818,
     "variants": [
       {
-        "file": "infomaniak-06-640-76608634.webp",
+        "file": "infomaniak-06-640-FC373B42.webp",
         "width": 640,
-        "bytes": 20264
+        "bytes": 20614
       },
       {
-        "file": "infomaniak-06-960-4C45CF80.webp",
+        "file": "infomaniak-06-960-D38FEDBF.webp",
         "width": 960,
-        "bytes": 34286
+        "bytes": 34828
       },
       {
-        "file": "infomaniak-06-1280-21C30691.webp",
+        "file": "infomaniak-06-1280-00F34499.webp",
         "width": 1280,
-        "bytes": 49446
+        "bytes": 51140
       },
       {
-        "file": "infomaniak-06-1672-ED169637.webp",
-        "width": 1672,
-        "bytes": 68056
+        "file": "infomaniak-06-1824-36FA2A4B.webp",
+        "width": 1824,
+        "bytes": 86244
       }
     ]
   },
   "infomaniak-07.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 92,
     "digest": "55176cd2783f934e62253e472e761d660dfd8b88d996447e2ca8ab6bce681ea4",
     "originalBytes": 372632,
     "variants": [
@@ -152,7 +188,8 @@
     ]
   },
   "infomaniak-08.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 92,
     "digest": "4a50588ae9b8ed9b311db22e3f38ec47cb072ff0ef6dde8c2ad89d6d65d4d36e",
     "originalBytes": 3240580,
     "variants": [
@@ -179,122 +216,163 @@
     ]
   },
   "france-titres-01.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 86,
     "digest": "0b523935ca9466a390861a442267cca9e287e045666863e89d26724817cb5693",
     "originalBytes": 1619820,
     "variants": [
       {
-        "file": "france-titres-01-640-53DEF1D6.webp",
+        "file": "france-titres-01-640-77699C12.webp",
         "width": 640,
-        "bytes": 40914
+        "bytes": 29706
       },
       {
-        "file": "france-titres-01-960-9CDC80FD.webp",
+        "file": "france-titres-01-960-DE13C4D5.webp",
         "width": 960,
-        "bytes": 69916
+        "bytes": 50636
       },
       {
-        "file": "france-titres-01-1280-3EE8E747.webp",
+        "file": "france-titres-01-1280-D9AE8ED6.webp",
         "width": 1280,
-        "bytes": 103296
+        "bytes": 74384
       },
       {
-        "file": "france-titres-01-1672-8D8B2E62.webp",
+        "file": "france-titres-01-1672-DB367034.webp",
         "width": 1672,
-        "bytes": 143780
+        "bytes": 106360
       }
     ]
   },
   "france-titres-03.png": {
-    "recipe": 3,
-    "digest": "8a422da2cedcf494ffa0464ff552f92cc6e5f042539427be1e00d853719b69db",
-    "originalBytes": 458444,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "e580dfeebd5431d60d789d9694e17d8f7f050b98251df55b4992188481e47ffd",
+    "originalBytes": 750496,
     "variants": [
       {
-        "file": "france-titres-03-640-6AAE49D9.webp",
+        "file": "france-titres-03-640-0208F08A.webp",
         "width": 640,
-        "bytes": 20954
+        "bytes": 20754
       },
       {
-        "file": "france-titres-03-960-7EB07856.webp",
+        "file": "france-titres-03-960-56DA2058.webp",
         "width": 960,
-        "bytes": 38082
+        "bytes": 38550
       },
       {
-        "file": "france-titres-03-1280-1307A3F4.webp",
+        "file": "france-titres-03-1280-631E9CA5.webp",
         "width": 1280,
-        "bytes": 60402
+        "bytes": 61066
       },
       {
-        "file": "france-titres-03-1856-93CB4D42.webp",
-        "width": 1856,
-        "bytes": 111420
+        "file": "france-titres-03-1920-EAA9847F.webp",
+        "width": 1920,
+        "bytes": 119222
+      },
+      {
+        "file": "france-titres-03-2560-86863876.webp",
+        "width": 2560,
+        "bytes": 183178
+      },
+      {
+        "file": "france-titres-03-3712-C8907685.webp",
+        "width": 3712,
+        "bytes": 312478
       }
     ]
   },
   "france-titres-04.png": {
-    "recipe": 3,
-    "digest": "4cd3aca5871af7d612d007245cf4049ceeb0e419baf700fa028e9bb454ae41a2",
-    "originalBytes": 3700397,
+    "recipe": 4,
+    "quality": 86,
+    "digest": "9050dade26f93bb8f1bb2165c5ff7d0119af73c82bcd26539f321911f5ff2c1a",
+    "originalBytes": 5104527,
     "variants": [
       {
-        "file": "france-titres-04-640-8FA4DF16.webp",
+        "file": "france-titres-04-640-AAA60F04.webp",
         "width": 640,
-        "bytes": 81014
+        "bytes": 62564
       },
       {
-        "file": "france-titres-04-960-F193D184.webp",
+        "file": "france-titres-04-960-215EAF6B.webp",
         "width": 960,
-        "bytes": 158386
+        "bytes": 115178
       },
       {
-        "file": "france-titres-04-1280-BF3D2047.webp",
+        "file": "france-titres-04-1280-2ED4F2D3.webp",
         "width": 1280,
-        "bytes": 234390
+        "bytes": 171606
       },
       {
-        "file": "france-titres-04-1672-6F9EAC8B.webp",
-        "width": 1672,
-        "bytes": 341206
+        "file": "france-titres-04-1920-F81DD65A.webp",
+        "width": 1920,
+        "bytes": 295254
+      },
+      {
+        "file": "france-titres-04-2016-9DE0ED0C.webp",
+        "width": 2016,
+        "bytes": 309132
       }
     ]
   },
   "france-titres-05.png": {
-    "recipe": 3,
-    "digest": "9abcf5796614b610d9cb9c55ae0afa9d755910c8e725cb0a5e936eb320026b5e",
-    "originalBytes": 152142,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "c831dd3da113c1aebba034a94eae514c219a7a56bbf267ac1efb8c1ecdc92452",
+    "originalBytes": 228740,
     "variants": [
       {
-        "file": "france-titres-05-640-3F12B40B.webp",
+        "file": "france-titres-05-640-A2E50FC2.webp",
         "width": 640,
-        "bytes": 53506
+        "bytes": 54720
       },
       {
-        "file": "france-titres-05-912-F2406749.webp",
-        "width": 912,
-        "bytes": 83430
+        "file": "france-titres-05-960-F30C33DA.webp",
+        "width": 960,
+        "bytes": 91136
+      },
+      {
+        "file": "france-titres-05-1280-613643DD.webp",
+        "width": 1280,
+        "bytes": 129560
+      },
+      {
+        "file": "france-titres-05-1824-C9D766E7.webp",
+        "width": 1824,
+        "bytes": 194332
       }
     ]
   },
   "france-titres-06.png": {
-    "recipe": 3,
-    "digest": "357f60b5001b2b221c1b7b176d4567116adeebcbeabd7637a60524bf9472d9b0",
-    "originalBytes": 161341,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "1fe14aaf8d5df4b68fd4570262b7e4fc653f7ec5b13e44d5bc4540e938b9541c",
+    "originalBytes": 440951,
     "variants": [
       {
-        "file": "france-titres-06-640-0B7C6F5D.webp",
+        "file": "france-titres-06-640-EF0021A6.webp",
         "width": 640,
-        "bytes": 25402
+        "bytes": 25710
       },
       {
-        "file": "france-titres-06-912-574D8F61.webp",
-        "width": 912,
-        "bytes": 39744
+        "file": "france-titres-06-960-836592BD.webp",
+        "width": 960,
+        "bytes": 42904
+      },
+      {
+        "file": "france-titres-06-1280-60144D9F.webp",
+        "width": 1280,
+        "bytes": 61356
+      },
+      {
+        "file": "france-titres-06-1824-F5947ECA.webp",
+        "width": 1824,
+        "bytes": 99948
       }
     ]
   },
   "france-titres-07.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 92,
     "digest": "b5a2a2897666de5ba831073fed8da1a2630448974f96113adbfbce0e0b2f6a3c",
     "originalBytes": 476313,
     "variants": [
@@ -314,6 +392,11 @@
         "bytes": 68678
       },
       {
+        "file": "france-titres-07-1920-EE876F06.webp",
+        "width": 1920,
+        "bytes": 119716
+      },
+      {
         "file": "france-titres-07-2090-CF054FBF.webp",
         "width": 2090,
         "bytes": 132742
@@ -321,7 +404,8 @@
     ]
   },
   "france-titres-08.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 92,
     "digest": "62d58a12459ed7cc16861ae9830cf9a93cdaf2193ed28e1870246fe761a8d5b4",
     "originalBytes": 1989732,
     "variants": [
@@ -348,149 +432,186 @@
     ]
   },
   "fontlibrary-01.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 86,
     "digest": "8576653d890cd5ca6ab71aa5b300d48c9740ddba7b639c4f03dad48561dab053",
     "originalBytes": 3007727,
     "variants": [
       {
-        "file": "fontlibrary-01-640-ECEC0872.webp",
+        "file": "fontlibrary-01-640-80493E44.webp",
         "width": 640,
-        "bytes": 78320
+        "bytes": 55940
       },
       {
-        "file": "fontlibrary-01-960-416905D6.webp",
+        "file": "fontlibrary-01-960-585662B7.webp",
         "width": 960,
-        "bytes": 148412
+        "bytes": 104488
       },
       {
-        "file": "fontlibrary-01-1280-6D6E92F2.webp",
+        "file": "fontlibrary-01-1280-B668C609.webp",
         "width": 1280,
-        "bytes": 215916
+        "bytes": 156774
       },
       {
-        "file": "fontlibrary-01-1672-04AEDE93.webp",
+        "file": "fontlibrary-01-1672-A4F3B570.webp",
         "width": 1672,
-        "bytes": 315546
+        "bytes": 222062
       }
     ]
   },
   "fontlibrary-03.png": {
-    "recipe": 3,
-    "digest": "525de92d42b09077d95f55a725082a036ec3e1c4625c0554d922e6fa38ad5749",
-    "originalBytes": 1452481,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "0fd10f35022d4197e1a87470e1a45498cd7137dd3ba268d0f01c86f9cfcc4faf",
+    "originalBytes": 2725222,
     "variants": [
       {
-        "file": "fontlibrary-03-640-7CB5153A.webp",
+        "file": "fontlibrary-03-640-0A9971B4.webp",
         "width": 640,
-        "bytes": 46140
+        "bytes": 45560
       },
       {
-        "file": "fontlibrary-03-960-8E40A442.webp",
+        "file": "fontlibrary-03-960-92AF0F1A.webp",
         "width": 960,
-        "bytes": 85890
+        "bytes": 85514
       },
       {
-        "file": "fontlibrary-03-1280-4D8DB296.webp",
+        "file": "fontlibrary-03-1280-1471E237.webp",
         "width": 1280,
-        "bytes": 131288
+        "bytes": 130808
       },
       {
-        "file": "fontlibrary-03-1856-A16CF70D.webp",
-        "width": 1856,
-        "bytes": 217156
+        "file": "fontlibrary-03-1920-17C7BD7B.webp",
+        "width": 1920,
+        "bytes": 238854
+      },
+      {
+        "file": "fontlibrary-03-2560-B5EB34D7.webp",
+        "width": 2560,
+        "bytes": 362330
+      },
+      {
+        "file": "fontlibrary-03-3712-72BB6402.webp",
+        "width": 3712,
+        "bytes": 585652
       }
     ]
   },
   "fontlibrary-04.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 86,
     "digest": "a84c95e6b0637556fedb9dbed6b17fc707d1ceabd5fe6b6fda33a094d1692fa7",
     "originalBytes": 2061870,
     "variants": [
       {
-        "file": "fontlibrary-04-640-8AE52A13.webp",
+        "file": "fontlibrary-04-640-95E21FD3.webp",
         "width": 640,
-        "bytes": 45888
+        "bytes": 30408
       },
       {
-        "file": "fontlibrary-04-960-5F6BF64E.webp",
+        "file": "fontlibrary-04-960-39AB02D1.webp",
         "width": 960,
-        "bytes": 83774
+        "bytes": 53194
       },
       {
-        "file": "fontlibrary-04-1280-538B76EF.webp",
+        "file": "fontlibrary-04-1280-ADE2F38B.webp",
         "width": 1280,
-        "bytes": 117488
+        "bytes": 74244
       },
       {
-        "file": "fontlibrary-04-1856-B849EAE0.webp",
+        "file": "fontlibrary-04-1856-8C12EE91.webp",
         "width": 1856,
-        "bytes": 188546
+        "bytes": 120334
       }
     ]
   },
   "fontlibrary-05.png": {
-    "recipe": 3,
-    "digest": "11c6e52b45222aa06c658c478d0d40155f6c2a2479b8eb17acdbee41de5a0d5d",
-    "originalBytes": 310684,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "45b9555723477e70c89bb3682e4314e6ead05e63f8dc5536130bac78735da5b8",
+    "originalBytes": 717228,
     "variants": [
       {
-        "file": "fontlibrary-05-640-0FA4D23C.webp",
+        "file": "fontlibrary-05-640-8D4F3DAC.webp",
         "width": 640,
-        "bytes": 47508
+        "bytes": 49598
       },
       {
-        "file": "fontlibrary-05-912-290E107D.webp",
-        "width": 912,
-        "bytes": 69052
+        "file": "fontlibrary-05-960-81D58428.webp",
+        "width": 960,
+        "bytes": 79774
+      },
+      {
+        "file": "fontlibrary-05-1280-C00AC02A.webp",
+        "width": 1280,
+        "bytes": 110942
+      },
+      {
+        "file": "fontlibrary-05-1824-7FF59195.webp",
+        "width": 1824,
+        "bytes": 162746
       }
     ]
   },
   "fontlibrary-06.png": {
-    "recipe": 3,
-    "digest": "4e0df519f56e443c5ebfb22529573fd911d62a462e55103f05513f8693f8286d",
-    "originalBytes": 128731,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "20ef07aebccea54e8b425baff2859186a52346dfdca5db736012cc27a9ad37e0",
+    "originalBytes": 343237,
     "variants": [
       {
-        "file": "fontlibrary-06-640-F26DB03E.webp",
+        "file": "fontlibrary-06-640-61245E93.webp",
         "width": 640,
-        "bytes": 21846
+        "bytes": 22190
       },
       {
-        "file": "fontlibrary-06-912-5D9E71A1.webp",
-        "width": 912,
-        "bytes": 32488
+        "file": "fontlibrary-06-960-E11B7535.webp",
+        "width": 960,
+        "bytes": 36588
+      },
+      {
+        "file": "fontlibrary-06-1280-530B8048.webp",
+        "width": 1280,
+        "bytes": 53836
+      },
+      {
+        "file": "fontlibrary-06-1824-9432D5DA.webp",
+        "width": 1824,
+        "bytes": 85144
       }
     ]
   },
   "fontlibrary-07.png": {
-    "recipe": 3,
-    "digest": "53c2fe975762b56f75ffd0af92466470f60757c96588d1139776eb8f217861fa",
-    "originalBytes": 1160945,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "58e50afa22ea33864d402da9c6b197d5d3d484b5ed37d85a65e505a3ccb9bb64",
+    "originalBytes": 1067984,
     "variants": [
       {
-        "file": "fontlibrary-07-640-4AF603EC.webp",
+        "file": "fontlibrary-07-640-6F98BDDF.webp",
         "width": 640,
-        "bytes": 41064
+        "bytes": 39868
       },
       {
-        "file": "fontlibrary-07-960-DF1FCB44.webp",
+        "file": "fontlibrary-07-960-D03BAF52.webp",
         "width": 960,
-        "bytes": 73474
+        "bytes": 70674
       },
       {
-        "file": "fontlibrary-07-1280-EFE0A5E5.webp",
+        "file": "fontlibrary-07-1280-908608FA.webp",
         "width": 1280,
-        "bytes": 112750
+        "bytes": 108828
       },
       {
-        "file": "fontlibrary-07-1856-1DB784A3.webp",
-        "width": 1856,
-        "bytes": 179876
+        "file": "fontlibrary-07-1920-42BB5447.webp",
+        "width": 1920,
+        "bytes": 179954
       }
     ]
   },
   "fontlibrary-08.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 92,
     "digest": "c0018e1762d834308b7bddedb3cb7fed93fb5ca8dc4bef9af03d9374dd884f08",
     "originalBytes": 3085475,
     "variants": [
@@ -517,122 +638,158 @@
     ]
   },
   "fabmanager-01.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 86,
     "digest": "e78abb4d5c7223043cccc6f26cb0949eb992f859e5b35d266f2ec8dc4b4c69c3",
     "originalBytes": 2024942,
     "variants": [
       {
-        "file": "fabmanager-01-640-04FD6F92.webp",
+        "file": "fabmanager-01-640-798FF628.webp",
         "width": 640,
-        "bytes": 65996
+        "bytes": 49862
       },
       {
-        "file": "fabmanager-01-960-1251DCCF.webp",
+        "file": "fabmanager-01-960-0B05B2B7.webp",
         "width": 960,
-        "bytes": 108060
+        "bytes": 80518
       },
       {
-        "file": "fabmanager-01-1280-A171947A.webp",
+        "file": "fabmanager-01-1280-9686165C.webp",
         "width": 1280,
-        "bytes": 153370
+        "bytes": 111802
       },
       {
-        "file": "fabmanager-01-1672-1D3E4CB1.webp",
+        "file": "fabmanager-01-1672-CE01CAAB.webp",
         "width": 1672,
-        "bytes": 216774
+        "bytes": 156538
       }
     ]
   },
   "fabmanager-03.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 86,
     "digest": "1e970c6124b5af85f48f7e1e8fb1e4a908054ff9df83763f4f0f1af134326c71",
     "originalBytes": 3985591,
     "variants": [
       {
-        "file": "fabmanager-03-640-A9B2CDE2.webp",
+        "file": "fabmanager-03-640-4765C82E.webp",
         "width": 640,
-        "bytes": 61086
+        "bytes": 40974
       },
       {
-        "file": "fabmanager-03-960-E5BDD736.webp",
+        "file": "fabmanager-03-960-FB486CC8.webp",
         "width": 960,
-        "bytes": 121274
+        "bytes": 80828
       },
       {
-        "file": "fabmanager-03-1280-CCD300F5.webp",
+        "file": "fabmanager-03-1280-32453482.webp",
         "width": 1280,
-        "bytes": 187318
+        "bytes": 118028
       },
       {
-        "file": "fabmanager-03-1856-23446E47.webp",
+        "file": "fabmanager-03-1856-EFF002EE.webp",
         "width": 1856,
-        "bytes": 288644
+        "bytes": 183688
       }
     ]
   },
   "fabmanager-04.png": {
-    "recipe": 3,
-    "digest": "17e780c1a90312de85d4fc1508df2c98b38725653f54e2836fde9d61cf4eb970",
-    "originalBytes": 242136,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "6336a447d6d45d6fbb2e28133336786d71d0bf2b0e76d0e44ff226a41a70536c",
+    "originalBytes": 461891,
     "variants": [
       {
-        "file": "fabmanager-04-640-F9E4243B.webp",
+        "file": "fabmanager-04-640-D830E73F.webp",
         "width": 640,
-        "bytes": 53740
+        "bytes": 54552
       },
       {
-        "file": "fabmanager-04-912-E073FB41.webp",
-        "width": 912,
-        "bytes": 89712
+        "file": "fabmanager-04-960-69C2D12F.webp",
+        "width": 960,
+        "bytes": 97614
+      },
+      {
+        "file": "fabmanager-04-1280-7DAD0E9D.webp",
+        "width": 1280,
+        "bytes": 144032
+      },
+      {
+        "file": "fabmanager-04-1824-FDBD50CB.webp",
+        "width": 1824,
+        "bytes": 227118
       }
     ]
   },
   "fabmanager-05.png": {
-    "recipe": 3,
-    "digest": "39ee9c68475d4fbec09b4b6932eeea086a7b10a1ead3360011bd56da3baef04c",
-    "originalBytes": 145585,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "3d2e87b4bfb11f2d0d18151416db186bf023abfc16e6219caeac80e05af1643c",
+    "originalBytes": 389722,
     "variants": [
       {
-        "file": "fabmanager-05-640-54A54665.webp",
+        "file": "fabmanager-05-640-287CE705.webp",
         "width": 640,
-        "bytes": 31280
+        "bytes": 31390
       },
       {
-        "file": "fabmanager-05-912-061726DA.webp",
-        "width": 912,
-        "bytes": 44486
+        "file": "fabmanager-05-960-DB019DB1.webp",
+        "width": 960,
+        "bytes": 48942
+      },
+      {
+        "file": "fabmanager-05-1280-03C6670C.webp",
+        "width": 1280,
+        "bytes": 67580
+      },
+      {
+        "file": "fabmanager-05-1824-7165CDE2.webp",
+        "width": 1824,
+        "bytes": 101018
       }
     ]
   },
   "fabmanager-06.png": {
-    "recipe": 3,
-    "digest": "be4bd67fffabb38f67f59d57d0d2b5fa282da66a7b992db71db3df0c14fde0f5",
-    "originalBytes": 897873,
+    "recipe": 4,
+    "quality": 92,
+    "digest": "c20b238afec0ed7dbd164638b58a49a200bf22fbd3bcbab13d44ed318d6918b3",
+    "originalBytes": 1597433,
     "variants": [
       {
-        "file": "fabmanager-06-640-DD972B82.webp",
+        "file": "fabmanager-06-640-39EA623B.webp",
         "width": 640,
-        "bytes": 53560
+        "bytes": 53488
       },
       {
-        "file": "fabmanager-06-960-65ABDF1F.webp",
+        "file": "fabmanager-06-960-00F89ED7.webp",
         "width": 960,
-        "bytes": 93186
+        "bytes": 94082
       },
       {
-        "file": "fabmanager-06-1280-E10D76AD.webp",
+        "file": "fabmanager-06-1280-6FCC5C1C.webp",
         "width": 1280,
-        "bytes": 133930
+        "bytes": 135526
       },
       {
-        "file": "fabmanager-06-1856-F232650D.webp",
-        "width": 1856,
-        "bytes": 210064
+        "file": "fabmanager-06-1920-E9C76951.webp",
+        "width": 1920,
+        "bytes": 225564
+      },
+      {
+        "file": "fabmanager-06-2560-22ECC9EC.webp",
+        "width": 2560,
+        "bytes": 321494
+      },
+      {
+        "file": "fabmanager-06-3712-571C9EE8.webp",
+        "width": 3712,
+        "bytes": 500212
       }
     ]
   },
   "fabmanager-07.png": {
-    "recipe": 3,
+    "recipe": 4,
+    "quality": 92,
     "digest": "83a010cb780588d03c7128f9797d25d5a5a55b7a5b68e7c80f46e60cffa3c79b",
     "originalBytes": 3628752,
     "variants": [
