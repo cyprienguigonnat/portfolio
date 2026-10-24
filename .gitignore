@@ -5,3 +5,4 @@ dist/
 # Claude Code / Impeccable (local)
 .claude/settings.local.json
 .impeccable/config.local.json
+.wrangler/

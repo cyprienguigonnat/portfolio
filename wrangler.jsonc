@@ -1,0 +1,15 @@
+{
+  "name": "cyprienguigonnat-fr",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "routes": [
+    {"pattern": "cyprienguigonnat.fr", "custom_domain": true},
+    {"pattern": "www.cyprienguigonnat.fr", "custom_domain": true}
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Conserver les adresses en .html utilisées par les liens, le sitemap et les canonical.
+    "html_handling": "none"
+  }
+}

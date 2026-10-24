@@ -313,6 +313,16 @@ body.is-navigating a { cursor: progress; }
 }
 .page-footer a { display: inline-flex; align-items: center; gap: .35em; }
 .legal-footer { justify-content: flex-end; }
+.site-footer-info {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0 var(--gutter);
+  padding: 16px 0 24px;
+  border-top: 1px solid #bfe3fb;
+}
+.site-footer-info nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 #site-shell[data-page="informations"], #site-shell[data-page="donnees"] { display: flex; flex-direction: column; }
 
 /* Une page par projet : couverture, trois colonnes, puis planches. */
