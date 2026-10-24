@@ -13,9 +13,10 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "esbuild": "0.28.2",
-    "sharp": "0.35.4",
     "@axe-core/playwright": "4.13.0",
-    "playwright": "1.63.0"
+    "esbuild": "0.28.2",
+    "gsap": "3.13.0",
+    "playwright": "1.63.0",
+    "sharp": "0.35.4"
   }
 }

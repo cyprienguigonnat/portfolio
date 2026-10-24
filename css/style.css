@@ -325,6 +325,8 @@ body.is-navigating a { cursor: progress; }
 .project-page { padding: 0 var(--gutter); }
 .project-hero, .gallery-image { margin: 0; min-width: 0; }
 .project-image-frame { position: relative; display: block; background: #bfe3fb; }
+/* Le cadre de la couverture retient l'image décalée par le parallaxe. */
+.project-hero .project-image-frame { overflow: hidden; }
 .project-image-placeholder {
   position: absolute;
   inset: 0;

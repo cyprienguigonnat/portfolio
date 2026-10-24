@@ -45,7 +45,7 @@ function replaceIconTokens(html) {
     .replace(/&#8599;|↗/g, icon('arrow-up-right'))
     .replace(/&#10551;|⤷/g, icon('corner-down-right'));
 }
-const runtime = ['js/vendor/lenis-1.1.13.min.js','js/letter-physics.js','js/wordmark.js','js/main.js'].map(read).join('\n');
+const runtime = ['js/vendor/lenis-1.1.13.min.js','node_modules/gsap/dist/gsap.min.js','node_modules/gsap/dist/CustomEase.min.js','js/letter-physics.js','js/wordmark.js','js/main.js'].map(read).join('\n');
 const runtimeOutput = esbuild.transformSync(runtime,{minify:true,target:'es2022',legalComments:'eof'}).code;
 const runtimeHash = crypto.createHash('sha256').update(runtimeOutput).digest('hex').slice(0,8).toUpperCase();
 const runtimeFile = 'assets/site-'+runtimeHash+'.js';
