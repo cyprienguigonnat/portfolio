@@ -460,6 +460,9 @@ body.is-navigating a { cursor: progress; }
   .gallery-image { grid-column: 1 / -1; }
   .project-pagination { flex-wrap: nowrap; gap: 8px; }
   .project-pagination nav { gap: 8px; }
+  .site-footer-info { flex-direction: column; gap: 4px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .site-footer-info nav { order: -1; gap: 0 24px; }
+  .site-footer-info nav a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 @media (max-height: 580px) and (min-width: 701px) {
   .home-thumbnail { top: 35%; width: min(40vw, 550px); }
