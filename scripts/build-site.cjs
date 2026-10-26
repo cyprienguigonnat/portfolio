@@ -221,8 +221,7 @@ write("404.html",documentPage({
   title:"Page introuvable — Cyprien GUIGONNAT",kind:"informations",url:null,
   content:header()+'\n<main id="mn" class="information-page" tabindex="-1">'
     +read("content/404.html").replace('<section ', '<section class="information-grid" ')
-      .replace('{{PROJECT_LINKS}}', projects.map(p=>'<li><a href="projets/'+p.slug+'.html">'+escape(p.title)+'</a></li>').join('\n'))
-    +'</main>\n'+siteFooter()
+    +'</main>'
 }));
 
 const sitemapUrls=['','informations.html','donnees-du-site.html',...projects.map(p=>'projets/'+p.slug+'.html')];
