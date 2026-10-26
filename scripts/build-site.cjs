@@ -220,7 +220,7 @@ projects.forEach((project,index)=>{
 write("404.html",documentPage({
   title:"Page introuvable — Cyprien GUIGONNAT",kind:"informations",url:null,
   content:header()+'\n<main id="mn" class="information-page" tabindex="-1">'
-    +read("content/404.html").replace('<section ', '<section class="information-grid" ')
+    +read("content/404.html")
     +'</main>'
 }));
 

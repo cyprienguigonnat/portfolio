@@ -479,9 +479,7 @@ body.is-navigating a { cursor: progress; }
 }
 
 /* Page 404 : code et message centrés dans la fenêtre. */
-#page-introuvable { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; text-align: center; }
+#page-introuvable { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .information-page:has(#page-introuvable) { display: flex; flex-direction: column; }
-#page-introuvable { flex: 1; }
 .code-404 { width: min(283px, 70vw); height: auto; margin-bottom: 12px; }
-#page-introuvable { gap: 0; }
 #page-introuvable h1 { margin-bottom: 6px; }
