@@ -30,7 +30,7 @@ for(const [file,html] of documents) {
   }
   const boot=html.match(/<script>([\s\S]*?)<\/script>/)[1];
   const hash=crypto.createHash('sha256').update(boot).digest('base64');
-  for(const config of ['.htaccess','_headers'])assert.ok(fs.readFileSync(path.join(siteRoot,config),'utf8').includes("'sha256-"+hash+"'"),'Empreinte CSP '+config+' : '+file);
+  assert.ok(fs.readFileSync(path.join(siteRoot,'_headers'),'utf8').includes("'sha256-"+hash+"'"),'Empreinte CSP _headers : '+file);
   for(const property of ['og:image','twitter:image'])assert.match(html,new RegExp('="'+property+'" content="https://cyprienguigonnat\\.fr/img/site-preview\\.png"'),property+' absolu : '+file);
 }
 for(const project of projects)for(const image of project.images.filter(image=>!image.video)) {

@@ -61,9 +61,7 @@ const boot=read('content/boot.html')
   .replace(/<script>([\s\S]*?)<\/script>/,(_,code)=>'<script>'+esbuild.transformSync(code,{minify:true,target:'es2022'}).code.trim()+'</script>')
   .replace(/<style>([\s\S]*?)<\/style>/,(_,code)=>'<style>'+esbuild.transformSync(code,{minify:true,loader:'css'}).code.trim()+'</style>');
 const bootHash=crypto.createHash('sha256').update(boot.match(/<script>([\s\S]*?)<\/script>/)[1]).digest('base64');
-write('.htaccess',read('content/htaccess.conf').replace('{{BOOT_HASH}}',bootHash));
 write('_headers',read('content/headers.conf').replace(/^#.*\n/,'').replace('{{BOOT_HASH}}',bootHash));
-write('.assetsignore','.htaccess\n');
 
 function secureLinks(html) {
   return html.replace(/<a\b[^>]*>/g,tag=>{
@@ -183,21 +181,21 @@ for(const entry of [
   }));
 }
 
-fs.mkdirSync(path.join(root,"projets"),{recursive:true});
+const caption=image=>image.caption?'<figcaption>'+escape(image.caption)+'</figcaption>':'';
+const videoMarkup=(image,label)=>'<video class="project-video" width="'+image.width+'" height="'+image.height+'" controls loop muted playsinline preload="none" poster="../img/projets/'+escape(image.poster)+'" aria-label="'+escape(label)+'">'
+  +'<source src="../img/'+escape(image.video)+'" type="video/mp4"></video>';
 projects.forEach((project,index)=>{
   const previous=projects[(index-1+projects.length)%projects.length];
   const next=projects[(index+1)%projects.length];
   const rest=project.images.slice(1).filter(image=>!(project.slug==='fabmanager' && image.video));
-  const gallery=rest.map((image,i)=>{
-    const infomaniakSpans=[6,6,6,3,3,6,6];
-    const franceTitresSpans=[6,6,6,3,3,6,6];
-    const fabManagerSpans=[6,3,3,6,6];
-    const span=project.slug==='fabmanager' ? (fabManagerSpans[i] || 6) : project.slug==='infomaniak' || project.slug==='fontlibrary' ? (infomaniakSpans[i] || 6) : project.slug==='france-titres' ? (franceTitresSpans[i] || 6) : (rest.length===2?3:rest.length%2===1&&i===rest.length-1?6:(i%4===0||i%4===3?4:2));
-    if(image.video) return '<figure class="gallery-image gallery-video gallery-span-'+span+'">'
-      +'<video class="project-video" width="'+image.width+'" height="'+image.height+'" controls loop muted playsinline preload="none" poster="../img/projets/'+escape(image.poster)+'" aria-label="'+escape(image.alt)+'">'
-      +'<source src="../img/'+escape(image.video)+'" type="video/mp4"></video>'+(image.caption?'<figcaption>'+escape(image.caption)+'</figcaption>':'')+'</figure>';
-    return '<figure class="gallery-image gallery-span-'+span+'">'+imageMarkup(image,"../","project-image",false,span)+(image.caption?'<figcaption>'+escape(image.caption)+'</figcaption>':'')+'</figure>';
+  const gallery=rest.map(image=>{
+    const span=image.span || 6;
+    if(image.video) return '<figure class="gallery-image gallery-video gallery-span-'+span+'">'+videoMarkup(image,image.alt)+caption(image)+'</figure>';
+    return '<figure class="gallery-image gallery-span-'+span+'">'+imageMarkup(image,"../","project-image",false,span)+caption(image)+'</figure>';
   }).join("\n");
+  // Fab Manager place sa vidéo juste après le texte plutôt que dans la galerie.
+  const featured=project.slug==='fabmanager' && project.images.find(image=>image.video);
+  if(project.slug==='fabmanager' && !featured)throw new Error('Vidéo Fab Manager absente du catalogue');
   write("projets/"+project.slug+".html",documentPage({
     title:project.title.replace(/^\d+\.\s*/,"")+" — Cyprien GUIGONNAT",kind:"project",prefix:"../",slug:project.slug,url:"projets/"+project.slug+".html",
     content:'<header id="hdr" class="project-header" tabindex="-1"><a id="nav-home" href="../index.html" class="project-close" aria-label="Fermer le projet et revenir à la page précédente">Fermer '+icon('x')+'</a></header>\n'
@@ -207,10 +205,7 @@ projects.forEach((project,index)=>{
       +'<div class="project-heading"><h1 id="project-title">'+escape(project.title)+'</h1>'+(project.slug==='infomaniak'?'':'<p>'+escape(project.subtitle)+'</p>')+(project.date?'<p>'+escape(project.date)+'</p>':'')+'</div>\n'
       +'<div class="project-story">'+project.description+'</div>\n'
       +'<div class="project-details">'+project.details+'</div>\n</section>\n'
-      +(project.slug==='fabmanager'?'<figure class="project-image-after-text">'+(() => {
-        const image=project.images.find(image=>image.video);
-        return image.video ? '<video class="project-video" width="'+image.width+'" height="'+image.height+'" controls loop muted playsinline preload="none" poster="../img/projets/'+escape(image.poster)+'" aria-label="Démonstration de la page d’accueil de Fab Manager"><source src="../img/'+escape(image.video)+'" type="video/mp4"></video>' : imageMarkup(image,"../","project-image",false);
-      })()+(project.images.find(image=>image.video)?.caption?'<figcaption>'+escape(project.images.find(image=>image.video).caption)+'</figcaption>':'')+'</figure>\n':'')
+      +(featured?'<figure class="project-image-after-text">'+videoMarkup(featured,'Démonstration de la page d’accueil de Fab Manager')+caption(featured)+'</figure>\n':'')
       +'<div class="project-gallery" role="group" aria-label="Images du projet">'+gallery+'</div>\n</main>\n'
       +siteFooter("../",'<div class="page-footer project-pagination"><a href="../index.html">'+icon('rotate-ccw')+' Accueil</a>'
       +'<nav aria-label="Navigation entre les projets"><a href="'+previous.slug+'.html" rel="prev" aria-label="Projet précédent : '+escape(previous.title)+'">'+icon('arrow-left')+' Précédent</a>'

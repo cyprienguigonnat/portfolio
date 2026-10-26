@@ -15,8 +15,8 @@ const server = http.createServer((req,res) => {
   const file = path.resolve(root, '.' + decodeURIComponent(new URL(req.url, 'http://localhost').pathname).replace(/\/$/, '/index.html'));
   if (!file.startsWith(root + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); res.end(); return; }
   res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
-  const htaccess = path.join(root,'.htaccess');
-  const policy = fs.existsSync(htaccess) && fs.readFileSync(htaccess,'utf8').match(/Header always set Content-Security-Policy "([^"]+)"/);
+  const headers = path.join(root,'_headers');
+  const policy = fs.existsSync(headers) && fs.readFileSync(headers,'utf8').match(/Content-Security-Policy: (.+)/);
   if(policy)res.setHeader('Content-Security-Policy',policy[1]);
   fs.createReadStream(file).pipe(res);
 });
