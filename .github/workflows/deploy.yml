@@ -35,6 +35,12 @@ jobs:
       - name: Test generated site
         run: npm test
 
+      - name: Test in a browser
+        run: |
+          npx playwright install chromium --only-shell --with-deps
+          npm run test:browser
+          npm run test:animations
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:

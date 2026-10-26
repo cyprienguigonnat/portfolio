@@ -181,7 +181,7 @@ async function animatedNavigation(page,action,destination,{imageFlight=false,sou
     assert.match(await page.locator('.project-close').getAttribute('href'),/\/index\.html$/);
     await returnNavigation(page,()=>page.locator('.project-close').click(),/\/index\.html$/);
     await animatedNavigation(page,()=>page.getByRole('link',{name:'Informations',exact:true}).click(),/\/informations\.html$/);
-    await animatedNavigation(page,()=>page.getByRole('link',{name:'Données du site',exact:true}).click(),/\/donnees-du-site\.html$/);
+    await animatedNavigation(page,()=>page.locator('.header-tabs').getByRole('link',{name:'Données du site',exact:true}).click(),/\/donnees-du-site\.html$/);
     await animatedNavigation(page,()=>page.locator('a[href="projets/infomaniak.html"]').click(),/\/projets\/infomaniak\.html$/);
     assert.match(await page.locator('.project-close').getAttribute('href'),/\/donnees-du-site\.html$/);
     await returnNavigation(page,()=>page.locator('.project-close').click(),/\/donnees-du-site\.html$/);

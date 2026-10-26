@@ -6,3 +6,7 @@ dist/
 .claude/settings.local.json
 .impeccable/config.local.json
 .wrangler/
+
+# Fichiers de travail locaux
+tmp/
+output/

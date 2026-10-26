@@ -40,13 +40,15 @@
         "alt": "Composition de composants Infomaniak Calendar : champs de titre, états d’événement, actions et aperçu de l’agenda",
         "width": 1824,
         "height": 2432,
-        "caption": "Les composants de Calendar inscrivent la refonte dans le design system existant."
+        "caption": "Les composants de Calendar inscrivent la refonte dans le design system existant.",
+        "span": 3
       },
       {
         "file": "infomaniak-06.png",
         "alt": "Vue mobile d’Infomaniak Calendar dans un téléphone",
         "width": 1824,
-        "height": 2432
+        "height": 2432,
+        "span": 3
       },
       {
         "file": "infomaniak-07.png",
@@ -103,13 +105,15 @@
         "file": "france-titres-05.png",
         "alt": "Interface mobile France Titres présentée dans un téléphone",
         "width": 1824,
-        "height": 2432
+        "height": 2432,
+        "span": 3
       },
       {
         "file": "france-titres-06.png",
         "alt": "Espace personnel mobile France Titres permettant de commencer une démarche en ligne",
         "width": 1824,
-        "height": 2432
+        "height": 2432,
+        "span": 3
       },
       {
         "file": "france-titres-07.png",
@@ -168,13 +172,15 @@
         "file": "fontlibrary-05.png",
         "alt": "Vue mobile du panneau de filtres de Font Library",
         "width": 1824,
-        "height": 2432
+        "height": 2432,
+        "span": 3
       },
       {
         "file": "fontlibrary-06.png",
         "alt": "Vue mobile des résultats typographiques de Font Library",
         "width": 1824,
-        "height": 2432
+        "height": 2432,
+        "span": 3
       },
       {
         "file": "fontlibrary-07.png",
@@ -226,13 +232,15 @@
         "file": "fabmanager-04.png",
         "alt": "Déclinaison de la nouvelle charte graphique et palette de couleurs de Fab Manager",
         "width": 1824,
-        "height": 2432
+        "height": 2432,
+        "span": 3
       },
       {
         "file": "fabmanager-05.png",
         "alt": "Écran de présentation de l’interface Fab Manager",
         "width": 1824,
-        "height": 2432
+        "height": 2432,
+        "span": 3
       },
       {
         "file": "fabmanager-06.png",

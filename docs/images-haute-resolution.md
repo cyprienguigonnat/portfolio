@@ -22,7 +22,7 @@ Les PNG restent les sources et le repli. Les WebP utilisent une qualité 92 pour
 
 Après un changement de source ou de qualité, exécuter `npm run images`, `npm run build`, puis `npm run check`. Une modification visuelle nécessite aussi une vérification dans le navigateur. Les compositions denses restent des images : la finesse supplémentaire ne rend pas tous leurs petits textes lisibles sur un téléphone sans zoom.
 
-Les anciens générateurs `generate-infomaniak-gallery.cjs` et `compose-fontlibrary-mockup.cjs` renvoient à des sources historiques absentes de ce dépôt. Ne pas les exécuter pour rétablir les nouveaux exports Figma.
+Les anciens générateurs `scripts/medias/generate-infomaniak-gallery.cjs` et `scripts/medias/compose-fontlibrary-mockup.cjs` renvoient à des sources historiques absentes de ce dépôt. Ne pas les exécuter pour rétablir les nouveaux exports Figma.
 
 ## Vérifications du 23 octobre 2026
 

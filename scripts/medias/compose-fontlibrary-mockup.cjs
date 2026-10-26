@@ -1,6 +1,6 @@
 const sharp = require('sharp');
 const path = require('node:path');
-const root = path.resolve(__dirname, '..');
+const root = path.resolve(__dirname,'..','..');
 
 // Solve the inverse homography: display coordinates to original screenshot.
 function solve(a, b) {

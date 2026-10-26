@@ -450,6 +450,7 @@ body.is-navigating a { cursor: progress; }
   .header-contacts a { white-space: normal; overflow-wrap: anywhere; }
   .home-page { min-height: 540px; }
   .home-thumbnail { width: 76vw; }
+  .home-identity { z-index: 3; }
   .project-index ul { gap: 5px 16px; }
   .project-index li { text-align: center; }
   .project-link h2 { display: inline-flex; align-items: center; gap: 8px; line-height: 1.4; }
@@ -459,6 +460,9 @@ body.is-navigating a { cursor: progress; }
   .gallery-image { grid-column: 1 / -1; }
   .project-pagination { flex-wrap: nowrap; gap: 8px; }
   .project-pagination nav { gap: 8px; }
+  .site-footer-info { flex-direction: column; gap: 4px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .site-footer-info nav { order: -1; gap: 0 24px; }
+  .site-footer-info nav a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 @media (max-height: 580px) and (min-width: 701px) {
   .home-thumbnail { top: 35%; width: min(40vw, 550px); }
@@ -473,3 +477,9 @@ body.is-navigating a { cursor: progress; }
   .project-description, .information-grid { grid-template-columns: 1fr; }
   .gallery-image { break-inside: avoid; }
 }
+
+/* Page 404 : code et message centrés dans la fenêtre. */
+#page-introuvable { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.information-page:has(#page-introuvable) { display: flex; flex-direction: column; }
+.code-404 { width: min(283px, 70vw); height: auto; margin-bottom: 12px; }
+#page-introuvable h1 { margin-bottom: 6px; }
