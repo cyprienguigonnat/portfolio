@@ -59,6 +59,9 @@ a:hover { text-decoration: underline; text-underline-offset: .2em; }
   a > .icon { transition: transform 180ms var(--ease); }
   a:hover > .icon { transform: translateX(2px); }
   a.project-close:hover > .icon { transform: none; }
+  .wordmark-hint .icon { transition: transform 180ms var(--ease); }
+  .wordmark-hint button:hover .icon { transform: translateX(2px); }
+  .wordmark-hint button:hover .icon-arrow-up { transform: translateY(-2px); }
 }
 a:focus-visible, button:focus-visible, [role="button"]:focus-visible {
   outline: 2px solid currentColor;
