@@ -52,6 +52,6 @@ Transférer les nouveaux assets avant les pages qui les référencent. Sur le se
 
 ## Audit
 
-Voir [AUDIT.md](AUDIT.md) pour les gains mesurés, les suppressions, les vérifications et les décisions restantes. L’absence de dépôt Git a conduit à créer une sauvegarde complète externe avant les modifications.
+Voir [docs/AUDIT.md](docs/AUDIT.md) pour les gains mesurés, les suppressions, les vérifications et les décisions restantes. L’absence de dépôt Git a conduit à créer une sauvegarde complète externe avant les modifications.
 
 La licence des polices figure dans `fonts/OFL.txt`. Les quelques règles adaptées de normalize.css conservent leur licence dans `css/normalize-LICENSE.txt`.

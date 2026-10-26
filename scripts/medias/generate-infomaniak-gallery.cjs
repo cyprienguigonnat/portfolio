@@ -1,6 +1,6 @@
 const path=require('path');
 const sharp=require('sharp');
-const root=path.resolve(__dirname,'..');
+const root=path.resolve(__dirname,'..','..');
 const src=path.join(root,'img','sources','infomaniak','interface');
 const out=path.join(root,'img','projets');
 async function wide(source,index){
