@@ -159,10 +159,16 @@ async function settled(page) {
     assert.equal(await letter.getAttribute('data-motion'),'floating');
     await letter.focus();await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.querySelector('.wordmark-letter').dataset.motion==='idle');
-    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('Shift+ArrowUp');
     assert.equal(await letter.getAttribute('data-motion'),'floating');
     await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.querySelector('.wordmark-letter').dataset.motion==='idle');
+    assert.equal(await page.locator('.wordmark-letter[tabindex="0"]').count(),1,'Un seul arrêt de tabulation pour les lettres');
+    await page.keyboard.press('ArrowRight');
+    assert.equal(await page.evaluate(()=>[...document.querySelectorAll('.wordmark-letter')].indexOf(document.activeElement)),1,'La flèche passe à la lettre suivante');
+    assert.equal(await page.locator('.wordmark-letter').nth(1).getAttribute('tabindex'),'0');
+    await page.keyboard.press('End');
+    assert.equal(await page.evaluate(()=>[...document.querySelectorAll('.wordmark-letter')].indexOf(document.activeElement)),15);
     const mobileContext = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const mobile = await mobileContext.newPage();
     mobile.on('pageerror', error => errors.push(error.message));
