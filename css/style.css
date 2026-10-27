@@ -230,7 +230,18 @@ a:has(> .icon):hover {
   cursor: pointer;
 }
 .wordmark-hint button > span { display: inline-flex; align-items: center; gap: .25em; }
-.wordmark-hint [hidden] { display: none; }
+/* Bascule des libellés : fondu croisé, les deux superposés dans la même cellule. */
+.wordmark-hint .wordmark-toggle { display: inline-grid; justify-items: center; }
+.wordmark-toggle > span {
+  grid-area: 1 / 1;
+  transition: opacity 250ms ease, visibility 0ms;
+}
+.wordmark-toggle > span[hidden] {
+  display: inline-flex;
+  visibility: hidden;
+  opacity: 0;
+  transition-delay: 0ms, 250ms;
+}
 .wordmark-hint button:hover { text-decoration: none; }
 @media (pointer: coarse) {
   .wordmark-hint button { min-height: 44px; padding: 11px 8px; margin: -11px -8px; }
