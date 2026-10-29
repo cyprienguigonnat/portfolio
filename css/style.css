@@ -503,6 +503,13 @@ body.is-navigating a { cursor: progress; }
 @media (max-height: 580px) and (min-width: 701px) {
   .home-thumbnail { top: 35%; width: min(40vw, 550px); }
 }
+/* Sur écran bas, séparer le mot-symbole et les projets dans une page défilante. */
+@media (max-height: 480px) {
+  body[data-page="home"] { overflow: auto; }
+  .home-page { min-height: 540px; }
+  .home-identity { position: absolute; width: 100%; height: 100%; }
+  .project-index { position: absolute; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation-duration: .01ms !important; }
 }

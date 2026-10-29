@@ -4,14 +4,14 @@
 
 Ce portfolio de Product Designer repose sur une vitrine éditoriale compacte. Le bleu saturé donne une présence immédiate à l’accueil et aux pages de parcours ; les pages projet passent au blanc pour laisser la place aux images et aux études de cas. La typographie reste volontairement uniforme : la hiérarchie vient surtout du gras, de la position, de l’espacement et des images, pas d’une échelle de tailles étendue.
 
-Le mot-symbole central est un dessin SVG animé et manipulable, pas un titre typographique à remplacer par une police de display. Les pages projet privilégient une grande image de couverture, une introduction en trois colonnes puis une galerie éditoriale. Les surfaces de contenu restent plates, sans cartes génériques. Les panneaux de navigation mobile constituent une exception fonctionnelle, avec un fond bleu foncé, un rayon de 4px et une ombre discrète.
+Le mot-symbole central est un dessin SVG animé et manipulable, pas un titre typographique à remplacer par une police de display. Les pages projet privilégient une grande image de couverture, une introduction en trois colonnes puis une galerie éditoriale. Les surfaces de contenu restent plates, sans cartes génériques. La navigation mobile utilise un dialogue blanc en bas d’écran, avec deux angles supérieurs arrondis de 16px et une ombre de séparation.
 
 Key characteristics:
 
 - Accueil et pages Informations / Données : fond bleu `#0355a1`, texte blanc.
 - Pages projet : fond blanc, texte bleu `#0355a1`.
 - Accent secondaire : bleu clair `#bfe3fb`, utilisé pour les liens d’évitement et les espaces réservés aux images en chargement.
-- Panneaux de navigation mobile : fond bleu foncé `#003568`, texte blanc.
+- Dialogue de navigation mobile : fond blanc `--white`, texte bleu `--blue`, arrière-plan bleu translucide et flouté.
 - Police du site : BDO Grotesk auto-hébergée, Regular 400 et Bold 700.
 - Corps de texte unique : `16px / 1.4` (environ `22.4px` de hauteur de ligne).
 - Titres `h1` et `h2` : même taille héritée que le texte courant, poids 700.
@@ -39,7 +39,7 @@ Les couleurs ci-dessous proviennent des styles du site. Les images de projets co
 ### Surface, borders and shadows
 
 - Les séparateurs, bordures de cartes et surfaces secondaires ne forment pas de palette dédiée.
-- Les composants de contenu restent plats. Les panneaux Menu et Contact sur mobile utilisent une ombre `0 4px 12px rgba(0, 20, 45, .18)` pour signaler leur superposition.
+- Les composants de contenu restent plats. Le dialogue Menu / Contact utilise une ombre `0 -12px 40px rgb(0 30 70 / .18)` ; son arrière-plan `rgb(3 85 161 / .55)` applique un flou de 6px pour séparer le panneau de la page.
 - Aucun état de succès, d’avertissement ou d’erreur n’est présent dans l’interface du portfolio.
 
 ## 3. Typography Rules
@@ -81,7 +81,8 @@ La hiérarchie observée est surtout structurelle. Ne pas inventer une grande é
 - **Focus clavier** : `2px solid currentColor`, décalé de `5px`; sur les liens d’évitement, le contour est rentré de `2px`.
 - Aucun système de variantes primaire / secondaire / destructive, aucune taille de CTA, et aucun état désactivé ne sont définis.
 - Aucun formulaire ou champ de saisie n’est présent dans le portfolio.
-- Les boutons Menu et Contact ont une taille minimale de 44 × 44px. Les liens de leurs panneaux, les liens de projets, la commande du mot-symbole, Fermer et la pagination conservent leur hauteur typographique et leur présentation compacte, sans padding supplémentaire.
+- Les boutons Menu et Contact ont une taille minimale de 44 × 44px. Les liens du dialogue ont une hauteur minimale de 48px et un padding vertical de 10px. La commande du mot-symbole a une hauteur minimale de 44px avec un pointeur tactile. Les autres liens de projets, Fermer et la pagination conservent leur présentation compacte.
+- Menu et Contact ouvrent le même dialogue modal natif, nommé selon le panneau choisi. Le focus entre sur Fermer ; Échap, le bouton Fermer ou un clic sur l’arrière-plan referment le dialogue et rendent le focus au bouton d’ouverture. Le fond reste inerte et son défilement verrouillé jusqu’à la fin de la fermeture.
 
 ### Project media and page layout
 
@@ -118,19 +119,19 @@ Le site utilise une échelle pragmatique, et non une grille complète de tokens 
 - Header réparti entre navigation et contacts ; à `1050px` et moins, ses éléments peuvent passer sur plusieurs lignes.
 - Informations et résumé projet : trois colonnes égales, alignées en haut, avec espacement fluide.
 - Galerie : six colonnes égales ; attribuer les largeurs aux médias par portées sémantiques.
-- Accueil : le mot-symbole occupe le centre de l’écran ; l’index des projets reste en bas avec des marges de `16px`.
+- Accueil : le mot-symbole occupe le centre de l’écran ; l’index des projets reste en bas avec des marges de `16px`. À 480px de hauteur et moins, ces éléments se positionnent dans une zone de contenu d’au moins 540px, et la page défile pour éviter leur superposition.
 - Préférer le vide de page et l’image comme séparation aux encadrés, ombres ou lignes décoratives.
 
 ### Border radius
 
-- Les surfaces et médias de contenu gardent leurs angles droits. Seuls les panneaux de navigation mobile utilisent un rayon de 4px.
+- Les surfaces et médias de contenu gardent leurs angles droits. Seul le dialogue de navigation mobile utilise des angles supérieurs arrondis de 16px ; ses angles inférieurs restent droits.
 
 ## 6. Depth & Elevation
 
 - **Niveau 0 — page** : bleu sur les pages de parcours et blanc sur les pages projet.
 - **Niveau 1 — contenu** : texte et médias posés directement sur le fond, sans carte, bordure ou ombre.
 - **Niveau interaction — superpositions** : le préchargeur et la couche de transition sont positionnés au-dessus du contenu pour les états de chargement et de navigation. Ils ne justifient pas l’ajout d’ombres aux composants.
-- Les panneaux de navigation mobile sont positionnés sous le header avec un fond `#003568` et une ombre `0 4px 12px rgba(0, 20, 45, .18)`. Cette exception fonctionnelle ne s’étend pas aux contenus ou aux galeries.
+- Le dialogue de navigation mobile est fixé en bas d’écran sur la couche modale native, avec un fond blanc et une ombre vers le haut. Il peut défiler jusqu’à une hauteur de `calc(100dvh - 24px)` ; `overscroll-behavior: contain` évite de transmettre le défilement à la page. Cette exception fonctionnelle ne s’étend pas aux contenus ou aux galeries.
 - Le contraste entre fonds de page, grands médias et typographie assure la profondeur visuelle ; ne pas ajouter de verre dépoli, dégradé ou effet de relief sans demande explicite.
 
 ## 7. Do's and Don'ts
@@ -160,15 +161,16 @@ Le site utilise une échelle pragmatique, et non une grille complète de tokens 
 ### Breakpoints in the current stylesheet
 
 - **1050px et moins** : le header passe en mode flex-wrap ; l’écart horizontal de l’index projet descend à `20px`.
-- **700px et moins** : avec JavaScript, le header présente les boutons Menu et Contact, qui ouvrent des panneaux superposés avec une courte transition de translation et d’opacité. Sans JavaScript, les liens restent visibles. Les contacts s’alignent à gauche et peuvent se couper ; l’accueil conserve une hauteur minimale de `540px` ; les miniatures passent à `76vw` ; les grilles d’information, d’introduction projet et de galerie s’empilent sur une colonne.
+- **700px et moins** : avec JavaScript, le header présente les boutons Menu et Contact, qui ouvrent un dialogue en bas d’écran avec une transition de translation de 280ms et d’opacité de 200ms. Sans JavaScript, les liens restent visibles. Les contacts s’alignent à gauche et peuvent se couper ; l’accueil conserve une hauteur minimale de `540px` ; les miniatures passent à `76vw` ; les grilles d’information, d’introduction projet et de galerie s’empilent sur une colonne.
 - **Mobile gallery** : chaque média occupe toutes les colonnes, indépendamment de sa portée desktop.
 - **Mobile project navigation** : les écarts diminuent (`8px`) pour préserver la place.
 - **Hauteur courte, largeur supérieure à 700px** : la miniature d’accueil remonte à `35%` de la hauteur et passe à `min(40vw, 550px)`.
+- **480px de hauteur et moins** : l’accueil devient défilant ; mot-symbole et index des projets sont ancrés à sa zone de contenu d’au moins 540px plutôt qu’à la fenêtre.
 - **Reduced motion** : transitions désactivées et animations ramenées à une durée quasi nulle.
 
 ### Touch and type
 
-- Seuls les boutons Menu et Contact ont une taille minimale de 44 × 44px. Les autres commandes conservent la composition compacte choisie pour le portfolio (voir Controls) ; les liens intégrés aux paragraphes restent inline.
+- Les boutons Menu et Contact ont une taille minimale de 44 × 44px ; les liens du dialogue ont une hauteur minimale de 48px et la commande du mot-symbole atteint 44px avec un pointeur tactile. Les autres commandes conservent leur composition compacte (voir Controls) ; les liens intégrés aux paragraphes restent inline.
 - La taille du texte reste `16px` sur mobile ; les contacts peuvent se rompre et les colonnes s’empilent au lieu de réduire la police.
 - Ne pas supposer que `700px` est un point de rupture universel : le reprendre seulement si la nouvelle mise en page suit le même comportement que les pages portfolio.
 
