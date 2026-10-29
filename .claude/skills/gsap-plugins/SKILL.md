@@ -91,9 +91,9 @@ Flip.from(state, { duration: 0.5, ease: "power2.inOut" });
 | Option | Description |
 |--------|-------------|
 | `absolute` | Use `position: absolute` during the flip (default: `false`) |
-| `nested` | When true, only the first level of children is measured (better for nested transforms) |
-| `scale` | When true, scale elements to fit (avoids stretch); default `true` |
-| `simple` | When true, only position/scale are animated (faster, less accurate) |
+| `nested` | Compensate for parent transforms when both parents and children are Flip targets |
+| `scale` | When true, use scaleX/scaleY instead of width/height to resize; default `false` |
+| `simple` | Assume targets have no rotation, scale, or skew when measuring (faster, less accurate if that assumption is false) |
 | `duration`, `ease` | Standard tween options |
 
 #### More information
@@ -328,10 +328,11 @@ gsap.to(".dot", {
 Visual editor for MotionPath (alignment, offset). Use during development to tune path alignment.
 
 ```javascript
-gsap.registerPlugin(MotionPathPlugin, MotionPathHelperPlugin);
+gsap.registerPlugin(MotionPathPlugin, MotionPathHelper);
 
-const helper = MotionPathHelper.create(".dot", "#path", { end: 0.5 });
-// adjust in UI, then use helper.path or helper.getProgress() in your animation
+const helper = MotionPathHelper.create(".dot", { path: "#path", end: 0.5 });
+// adjust the path in the editor; remove the editor when finished:
+// helper.kill();
 ```
 
 ## Easing

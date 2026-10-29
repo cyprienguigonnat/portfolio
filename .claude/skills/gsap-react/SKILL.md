@@ -40,7 +40,7 @@ useGSAP(() => {
 
 - ✅ Pass a **scope** (ref or element) so selectors like `.box` are scoped to that root.
 - ✅ Cleanup (reverting animations and ScrollTriggers) runs automatically on unmount.
-- ✅ Use **contextSafe** from the hook's return value to wrap callbacks (e.g. onComplete) so they no-op after unmount and avoid React warnings.
+- ✅ Use **contextSafe** from the hook's return value to wrap callbacks that create GSAP objects after setup, so those objects are tracked by the context and reverted during cleanup. Remove event listeners and cancel pending callbacks during cleanup; **contextSafe** does not prevent a callback from running after unmount.
 
 ## Refs for Targets
 
