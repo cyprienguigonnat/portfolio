@@ -56,7 +56,7 @@ h1, h2 { font-weight: 700; }
 a { color: inherit; text-decoration: none; }
 /* Trait de survol unique : même épaisseur et même écart partout. */
 a, button { text-decoration-thickness: 1px; text-underline-offset: .2em; }
-a:hover { text-decoration: underline; }
+@media (hover: hover) { a:hover { text-decoration: underline; } }
 @media (hover: hover) and (pointer: fine) {
   a > .icon { transition: transform 180ms var(--ease); }
   a:hover > .icon { transform: translateX(2px); }
@@ -74,15 +74,18 @@ a:focus-visible, button:focus-visible, [role="button"]:focus-visible {
 /* Clic : léger retrait de tous les liens et boutons, aussi au toucher. */
 a, button { transition: opacity 120ms var(--ease); }
 a:active, button:active { opacity: .55; transition-duration: 0ms; }
-.menu-toggle:hover, .contact-toggle:hover, .sheet-close:hover {
-  text-decoration: underline;
-}
-/* Trait sous le texte et l'icône, comme les autres boutons à icône. */
-.wordmark-hint button:hover > span {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 100% 1px;
+/* Survols réservés aux pointeurs qui survolent : pas de trait figé après un toucher. */
+@media (hover: hover) {
+  .menu-toggle:hover, .contact-toggle:hover, .sheet-close:hover {
+    text-decoration: underline;
+  }
+  /* Trait sous le texte et l'icône, comme les autres boutons à icône. */
+  .wordmark-hint button:hover > span {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
 }
 [id] { scroll-margin-top: var(--gutter); }
 ul { margin: 0; padding-left: 1em; }
@@ -104,13 +107,15 @@ ul { margin: 0; padding-left: 1em; }
   flex: 0 0 auto;
   vertical-align: middle;
 }
-button:has(> .icon):hover,
-a:has(> .icon):hover {
-  text-decoration: none;
-  background-image: linear-gradient(currentColor, currentColor);
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 100% 1px;
+@media (hover: hover) {
+  button:has(> .icon):hover,
+  a:has(> .icon):hover {
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
 }
 .skiplinks {
   position: relative;
@@ -163,7 +168,8 @@ a:has(> .icon):hover {
 .header-tabs a {
   display: block;
 }
-.header-tabs a[aria-current], .header-tabs a:hover { text-decoration: underline; }
+.header-tabs a[aria-current] { text-decoration: underline; }
+@media (hover: hover) { .header-tabs a:hover { text-decoration: underline; } }
 .header-contacts { justify-content: flex-end; }
 .header-contacts a { white-space: nowrap; }
 .header-menu, .header-contact { display: contents; }
@@ -242,7 +248,7 @@ a:has(> .icon):hover {
   opacity: 0;
   transition-delay: 0ms, 250ms;
 }
-.wordmark-hint button:hover { text-decoration: none; }
+@media (hover: hover) { .wordmark-hint button:hover { text-decoration: none; } }
 @media (pointer: coarse) {
   .wordmark-hint button { min-height: 44px; padding: 11px 8px; margin: -11px -8px; }
 }
@@ -399,8 +405,10 @@ body.is-navigating a { cursor: progress; }
 .project-date { margin-top: 8px; }
 .project-story, .project-details { line-height: 1.4; }
 .project-story a, .project-details a { text-decoration: none; }
-.project-story a:hover, .project-details a:hover { text-decoration: underline; }
-.project-story a:has(> .icon):hover, .project-details a:has(> .icon):hover { text-decoration: none; }
+@media (hover: hover) {
+  .project-story a:hover, .project-details a:hover { text-decoration: underline; }
+  .project-story a:has(> .icon):hover, .project-details a:has(> .icon):hover { text-decoration: none; }
+}
 .project-gallery {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -472,7 +480,7 @@ body.is-navigating a { cursor: progress; }
   .mobile-sheet .header-menu, .mobile-sheet .header-contact { display: block; }
   .mobile-sheet .header-tabs, .mobile-sheet .header-contacts { flex-direction: column; align-items: stretch; gap: 0; }
   .mobile-sheet a { display: flex; align-items: center; gap: 4px; min-height: 48px; padding-block: 10px; max-width: 100%; }
-  .mobile-sheet a:hover { text-decoration: underline; background-image: none; }
+  @media (hover: hover) { .mobile-sheet a:hover { text-decoration: underline; background-image: none; } }
   .header-contacts { justify-content: flex-start; }
   .header-contacts a { white-space: normal; overflow-wrap: anywhere; }
   .home-page { min-height: 540px; }
@@ -481,7 +489,7 @@ body.is-navigating a { cursor: progress; }
   .project-index ul { gap: 5px 16px; }
   .project-index li { text-align: center; }
   .project-link h2 { display: inline-flex; align-items: center; gap: 8px; line-height: 1.4; }
-  .project-link:hover h2 > span { text-decoration: underline; }
+  @media (hover: hover) { .project-link:hover h2 > span { text-decoration: underline; } }
   .project-mobile-thumbnail { display: block; flex: none; width: auto; height: 1.54em; }
   .information-grid, .project-description { grid-template-columns: 1fr; gap: 24px; }
   .project-gallery { grid-template-columns: 1fr; }
@@ -494,6 +502,13 @@ body.is-navigating a { cursor: progress; }
 }
 @media (max-height: 580px) and (min-width: 701px) {
   .home-thumbnail { top: 35%; width: min(40vw, 550px); }
+}
+/* Sur écran bas, séparer le mot-symbole et les projets dans une page défilante. */
+@media (max-height: 480px) {
+  body[data-page="home"] { overflow: auto; }
+  .home-page { min-height: 540px; }
+  .home-identity { position: absolute; width: 100%; height: 100%; }
+  .project-index { position: absolute; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation-duration: .01ms !important; }

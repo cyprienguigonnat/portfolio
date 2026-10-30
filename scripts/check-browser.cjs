@@ -83,6 +83,19 @@ async function settled(page) {
       assert.ok(Math.max(...positions.map(sample=>sample.top))-Math.min(...positions.map(sample=>sample.top))<1,width+' wordmark button stays vertically stable');
       await settled(page);
     }
+    // Les commandes de l’accueil restent distinctes et cliquables sur écran bas.
+    for (const viewport of [{width:568,height:320},{width:320,height:256},{width:700,height:440},{width:1440,height:320}]) {
+      await page.setViewportSize(viewport);
+      await page.goto(base+'/index.html'); await settled(page);
+      const button=page.locator('.wordmark-toggle');
+      await button.scrollIntoViewIfNeeded();
+      assert.equal(await button.evaluate(element=>{
+        const box=element.getBoundingClientRect();
+        const projects=document.querySelector('.project-index').getBoundingClientRect();
+        return projects.top>box.bottom && element.contains(document.elementFromPoint(box.x+box.width/2,box.y+box.height/2));
+      }),true,JSON.stringify(viewport)+' bouton accessible sans recouvrement');
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    }
     await page.setViewportSize({width:1440,height:900});
     page.on('pageerror', error => errors.push(error.message));
     const prefetched = [];
@@ -159,10 +172,16 @@ async function settled(page) {
     assert.equal(await letter.getAttribute('data-motion'),'floating');
     await letter.focus();await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.querySelector('.wordmark-letter').dataset.motion==='idle');
-    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('Shift+ArrowUp');
     assert.equal(await letter.getAttribute('data-motion'),'floating');
     await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.querySelector('.wordmark-letter').dataset.motion==='idle');
+    assert.equal(await page.locator('.wordmark-letter[tabindex="0"]').count(),1,'Un seul arrêt de tabulation pour les lettres');
+    await page.keyboard.press('ArrowRight');
+    assert.equal(await page.evaluate(()=>[...document.querySelectorAll('.wordmark-letter')].indexOf(document.activeElement)),1,'La flèche passe à la lettre suivante');
+    assert.equal(await page.locator('.wordmark-letter').nth(1).getAttribute('tabindex'),'0');
+    await page.keyboard.press('End');
+    assert.equal(await page.evaluate(()=>[...document.querySelectorAll('.wordmark-letter')].indexOf(document.activeElement)),15);
     const mobileContext = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const mobile = await mobileContext.newPage();
     mobile.on('pageerror', error => errors.push(error.message));

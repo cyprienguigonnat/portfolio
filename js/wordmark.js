@@ -25,8 +25,9 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   const letters=entries.map((entry,index)=>{
     const el=entry.querySelector('.wordmark-letter'), box=el.getBBox();
     el.setAttribute('role','button');
-    el.setAttribute('tabindex','0');
-    el.setAttribute('aria-label','Lettre '+ 'CYPRIENGUIGONNAT'[index] +' : Entrée pour bousculer ou ramener, flèches pour déplacer');
+    // Un seul arrêt de tabulation pour les 16 lettres (roving tabindex).
+    el.setAttribute('tabindex',index?'-1':'0');
+    el.setAttribute('aria-label','Lettre '+ 'CYPRIENGUIGONNAT'[index] +' : Entrée pour bousculer ou ramener, flèches pour changer de lettre, Maj + flèches pour déplacer');
     const hitbox=document.createElementNS(svg.namespaceURI,'rect');
     hitbox.classList.add('letter-hitbox');
     hitbox.setAttribute('x',box.x-3);hitbox.setAttribute('y',box.y-3);
@@ -239,6 +240,13 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   for(const letter of letters)letter.el.addEventListener('keydown',event=>{
     if(document.body.classList.contains('is-navigating') || identity.classList.contains('is-arriving'))return;
     const directions={ArrowLeft:[-16,0],ArrowRight:[16,0],ArrowUp:[0,-16],ArrowDown:[0,16]};
+    const step={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1,Home:-Infinity,End:Infinity}[event.key];
+    if(step && !event.shiftKey) {
+      event.preventDefault();
+      const next=letters[Math.max(0,Math.min(letters.length-1,letter.index+step))];
+      letter.el.setAttribute('tabindex','-1');next.el.setAttribute('tabindex','0');next.el.focus();
+      return;
+    }
     if(event.key==='Enter' || event.key===' ') {
       event.preventDefault();
       returningAll=false;pendingScatter=false;
