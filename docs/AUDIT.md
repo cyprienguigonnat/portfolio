@@ -1,5 +1,7 @@
 # Audit et optimisation — 16 septembre 2026
 
+> Document historique : les mentions d’Apache, d’absence de Git et les mesures ci-dessous décrivent l’intervention de septembre. Pour l’état courant, consulter [README.md](../README.md), [le contexte](context.md), [les décisions](decisions.md) et [les prochaines étapes](next-steps.md).
+
 ## Stack et structure constatées
 
 Le site actuel est un portfolio statique multipage : sept pages HTML, quatre projets, CSS maison et JavaScript natif. Il n’utilise ni framework, ni serveur applicatif, ni API, ni formulaire. Un générateur Node.js assemble les fragments de `content/` et le catalogue `content/projects.json`. Apache est visé par `.htaccess`. Les polices sont déjà auto-hébergées.
