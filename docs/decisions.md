@@ -23,7 +23,7 @@
 
 ## 2026-10-29 — Séparer publication et vérification locale
 
-- **Choix** : le commit et le push demandés ont été réalisés sur la branche ouverte `feat/gsap-transitions`, sans fusion ni push sur main.
-- **Raison** : conserver le périmètre autorisé et la branche courante.
-- **Conséquences** : la correction reste à intégrer et à publier si l’utilisateur le souhaite ; la réussite locale ne prouve pas la version en production.
-- **Alternatives écartées** : changer de branche ou fusionner implicitement pour déclencher le déploiement.
+- **Choix** : ne fusionner ni pousser sur main sans instruction explicite, car ce push déclenche le déploiement.
+- **Raison** : conserver le périmètre autorisé.
+- **Conséquences** : la réussite locale ne prouve pas la version en production ; contrôler le site publié séparément.
+- **Alternatives écartées** : fusionner implicitement pour déclencher le déploiement.

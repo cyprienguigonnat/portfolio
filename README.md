@@ -9,8 +9,8 @@ Site statique en français, sans framework ni dépendance JavaScript à installe
 - `content/wordmark.svg` : tracés des lettres.
 - `content/headers.conf` : en-têtes Cloudflare (CSP, cache) ; l’empreinte du script de chargement est ajoutée automatiquement.
 - `js/` et `css/` : sources lisibles. `css/reset.css` conserve seulement les règles de normalisation utiles au site.
-- `js/vendor/lenis-1.1.13.min.js` : Lenis fourni dans la référence de défilement, licence MIT conservée dans le bundle et `js/vendor/LICENSE-lenis.txt`. Molette amortie (`lerp: 0.2`, multiplicateur `1`) hors accueil, défilement tactile natif ; amorti atténué avec la réduction du mouvement. La boucle s'arrête au repos et le contrôleur est recréé après chaque navigation. Les images de galerie apparaissent une fois en descendant de 18 px, avec un fondu et un flou léger de 4 px qui disparaît (600 ms, fondu bref en réduction du mouvement), après décodage ; la couverture conserve sa transition existante.
-- GSAP 3.13 (cœur et CustomEase, licence standard GSAP) est copié depuis `node_modules` dans le bundle. Il anime le trajet de l’image vers une couverture, le fondu entre projets et le parallaxe de la couverture (10 % de sa hauteur au défilement, écrit directement sans tween pour qu’aucune boucle ne tourne au repos). La courbe reprend `--ease` ; rien de cela ne s’exécute en réduction du mouvement.
+- `js/vendor/lenis-1.1.13.min.js` : Lenis, pour le défilement amorti hors accueil, licence MIT conservée dans le bundle et `js/vendor/LICENSE-lenis.txt`.
+- GSAP 3.13 (cœur et CustomEase, licence standard GSAP) est copié depuis `node_modules` dans le bundle, pour les transitions entre projets et le parallaxe de la couverture.
 - `img/projets/*.png` : originaux et repli des images ; ne pas les supprimer lorsque le HTML ou le catalogue les référence.
 - `content/images.json` : manifeste généré des variantes WebP.
 - `dist/` : site compilé complet, généré par la construction et ignoré par Git. Modifier les sources puis reconstruire.
@@ -46,6 +46,6 @@ Cloudflare Workers (ressources statiques) : `npm run build` puis `wrangler deplo
 
 ## Audit
 
-Voir [docs/AUDIT.md](docs/AUDIT.md) pour les gains mesurés, les suppressions, les vérifications et les décisions restantes. L’absence de dépôt Git a conduit à créer une sauvegarde complète externe avant les modifications.
+Voir [l’audit de septembre 2026](docs/archive/2026-09-16-audit.md) pour l’historique des gains mesurés, des suppressions et des vérifications.
 
 Les quelques règles adaptées de normalize.css conservent leur licence dans `css/normalize-LICENSE.txt`.

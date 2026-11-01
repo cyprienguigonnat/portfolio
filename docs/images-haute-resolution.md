@@ -18,7 +18,7 @@ La résolution d'un export ne garantit pas celle des photographies ou captures q
 
 ## Compression et reconstruction
 
-Les PNG restent les sources et le repli. Les WebP utilisent une qualité 92 pour les interfaces, 86 pour sept photographies identifiées par `webpQuality` dans `content/projects.json`. Les largeurs sont 640, 960, 1280, 1920 et 2560 px, plus la largeur maximale de la source, sans agrandissement par Sharp. Les variantes intermédiaires évitent de télécharger un grand export sur un petit écran.
+Les réglages de compression sont décrits dans le [README](../README.md) ; sept photographies utilisent la qualité 86 via `webpQuality` dans `content/projects.json`.
 
 Après un changement de source ou de qualité, exécuter `npm run images`, `npm run build`, puis `npm run check`. Une modification visuelle nécessite aussi une vérification dans le navigateur. Les compositions denses restent des images : la finesse supplémentaire ne rend pas tous leurs petits textes lisibles sur un téléphone sans zoom.
 
@@ -35,7 +35,7 @@ Les anciens générateurs `scripts/medias/generate-infomaniak-gallery.cjs` et `s
 
 À leur résolution maximale, les 27 WebP totalisent 5,25 Mo (contre 3,67 Mo auparavant), pour 57,39 Mo de PNG sources. Le WebP le plus lourd fait 586 ko. Cette hausse par rapport aux anciens WebP correspond aux nouvelles variantes haute résolution ; elle ne représente pas le téléchargement initial d'une page.
 
-Ces vérifications concernent la version locale reconstruite. Aucun commit ni déploiement n'a été effectué.
+Ces vérifications concernent la version locale reconstruite. À cette date, aucun commit ni déploiement ; images commitées ensuite dans `985796c` (2026-10-24).
 
 ## Traces locales
 

@@ -1,10 +1,12 @@
 # Prochaines étapes
 
+Mémoire vérifiée jusqu'au commit 0607543 (2026-11-01).
+
 ## À faire
 
 - Étendre le test au zoom navigateur réel de 200 % aux pages Informations, Données du site et aux études de cas ; seul l’accueil local a été vérifié à ce niveau.
-- Si demandé, préparer l’intégration de `feat/gsap-transitions` dans main et la publication, puis contrôler la correction sur le site déployé. Ne pas fusionner ou pousser main sans instruction.
-- Réexaminer les anciens points « Décisions restantes » de [l’audit de septembre](AUDIT.md) contre les sources actuelles avant toute reprise : ils ne sont pas des défauts confirmés à ce jour.
+- Contrôler visuellement la correction de faible hauteur sur le site déployé (568 × 320 et 320 × 256 px) : seules la réussite du workflow et la présence de la règle CSS en ligne sont constatées.
+- Décider du sort de la grille d’espacement relevée dans [l’audit de septembre](archive/2026-09-16-audit.md) : les écarts `--gap`, `gap: 6px` et `outline-offset: 5px` existent toujours dans `css/style.css`.
 
 ## En attente
 
@@ -15,13 +17,21 @@
 
 ## Terminé récemment
 
+### 2026-11-01
+
+- Lien du CV remplacé (`0607543`) et déployé.
+- Score Ecoindex de Données du site et son lien mis à jour : 86/100 (mesure indiquée par l’utilisateur).
+
+### 2026-10-30
+
+- Merge `887b1c5` sur main, push et déploiement Cloudflare Workers réussi.
+
 ### 2026-10-29
 
 - Audit technique du portfolio local et conservation des captures dans le dossier de preuves indiqué dans [le contexte](context.md).
 - Correction de la superposition de l’accueil sur écran bas et ajout de quatre tests de non-régression.
 - Mise à jour de DESIGN.md sur le dialogue mobile et le comportement de faible hauteur.
 - Contrôles de construction, cohérence, navigateur et animations réussis ; zoom réel 200 % sur l’accueil inspecté.
-- Vérification de la disponibilité des données CrUX : aucun résultat pour l’origine et l’accueil sur mobile ou ordinateur.
-- Arrêt de NVDA à la demande de l’utilisateur et ajout de l’exigence d’accord explicite au skill Impeccable.
-- Commit et push de `88f183f` sur `origin/feat/gsap-transitions`, sans déploiement.
-- Création de la mémoire commune `context.md`, `decisions.md`, `next-steps.md` et liens depuis AGENTS.md. Cette mise à jour documentaire n’est pas commitée.
+- Vérification CrUX et arrêt de NVDA : voir [le contexte](context.md).
+- Commit et push de `88f183f` sur `origin/feat/gsap-transitions`.
+- Création de la mémoire commune `context.md`, `decisions.md`, `next-steps.md` et liens depuis AGENTS.md.
