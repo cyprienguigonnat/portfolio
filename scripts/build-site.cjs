@@ -143,7 +143,7 @@ const person={
   description:'Product Designer (UX/UI) avec 3 ans d’expérience, spécialisé en accessibilité numérique et design system, à la recherche d’un CDI ou d’un CDD dans le bassin grenoblois ou en télétravail en France.',
   knowsAbout:['Design UX/UI','Accessibilité numérique','Design system','Design tokens'],
   address:{'@type':'PostalAddress',addressLocality:'Grenoble',addressCountry:'FR'},
-  sameAs:['https://www.linkedin.com/in/cyprien-guigonnat-0674bb1b6/','https://www.instagram.com/cyprienguigonnat/']
+  sameAs:['https://www.linkedin.com/in/cypguigo','https://www.instagram.com/cyprienguigonnat/']
 };
 write("index.html",documentPage({
   title:"Cyprien GUIGONNAT",kind:"home",url:"",

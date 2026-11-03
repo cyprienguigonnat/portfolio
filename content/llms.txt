@@ -21,7 +21,7 @@ Ce n’est pas une agence ni un service en ligne : il n’y a ni API, ni formula
 ## Profil
 
 - [Informations](https://cyprienguigonnat.fr/informations.html) : métier, diplômes, formations et expériences professionnelles
-- [LinkedIn](https://www.linkedin.com/in/cyprien-guigonnat-0674bb1b6/) : profil professionnel
+- [LinkedIn](https://www.linkedin.com/in/cypguigo) : profil professionnel
 - [Contact](mailto:contact@cyprienguigonnat.fr) : contact@cyprienguigonnat.fr
 
 ## Optional
