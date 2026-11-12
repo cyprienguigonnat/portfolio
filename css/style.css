@@ -28,7 +28,7 @@ html { background: var(--blue); scrollbar-gutter: stable; -webkit-tap-highlight-
 /* Le document reste dans son flux : aucun conteneur déplacé ou dupliqué. */
 html.lenis, html.lenis body { height: auto; }
 html.sheet-open, html.sheet-open body { overflow: hidden; }
-html.sheet-open { scrollbar-gutter: auto; }
+html.sheet-open { background: var(--white); scrollbar-gutter: auto; }
 html.sheet-open body { padding-right: var(--sheet-scrollbar-width, 0px); }
 html.lenis-smooth { scroll-behavior: auto !important; }
 body {
@@ -444,7 +444,7 @@ body.is-navigating a { cursor: progress; }
     width: 100vw;
     max-width: none;
     max-height: calc(100dvh - 24px);
-    padding: 12px var(--gutter) max(24px, env(safe-area-inset-bottom));
+    padding: 0 var(--gutter) calc(max(24px, env(safe-area-inset-bottom)) + var(--sheet-lift, 0px));
     overflow-y: auto;
     overscroll-behavior: contain;
     border: 0;
@@ -455,9 +455,10 @@ body.is-navigating a { cursor: progress; }
     font: inherit;
     transform: translateY(100%);
     opacity: 0;
-    transition: transform 280ms var(--ease), opacity 200ms var(--ease);
+    transition: transform 280ms var(--ease), opacity 200ms var(--ease), padding-bottom 200ms var(--ease);
   }
-  .mobile-sheet.is-open { transform: translateY(0); opacity: 1; }
+  .mobile-sheet.is-open { transform: translateY(var(--sheet-offset, 0px)); opacity: 1; }
+  .mobile-sheet.is-dragging { transition: none; }
   .mobile-sheet::backdrop {
     background: rgb(3 85 161 / .55);
     backdrop-filter: blur(6px);
@@ -466,6 +467,23 @@ body.is-navigating a { cursor: progress; }
     transition: opacity 280ms var(--ease);
   }
   .mobile-sheet.is-open::backdrop { opacity: 1; }
+  .sheet-grip {
+    display: grid;
+    place-items: center;
+    height: 28px;
+    margin-inline: calc(-1 * var(--gutter));
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .sheet-grip::before {
+    content: "";
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgb(3 85 161 / .65);
+  }
+  .is-dragging .sheet-grip { cursor: grabbing; }
   .sheet-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 48px; margin-bottom: 16px; }
   .sheet-heading h2 { font-weight: 400; color: rgb(3 85 161 / .8); }
   .mobile-sheet a, .mobile-sheet a:visited { color: inherit; }

@@ -231,6 +231,34 @@ async function settled(page) {
     await opened();
     await mobile.mouse.click(10,100); await closed();
     assert.equal(await contactButton.getAttribute('aria-expanded'),'false');
+    const browserColor = () => mobile.evaluate(() => document.querySelector('meta[name="theme-color"]')?.content ?? null);
+    const pageColor = await browserColor();
+    await menuButton.tap(); await opened();
+    const grip = await sheet.locator('.sheet-grip').boundingBox();
+    const x = Math.round(grip.x + grip.width / 2);
+    const y = Math.round(grip.y + grip.height / 2);
+    const touch = await mobileContext.newCDPSession(mobile);
+    const sendTouch = (type, pointY) => touch.send('Input.dispatchTouchEvent', {
+      type, touchPoints: pointY === undefined ? [] : [{x, y: pointY}]
+    });
+    await sendTouch('touchStart', y);
+    await sendTouch('touchMove', y - 64);
+    const lifted = await sheet.boundingBox();
+    assert.ok(lifted.y < grip.y, 'Upward drag lifts the sheet');
+    assert.ok(Math.abs(lifted.y + lifted.height - 844) < 1, 'Sheet stays flush with the bottom');
+    assert.equal(await browserColor(), 'rgb(255, 255, 255)');
+    await sendTouch('touchMove', y + 24);
+    assert.ok((await sheet.boundingBox()).y >= grip.y + 23, 'Sheet follows a short downward drag');
+    await sendTouch('touchEnd'); await opened();
+    await sendTouch('touchStart', y);
+    await sendTouch('touchMove', y + 48);
+    await sendTouch('touchCancel'); await opened();
+    await sendTouch('touchStart', y);
+    await sendTouch('touchMove', y + 120);
+    await sendTouch('touchEnd'); await closed();
+    assert.equal(await browserColor(), pageColor);
+    assert.equal(await mobile.locator(':focus').textContent(), 'Menu');
+    await touch.detach();
     // Échantillonner les vraies transitions CSS sans dépendre de la charge machine.
     const frames=await mobile.evaluate(()=>{
       const sheet=document.querySelector('.mobile-sheet');
@@ -298,7 +326,7 @@ async function settled(page) {
     await mobile.keyboard.press('Escape'); await closed();
     await mobile.mouse.move(150,400); await mobile.mouse.wheel(0,500);
     await mobile.waitForFunction(y=>scrollY!==y,lockedY);
-    bottomSheets={widths:[320,390,700],touch:true,focus:true,escape:true,backdrop:true,scrollLock:true,rapidCycles:8,animationFrames:frames,reducedMotion:true};
+    bottomSheets={widths:[320,390,700],touch:true,drag:true,focus:true,escape:true,backdrop:true,scrollLock:true,rapidCycles:8,animationFrames:frames,reducedMotion:true};
     await mobileContext.close();
     const noJS = await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
     const staticPage=await noJS.newPage();await staticPage.goto(base+'/index.html');

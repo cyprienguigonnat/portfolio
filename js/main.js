@@ -165,11 +165,17 @@
     const sheet = document.createElement('dialog');
     sheet.className = 'mobile-sheet';
     sheet.setAttribute('aria-labelledby', 'mobile-sheet-title');
-    sheet.innerHTML = '<div class="sheet-heading"><h2 id="mobile-sheet-title"></h2><button class="sheet-close" type="button" autofocus>Fermer <span aria-hidden="true">×</span></button></div>';
+    sheet.innerHTML = '<div class="sheet-grip" aria-hidden="true"></div><div class="sheet-heading"><h2 id="mobile-sheet-title"></h2><button class="sheet-close" type="button" autofocus>Fermer <span aria-hidden="true">×</span></button></div>';
     document.body.append(sheet);
+    const grip = sheet.querySelector('.sheet-grip');
+    const pageTheme = document.querySelector('meta[name="theme-color"]');
+    const theme = pageTheme ?? document.createElement('meta');
+    theme.name = 'theme-color';
+    const pageColor = pageTheme?.content;
     let active = null;
     let closeTimer;
     let outsidePress = false;
+    let drag = null;
     groups.forEach(group => {
       group.anchor = document.createComment('mobile-panel');
       group.panel.before(group.anchor);
@@ -178,10 +184,21 @@
     function unlock() {
       root.classList.remove('sheet-open');
       root.style.removeProperty('--sheet-scrollbar-width');
+      if (pageTheme) theme.content = pageColor;
+      else theme.remove();
       smoothScroll?.start();
+    }
+    function resetDrag() {
+      const previous = drag;
+      drag = null;
+      sheet.classList.remove('is-dragging');
+      sheet.style.removeProperty('--sheet-offset');
+      sheet.style.removeProperty('--sheet-lift');
+      if (previous && grip.hasPointerCapture(previous.id)) grip.releasePointerCapture(previous.id);
     }
     function finishClose(restoreFocus = true) {
       clearTimeout(closeTimer);
+      resetDrag();
       const previous = active;
       active = null;
       sheet.classList.remove('is-open');
@@ -195,6 +212,7 @@
     }
     function close(restoreFocus = true) {
       if (!active) return;
+      resetDrag();
       active.toggle.setAttribute('aria-expanded', 'false');
       sheet.classList.remove('is-open');
       clearTimeout(closeTimer);
@@ -220,7 +238,10 @@
       if (!sheet.open) {
         sheet.showModal();
         // Enregistrer la position basse avant de lancer la transition CSS.
-        getComputedStyle(sheet).transform;
+        const style = getComputedStyle(sheet);
+        theme.content = style.backgroundColor;
+        if (!pageTheme) document.head.append(theme);
+        style.transform;
       }
       sheet.classList.add('is-open');
       (focusLink ? group.panel.querySelector('a') : sheet.querySelector('button')).focus({preventScroll: true});
@@ -262,6 +283,37 @@
       if (outsidePress && isOutside(event)) close();
       outsidePress = false;
     }, options);
+    grip.addEventListener('pointerdown', event => {
+      if (drag || !event.isPrimary || event.button !== 0 || !sheet.classList.contains('is-open')) return;
+      const offset = new DOMMatrixReadOnly(getComputedStyle(sheet).transform).m42;
+      drag = {id: event.pointerId, startY: event.clientY, offset, height: sheet.offsetHeight,
+        y: event.clientY, time: event.timeStamp, velocity: 0};
+      grip.setPointerCapture(event.pointerId);
+      sheet.style.setProperty('--sheet-offset', offset + 'px');
+      sheet.classList.add('is-dragging');
+    }, options);
+    grip.addEventListener('pointermove', event => {
+      if (event.pointerId !== drag?.id) return;
+      const offset = drag.offset + event.clientY - drag.startY;
+      const elapsed = event.timeStamp - drag.time;
+      if (elapsed > 0) drag.velocity = (event.clientY - drag.y) / elapsed;
+      drag.y = event.clientY;
+      drag.time = event.timeStamp;
+      sheet.style.setProperty('--sheet-offset', Math.max(0, Math.min(offset, drag.height)) + 'px');
+      sheet.style.setProperty('--sheet-lift', Math.min(16, Math.max(0, -offset) / 4) + 'px');
+    }, options);
+    grip.addEventListener('pointerup', event => {
+      if (event.pointerId !== drag?.id) return;
+      const distance = event.clientY - drag.startY;
+      const flick = event.timeStamp - drag.time < 90 && drag.velocity > .65;
+      if (distance >= Math.min(96, drag.height / 3) || (distance >= 32 && flick)) close();
+      else resetDrag();
+    }, options);
+    for (const type of ['pointercancel', 'lostpointercapture']) {
+      grip.addEventListener(type, event => {
+        if (event.pointerId === drag?.id) resetDrag();
+      }, options);
+    }
     mobileMenu.addEventListener('change', sync, options);
     disposeMenu = () => { finishClose(false); controller.abort(); sheet.remove(); };
     sync();
