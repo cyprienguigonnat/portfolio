@@ -19,7 +19,7 @@ class Element {
  addEventListener(type,fn){(this.handlers[type]??=[]).push(fn);}
  setPointerCapture(id){this.capture=id;} hasPointerCapture(id){return this.capture===id;} releasePointerCapture(){this.capture=null;}
 }
-function run(pointerEvents){
+function run(pointerEvents,sensorTest=false){
  let now=0,rafId=0;const frames=new Map(),handlers={};
  const identity=new Element(),svg=new Element('svg'),entry=new Element(),letter=new Element();
  const hint=new Element('p'),toggleButton=new Element('button'),scatterLabel=new Element('span'),returnLabel=new Element('span'),status=new Element('span');
@@ -29,19 +29,21 @@ function run(pointerEvents){
  secondLetter.box={x:125,y:0,width:100,height:124};secondEntry.append(secondLetter);svg.append(secondEntry);
  hint.classList.add('wordmark-hint');toggleButton.classList.add('wordmark-toggle');scatterLabel.classList.add('wordmark-hint-default');returnLabel.classList.add('wordmark-hint-return');status.classList.add('wordmark-status');
  returnLabel.hidden=true;toggleButton.append(scatterLabel);toggleButton.append(returnLabel);hint.append(toggleButton);identity.append(hint);identity.append(status);
- const window={PortfolioLetterPhysics:physics,addEventListener:(type,fn)=>(handlers[type]??=[]).push(fn)};
+ const window={PortfolioLetterPhysics:physics,addEventListener:(type,fn)=>(handlers[type]??=[]).push(fn),removeEventListener:(type,fn)=>{handlers[type]=(handlers[type]||[]).filter(handler=>handler!==fn);}};
  if(pointerEvents)window.PointerEvent=function(){};
  const document={querySelector:()=>identity,createElementNS:(_,name)=>new Element(name),body:new Element(),hidden:false,addEventListener(){}};
- const context={window,document,matchMedia:()=>({matches:false,addEventListener(){}}),getComputedStyle:()=>({getPropertyValue:()=> 'cubic-bezier(.22, 1, .36, 1)'}),AbortController,performance:{now:()=>now},
+ const reduced={matches:false,addEventListener(type,fn){this.change=fn;}};
+ const context={window,document,matchMedia:()=>reduced,getComputedStyle:()=>({getPropertyValue:()=> 'cubic-bezier(.22, 1, .36, 1)'}),AbortController,performance:{now:()=>now},
  requestAnimationFrame:fn=>{frames.set(++rafId,fn);return rafId;},cancelAnimationFrame:id=>frames.delete(id),setTimeout:()=>0,clearTimeout(){}};
  vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../js/wordmark.js'),'utf8'),context);
- window.initPortfolioWordmark(false);
+ const dispose=window.initPortfolioWordmark(false);
  const emit=(type,x,y,target=letter,pointerType='touch')=>{
   const event={target,pointerType,pointerId:7,clientX:x,clientY:y,button:0,preventDefault(){}};
   if(type.startsWith('touch'))event.changedTouches=[{identifier:7,clientX:x,clientY:y}];
   handlers[type].forEach(fn=>fn(event));
  };
  const advance=(seconds)=>{for(let i=0;i<seconds*120;i++){now+=1000/120;const pending=[...frames];frames.clear();pending.forEach(([,fn])=>fn(now));}};
+ if(sensorTest)return {window,document,reduced,handlers,letter,frames,advance,dispose,toggle:()=>toggleButton.handlers.click[0]()};
  const types=pointerEvents?['pointerdown','pointermove','pointerup']:['touchstart','touchmove','touchend'];
  emit(types[0],26,422);now+=8;emit(types[1],200,422);
  assert.equal(secondLetter.dataset.motion,'floating','Un événement rapide traversant la voisine déclenche immédiatement le choc');
@@ -98,3 +100,57 @@ function run(pointerEvents){
  process.stdout.write((pointerEvents?'Pointer Events tactiles':'Fallback touch natif')+' : drag plein écran, lâcher et tap OK\n');
 }
 run(true);run(false);
+async function checkTilt(){
+ const h=run(true,true);let calls=0,body;
+ h.window.isSecureContext=true;
+ h.window.screen={orientation:{angle:0}};
+ h.window.DeviceOrientationEvent={requestPermission:async()=>{calls++;return 'granted';}};
+ h.window.DeviceMotionEvent={requestPermission:async()=>{calls++;return 'granted';}};
+ h.window.PortfolioLetterPhysics.step=(...args)=>{body=args[0];assert.equal(args.length,4,'La physique libre reste inchangée');originalStep(...args);};
+ const sensor=(beta,gamma)=>{for(const fn of h.handlers.deviceorientation||[])fn({beta,gamma});};
+ const shake=(x,y,z=0)=>{for(const fn of h.handlers.devicemotion||[])fn({acceleration:{x,y,z}});};
+ const speed=()=>[body.vx,body.vy];
+ h.toggle();await new Promise(setImmediate);
+ assert.equal(calls,2);assert.equal(h.handlers.deviceorientation.length,1);assert.equal(h.handlers.devicemotion.length,1);
+ h.advance(.02);body.vx=body.vy=0;
+ sensor(null,null);assert.deepEqual(speed(),[0,0],'Les données absentes ne déplacent rien');
+ sensor(45,0);assert.deepEqual(speed(),[0,0],'La première mesure calibre la prise en main');
+ sensor(45.2,.2);assert.deepEqual(speed(),[0,0],'Zone neutre');
+ sensor(45,20);assert.equal(body.vx,200,'Impulsion immédiate');assert.equal(body.vy,0);
+ const held=speed();for(let i=0;i<30;i++)sensor(45,20);
+ assert.deepEqual(speed(),held,'Aucune poussée supplémentaire quand le téléphone reste incliné');
+ sensor(45,-20);assert.ok(body.vx<0);
+ body.vx=body.vy=0;sensor(0,0);sensor(.2,.2);
+ assert.deepEqual(speed(),[0,0],'À plat, pas de poussée liée à l’inclinaison');
+ h.window.screen.orientation.angle=90;
+ sensor(45,0);assert.deepEqual(speed(),[0,0],'La rotation de l’écran recalibre');
+ sensor(65,0);assert.ok(body.vx>0);assert.ok(Math.abs(body.vy)<.001,'Axes adaptés au paysage');
+ h.window.screen.orientation.angle=0;body.vx=body.vy=0;
+ shake(12,0);assert.ok(body.vx<=-30,'La secousse donne immédiatement une impulsion franche');
+ const shaken=speed();shake(0,0);shake(null,null);
+ assert.deepEqual(speed(),shaken,'Au repos ou sans données, aucune force de capteur');
+ h.reduced.matches=true;h.reduced.change();
+ assert.equal(h.handlers.deviceorientation.length,0);assert.equal(h.handlers.devicemotion.length,0);assert.equal(h.frames.size,0);
+ h.reduced.matches=false;h.reduced.change();
+ h.document.hidden=true;h.handlers.blur[0]();
+ assert.equal(h.handlers.deviceorientation.length,0);assert.equal(h.frames.size,0);
+ h.document.hidden=false;h.handlers.focus[0]();
+ const resumed=speed();sensor(45,0);assert.deepEqual(speed(),resumed,'Recalibrage au retour dans la page');
+ h.toggle();assert.equal(h.handlers.deviceorientation.length,0,'Ramenez-moi coupe les capteurs');
+ h.advance(8);assert.equal(h.frames.size,0,'Aucune boucle au repos');
+ h.toggle();h.dispose();assert.equal(h.handlers.deviceorientation.length,0,'Nettoyage à la navigation');assert.equal(h.handlers.devicemotion.length,0);
+ for(const result of ['denied','error','late']){
+  const test=run(true,true);let resolve;
+  test.window.isSecureContext=true;
+  test.window.DeviceOrientationEvent={requestPermission:()=>result==='error'?Promise.reject(new Error('blocked')):result==='late'?new Promise(done=>{resolve=done;}):Promise.resolve(result)};
+  test.toggle();
+  if(resolve){test.dispose();resolve('granted');}
+  await new Promise(setImmediate);
+  assert.equal(test.handlers.deviceorientation?.length||0,0,result);
+  if(!resolve)assert.equal(test.letter.dataset.motion,'floating','Repli sans capteurs');
+ }
+ physics.step=originalStep;
+ process.stdout.write('Inclinaison : calibration, directions, paysage, autorisation, pause et nettoyage OK\n');
+}
+const originalStep=physics.step;
+checkTilt().catch(error=>{console.error(error);process.exitCode=1;});

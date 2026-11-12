@@ -50,6 +50,62 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   let size={width:0,height:0},scale=1,frame=0,last=0,dragged=null,hovered=null,disposed=false,returningAll=false,pendingScatter=false;
   let entranceTimer;
   const clamp=(n,max)=>Math.max(-max,Math.min(max,n));
+  let tiltGranted=false,motionGranted=false,tiltPending=false,tiltListening=false,tiltOrigin=null,motionTime=null;
+  function pushLetters(x,y,z=0) {
+    const angle=(window.screen?.orientation?.angle ?? window.orientation ?? 0)*Math.PI/180;
+    const dx=x*Math.cos(angle)+y*Math.sin(angle),dy=y*Math.cos(angle)-x*Math.sin(angle);
+    for(const letter of letters)if(letter.mode==='floating') {
+      letter.vx=clamp(letter.vx+dx+z*Math.sin(letter.seed),420);
+      letter.vy=clamp(letter.vy+dy+z*Math.cos(letter.seed),420);
+    }
+  }
+  function onTilt(event) {
+    if(document.hidden || reduced.matches || !Number.isFinite(event.beta) || !Number.isFinite(event.gamma))return;
+    const angle=window.screen?.orientation?.angle ?? window.orientation ?? 0;
+    const flat=Math.abs(event.gamma)<12 && (Math.abs(event.beta)<12 || Math.abs(event.beta)>168);
+    if(!tiltOrigin || tiltOrigin.angle!==angle || flat) {
+      tiltOrigin={beta:event.beta,gamma:event.gamma,angle};return;
+    }
+    const x=((event.gamma-tiltOrigin.gamma+540)%360)-180;
+    const y=((event.beta-tiltOrigin.beta+540)%360)-180;
+    if(Math.hypot(x,y)<1)return;
+    tiltOrigin={beta:event.beta,gamma:event.gamma,angle};
+    // Une impulsion par mouvement, jamais une attraction liée à la position tenue.
+    pushLetters(clamp(x,25)*10,clamp(y,25)*10);
+  }
+  function onMotion(event) {
+    if(document.hidden || reduced.matches)return;
+    const now=performance.now(),dt=motionTime===null?1/60:Math.min((now-motionTime)/1000,.04);
+    motionTime=now;
+    const acceleration=event.acceleration;
+    if(!acceleration || !Number.isFinite(acceleration.x) || !Number.isFinite(acceleration.y))return;
+    const impulse=value=>Number.isFinite(value) && Math.abs(value)>.8?clamp(value,20)*180*dt:0;
+    pushLetters(-impulse(acceleration.x),impulse(acceleration.y),impulse(acceleration.z));
+  }
+  function syncTilt() {
+    const active=(tiltGranted || motionGranted) && !disposed && !document.hidden && !reduced.matches &&
+      letters.some(letter=>letter.mode==='floating');
+    if(active===tiltListening)return;
+    tiltListening=active;tiltOrigin=null;motionTime=null;
+    if(active) {
+      if(tiltGranted)window.addEventListener('deviceorientation',onTilt,{...options,passive:true});
+      if(motionGranted)window.addEventListener('devicemotion',onMotion,{...options,passive:true});
+    } else {
+      window.removeEventListener('deviceorientation',onTilt);
+      window.removeEventListener('devicemotion',onMotion);
+    }
+  }
+  async function enableTilt() {
+    if(tiltGranted || motionGranted || tiltPending || reduced.matches || !window.isSecureContext)return;
+    tiltPending=true;
+    // Les deux demandes partent dans le clic, avant de perdre l'activation utilisateur.
+    [tiltGranted,motionGranted]=await Promise.all([window.DeviceOrientationEvent,window.DeviceMotionEvent].map(async sensor=>{
+      if(!sensor)return false;
+      try {return typeof sensor.requestPermission!=='function' || await sensor.requestPermission()==='granted';}
+      catch {return false;}
+    }));
+    tiltPending=false;syncTilt();
+  }
   function render(letter) {
     const transform='translate('+(letter.x/scale).toFixed(3)+' '+(letter.y/scale).toFixed(3)+') rotate('+letter.rotation.toFixed(3)+' '+letter.glyphX+' '+letter.glyphY+')';
     if(transform!==letter.renderedTransform) {
@@ -58,6 +114,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     if(letter.el.dataset.motion!==letter.mode)letter.el.dataset.motion=letter.mode;
   }
   function updateHint() {
+    syncTilt();
     const returning=pendingScatter || (!returningAll && letters.some(letter=>letter.disturbed));
     if(scatterLabel)scatterLabel.hidden=returning;
     if(returnLabel)returnLabel.hidden=!returning;
@@ -95,6 +152,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   }
   const hasMotion=()=>letters.some(letter=>letter.mode!=='idle' && letter.mode!=='dragging' && !(letter.mode==='hover' && letter.hoverSettled));
   function start() {
+    syncTilt();
     if(!frame && !disposed && !document.hidden && !reduced.matches && hasMotion()) {
       last=performance.now();frame=requestAnimationFrame(tick);
     }
@@ -268,7 +326,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   },options);
   toggleButton?.addEventListener('click',()=>{
     if(pendingScatter || (!returningAll && letters.some(letter=>letter.disturbed)))resetLetters();
-    else scatterLetters();
+    else {enableTilt();scatterLetters();}
   },options);
   // Écoute sur toute la fenêtre et capture du pointeur : souris, stylet et tactile.
   if('PointerEvent' in window) {
@@ -308,6 +366,9 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   }
   function pause() {
     up({},true);cancelAnimationFrame(frame);frame=0;
+    window.removeEventListener('deviceorientation',onTilt);
+    window.removeEventListener('devicemotion',onMotion);
+    tiltListening=false;tiltOrigin=null;motionTime=null;
     if(hovered?.mode==='hover')hovered.mode='hover-returning';
     hovered=null;
   }
@@ -315,7 +376,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else start();},options);
   window.addEventListener('focus',start,options);
   window.addEventListener('resize',()=>{measure();start();},options);
-  reduced.addEventListener('change',()=>{cancelAnimationFrame(frame);frame=0;identity.classList.remove('is-arriving');if(!reduced.matches)start();},options);
+  reduced.addEventListener('change',()=>{cancelAnimationFrame(frame);frame=0;syncTilt();identity.classList.remove('is-arriving');if(!reduced.matches)start();},options);
   measure();
   updateHint();start();
   if(animateEntry && !reduced.matches) {

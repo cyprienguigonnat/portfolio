@@ -49,3 +49,9 @@ Cloudflare Workers (ressources statiques) : `npm run build` puis `wrangler deplo
 Voir [l’audit de septembre 2026](docs/archive/2026-09-16-audit.md) pour l’historique des gains mesurés, des suppressions et des vérifications.
 
 Les quelques règles adaptées de normalize.css conservent leur licence dans `css/normalize-LICENSE.txt`.
+
+## Inclinaison du téléphone
+
+Sur l’accueil, « Bousculez-moi » active aussi les capteurs du téléphone en contexte sécurisé (HTTPS), avec demande d’autorisation si le navigateur l’exige. Les changements d’inclinaison et les secousses donnent des impulsions immédiates aux lettres libres ; les axes s’adaptent au portrait/paysage. L’inclinaison ne maintient aucune force quand le téléphone reste immobile ou est posé à plat : la physique libre d’origine reste toujours active. Les petits tremblements sont filtrés et les impulsions plafonnées. Sans accélération disponible, les changements d’inclinaison restent utilisables. « Ramenez-moi », la mise en arrière-plan, la réduction des animations et la sortie de l’accueil coupent l’écoute des capteurs. Sans autorisation ou données disponibles, les interactions habituelles restent utilisables. Aucune bibliothèque ni boucle d’animation supplémentaire n’est ajoutée.
+
+Les cas simulés sont couverts par `npm run check`. Le ressenti et la fenêtre d’autorisation doivent encore être vérifiés sur de vrais téléphones iOS et Android ; la simulation ne valide pas le matériel.

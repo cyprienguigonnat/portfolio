@@ -59,7 +59,7 @@ const sitemap=fs.readFileSync(path.join(siteRoot,'sitemap.xml'),'utf8');
 assert.match(sitemap,/^<\?xml version="1.0" encoding="UTF-8"\?>\n<urlset xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9">/);
 assert.deepEqual([...sitemap.matchAll(/<url><loc>([^<]+)<\/loc><lastmod>\d{4}-\d{2}-\d{2}<\/lastmod><\/url>/g)].map(m=>m[1]),indexable.map(url=>siteUrl+url),'Sitemap');
 assert.match(fs.readFileSync(path.join(siteRoot,'robots.txt'),'utf8'),/^Sitemap: https:\/\/cyprienguigonnat\.fr\/sitemap\.xml$/m);
-const llms=fs.readFileSync(path.join(siteRoot,'llms.txt'),'utf8');
+const llms=fs.readFileSync(path.join(siteRoot,'llms.txt'),'utf8').replace(/\r\n/g,'\n');
 assert.match(llms,/^# .+\n\n> .+/);
 assert.match(llms,/^## When to use$/m);
 assert.doesNotMatch(llms,/\{\{/);
