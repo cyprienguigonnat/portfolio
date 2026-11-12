@@ -243,18 +243,23 @@ async function settled(page) {
     });
     await sendTouch('touchStart', y);
     await sendTouch('touchMove', y - 64);
+    // L'accusé CDP peut précéder pointermove : attendre l'effet du geste, pas un délai fixe.
+    await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').style.getPropertyValue('--sheet-lift')==='16px');
     const lifted = await sheet.boundingBox();
     assert.ok(lifted.y < grip.y, 'Upward drag lifts the sheet');
     assert.ok(Math.abs(lifted.y + lifted.height - 844) < 1, 'Sheet stays flush with the bottom');
     assert.equal(await browserColor(), 'rgb(255, 255, 255)');
     await sendTouch('touchMove', y + 24);
+    await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').style.getPropertyValue('--sheet-offset')==='24px');
     assert.ok((await sheet.boundingBox()).y >= grip.y + 23, 'Sheet follows a short downward drag');
     await sendTouch('touchEnd'); await opened();
     await sendTouch('touchStart', y);
     await sendTouch('touchMove', y + 48);
+    await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').style.getPropertyValue('--sheet-offset')==='48px');
     await sendTouch('touchCancel'); await opened();
     await sendTouch('touchStart', y);
     await sendTouch('touchMove', y + 120);
+    await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').style.getPropertyValue('--sheet-offset')==='120px');
     await sendTouch('touchEnd'); await closed();
     assert.equal(await browserColor(), pageColor);
     assert.equal(await mobile.locator(':focus').textContent(), 'Menu');
