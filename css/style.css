@@ -486,6 +486,8 @@ body.is-navigating a { cursor: progress; }
   .home-page { min-height: 540px; }
   .home-thumbnail { width: 76vw; }
   .home-identity { z-index: 3; }
+  .home-identity.wordmark-ready > svg { pointer-events: none; }
+  .project-index { z-index: 2; }
   .project-index ul { gap: 5px 16px; }
   .project-index li { text-align: center; }
   .project-link h2 { display: inline-flex; align-items: center; gap: 8px; line-height: 1.4; }
