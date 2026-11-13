@@ -27,7 +27,7 @@
 html { background: var(--blue); scrollbar-gutter: stable; -webkit-tap-highlight-color: transparent; }
 /* Le document reste dans son flux : aucun conteneur déplacé ou dupliqué. */
 html.lenis, html.lenis body { height: auto; }
-html.sheet-open, html.sheet-open body { overflow: hidden; }
+html.sheet-open, html.sheet-open body { overflow: hidden; overscroll-behavior: none; }
 html.sheet-open { background: var(--white); scrollbar-gutter: auto; }
 html.sheet-open body { padding-right: var(--sheet-scrollbar-width, 0px); }
 html.lenis-smooth { scroll-behavior: auto !important; }
@@ -458,7 +458,7 @@ body.is-navigating a { cursor: progress; }
     transition: transform 280ms var(--ease), opacity 200ms var(--ease), padding-bottom 200ms var(--ease);
   }
   .mobile-sheet.is-open { transform: translateY(var(--sheet-offset, 0px)); opacity: 1; }
-  .mobile-sheet.is-dragging { transition: none; }
+  .mobile-sheet.is-dragging { transition: none; user-select: none; }
   .mobile-sheet::backdrop {
     background: rgb(3 85 161 / .55);
     backdrop-filter: blur(6px);

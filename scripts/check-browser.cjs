@@ -238,12 +238,18 @@ async function settled(page) {
     const x = Math.round(grip.x + grip.width / 2);
     const y = Math.round(grip.y + grip.height / 2);
     const touch = await mobileContext.newCDPSession(mobile);
-    const sendTouch = (type, pointY) => touch.send('Input.dispatchTouchEvent', {
-      type, touchPoints: pointY === undefined ? [] : [{x, y: pointY}]
+    const sendTouch = (type, pointY, pointX = x) => touch.send('Input.dispatchTouchEvent', {
+      type, touchPoints: pointY === undefined ? [] : [{x: pointX, y: pointY}]
     });
+    const backgroundLetter = await mobile.locator('.wordmark-letter').first().boundingBox();
+    await sendTouch('touchStart', Math.round(backgroundLetter.y + backgroundLetter.height / 2), Math.round(backgroundLetter.x + backgroundLetter.width / 2));
+    assert.equal(await mobile.locator('.wordmark-letter.is-dragging').count(), 0, 'Backdrop cannot grab a letter');
+    await sendTouch('touchCancel');
+    await mobile.touchscreen.tap(8,110); await closed();
+    await menuButton.tap(); await opened();
     await sendTouch('touchStart', y);
     await sendTouch('touchMove', y - 64);
-    // L'accusé CDP peut précéder pointermove : attendre l'effet du geste, pas un délai fixe.
+    // L'accusé CDP peut précéder le traitement du geste : attendre son effet.
     await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').style.getPropertyValue('--sheet-lift')==='16px');
     const lifted = await sheet.boundingBox();
     assert.ok(lifted.y < grip.y, 'Upward drag lifts the sheet');
@@ -253,6 +259,14 @@ async function settled(page) {
     await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').style.getPropertyValue('--sheet-offset')==='24px');
     assert.ok((await sheet.boundingBox()).y >= grip.y + 23, 'Sheet follows a short downward drag');
     await sendTouch('touchEnd'); await opened();
+    const infoLink = await menu.getByRole('link', {name: 'Informations'}).boundingBox();
+    const linkX = Math.round(infoLink.x + 40);
+    const linkY = Math.round(infoLink.y + infoLink.height / 2);
+    await sendTouch('touchStart', linkY, linkX);
+    await sendTouch('touchMove', linkY + 24, linkX);
+    await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').style.getPropertyValue('--sheet-offset')==='24px');
+    await sendTouch('touchEnd'); await opened();
+    assert.equal(mobile.url(), base+'/index.html', 'Dragging a link does not activate it');
     await sendTouch('touchStart', y);
     await sendTouch('touchMove', y + 48);
     await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').style.getPropertyValue('--sheet-offset')==='48px');
@@ -263,7 +277,6 @@ async function settled(page) {
     await sendTouch('touchEnd'); await closed();
     assert.equal(await browserColor(), pageColor);
     assert.equal(await mobile.locator(':focus').textContent(), 'Menu');
-    await touch.detach();
     // Échantillonner les vraies transitions CSS sans dépendre de la charge machine.
     const frames=await mobile.evaluate(()=>{
       const sheet=document.querySelector('.mobile-sheet');
@@ -294,7 +307,7 @@ async function settled(page) {
       assert.equal(await mobile.locator('html').evaluate(element=>element.classList.contains('sheet-open')),false);
     }
     await menuButton.click(); await opened();
-    await menu.getByRole('link',{name:'Informations',exact:true}).click();
+    await menu.getByRole('link',{name:'Informations',exact:true}).tap();
     await mobile.waitForURL('**/informations.html'); await settled(mobile);
     assert.equal(await mobile.locator('.mobile-sheet').count(),1,'No orphan dialog after navigation');
     assert.equal(await mobile.locator('.header-menu').isVisible(),false);
@@ -302,6 +315,10 @@ async function settled(page) {
     await mobile.evaluate(()=>scrollTo(0,150));
     await mobile.getByRole('button',{name:'Menu',exact:true}).click(); await opened();
     const lockedY=await mobile.evaluate(()=>scrollY);
+    await sendTouch('touchStart', 240, 20);
+    await sendTouch('touchMove', 100, 20);
+    await sendTouch('touchEnd');
+    assert.equal(await sheet.evaluate(element=>element.classList.contains('is-open')),true);
     await mobile.mouse.move(20,100); await mobile.mouse.wheel(0,500);
     await mobile.evaluate(()=>new Promise(resolve=>setTimeout(resolve,350)));
     assert.equal(await mobile.evaluate(()=>scrollY),lockedY);
@@ -324,6 +341,18 @@ async function settled(page) {
       assert.equal(await contact.getByRole('link').last().isVisible(),true);
       await mobile.keyboard.press('Escape'); await closed();
     }
+    await mobile.setViewportSize({width:320,height:256});
+    await contactButton.tap(); await opened();
+    const contactLink = await contact.getByRole('link').first().boundingBox();
+    const contactY = Math.round(contactLink.y + contactLink.height / 2);
+    await sendTouch('touchStart', contactY, 40);
+    await sendTouch('touchMove', contactY - 30, 40);
+    await sendTouch('touchMove', contactY - 70, 40);
+    await sendTouch('touchEnd');
+    await mobile.waitForFunction(()=>document.querySelector('.mobile-sheet').scrollTop > 0);
+    assert.equal(await sheet.evaluate(element=>element.style.getPropertyValue('--sheet-offset')), '');
+    await mobile.keyboard.press('Escape'); await closed();
+    await touch.detach();
     await mobile.setViewportSize({width:320,height:568});
     await mobile.emulateMedia({reducedMotion:'reduce'});
     await mobile.getByRole('button',{name:'Contact',exact:true}).click();

@@ -50,8 +50,10 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   let size={width:0,height:0},scale=1,frame=0,last=0,dragged=null,hovered=null,disposed=false,returningAll=false,pendingScatter=false;
   let entranceTimer;
   const clamp=(n,max)=>Math.max(-max,Math.min(max,n));
+  const sheetOpen=()=>document.documentElement.classList.contains('sheet-open');
   let tiltGranted=false,motionGranted=false,tiltPending=false,tiltListening=false,tiltOrigin=null,motionTime=null;
   function pushLetters(x,y,z=0) {
+    if(sheetOpen())return;
     const angle=(window.screen?.orientation?.angle ?? window.orientation ?? 0)*Math.PI/180;
     const dx=x*Math.cos(angle)+y*Math.sin(angle),dy=y*Math.cos(angle)-x*Math.sin(angle);
     for(const letter of letters)if(letter.mode==='floating') {
@@ -226,6 +228,7 @@ window.initPortfolioWordmark = function (animateEntry = true) {
     start();
   }
   function targetLetter(event) {
+    if(sheetOpen())return null;
     if(event.target.closest?.('a,button,input,textarea,select'))return null;
     if(event.pointerType==='touch' || event.pointerType==='pen') {
       // Cibles de 44 px minimum : départ au plus près du tracé, sans modifier le SVG
@@ -261,6 +264,9 @@ window.initPortfolioWordmark = function (animateEntry = true) {
   function move(event) {
     if(dragged) {
       if(event.pointerId!==undefined && event.pointerId!==dragged.pointerId)return;
+      if(sheetOpen()) {
+        up(event,true);return;
+      }
       event.preventDefault();
       const letter=dragged,now=performance.now(),dt=Math.max((now-letter.lastTime)/1000,.008);
       const dx=event.clientX-letter.startPX,dy=event.clientY-letter.startPY;

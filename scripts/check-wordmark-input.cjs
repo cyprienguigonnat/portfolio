@@ -31,7 +31,7 @@ function run(pointerEvents,sensorTest=false){
  returnLabel.hidden=true;toggleButton.append(scatterLabel);toggleButton.append(returnLabel);hint.append(toggleButton);identity.append(hint);identity.append(status);
  const window={PortfolioLetterPhysics:physics,addEventListener:(type,fn)=>(handlers[type]??=[]).push(fn),removeEventListener:(type,fn)=>{handlers[type]=(handlers[type]||[]).filter(handler=>handler!==fn);}};
  if(pointerEvents)window.PointerEvent=function(){};
- const document={querySelector:()=>identity,createElementNS:(_,name)=>new Element(name),body:new Element(),hidden:false,addEventListener(){}};
+ const document={querySelector:()=>identity,createElementNS:(_,name)=>new Element(name),documentElement:new Element(),body:new Element(),hidden:false,addEventListener(){}};
  const reduced={matches:false,addEventListener(type,fn){this.change=fn;}};
  const context={window,document,matchMedia:()=>reduced,getComputedStyle:()=>({getPropertyValue:()=> 'cubic-bezier(.22, 1, .36, 1)'}),AbortController,performance:{now:()=>now},
  requestAnimationFrame:fn=>{frames.set(++rafId,fn);return rafId;},cancelAnimationFrame:id=>frames.delete(id),setTimeout:()=>0,clearTimeout(){}};

@@ -176,6 +176,7 @@
     let closeTimer;
     let outsidePress = false;
     let drag = null;
+    let suppressClick = false;
     groups.forEach(group => {
       group.anchor = document.createComment('mobile-panel');
       group.panel.before(group.anchor);
@@ -191,10 +192,11 @@
     function resetDrag() {
       const previous = drag;
       drag = null;
+      if (!previous?.started) return;
       sheet.classList.remove('is-dragging');
       sheet.style.removeProperty('--sheet-offset');
       sheet.style.removeProperty('--sheet-lift');
-      if (previous && grip.hasPointerCapture(previous.id)) grip.releasePointerCapture(previous.id);
+      if (!previous.touch && sheet.hasPointerCapture(previous.id)) sheet.releasePointerCapture(previous.id);
     }
     function finishClose(restoreFocus = true) {
       clearTimeout(closeTimer);
@@ -274,46 +276,102 @@
       event.preventDefault();
       close();
     }, options);
-    function isOutside(event) {
+    function isOutside(event, point = event) {
+      if (event.target !== sheet) return false;
       const box = sheet.getBoundingClientRect();
-      return event.target === sheet && (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom);
+      return point.clientX < box.left || point.clientX > box.right || point.clientY < box.top || point.clientY > box.bottom;
     }
-    sheet.addEventListener('pointerdown', event => { outsidePress = isOutside(event); }, options);
     sheet.addEventListener('click', event => {
+      if (suppressClick && event.detail !== 0) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
       if (outsidePress && isOutside(event)) close();
       outsidePress = false;
-    }, options);
-    grip.addEventListener('pointerdown', event => {
-      if (drag || !event.isPrimary || event.button !== 0 || !sheet.classList.contains('is-open')) return;
-      const offset = new DOMMatrixReadOnly(getComputedStyle(sheet).transform).m42;
-      drag = {id: event.pointerId, startY: event.clientY, offset, height: sheet.offsetHeight,
-        y: event.clientY, time: event.timeStamp, velocity: 0};
-      grip.setPointerCapture(event.pointerId);
-      sheet.style.setProperty('--sheet-offset', offset + 'px');
-      sheet.classList.add('is-dragging');
-    }, options);
-    grip.addEventListener('pointermove', event => {
-      if (event.pointerId !== drag?.id) return;
-      const offset = drag.offset + event.clientY - drag.startY;
+      suppressClick = false;
+    }, {...options, capture: true});
+    function startDrag(event, point, touch) {
+      if (drag) return;
+      suppressClick = false;
+      outsidePress = isOutside(event, point);
+      if (outsidePress || !sheet.classList.contains('is-open')) return;
+      drag = {id: touch ? point.identifier : point.pointerId, touch, fromGrip: grip.contains(event.target),
+        startX: point.clientX, startY: point.clientY, y: point.clientY, time: event.timeStamp, velocity: 0};
+    }
+    function moveDrag(event, point) {
+      const distance = point.clientY - drag.startY;
+      if (!drag.started) {
+        const horizontal = Math.abs(point.clientX - drag.startX);
+        if (Math.max(horizontal, Math.abs(distance)) < 6) return;
+        // Garder le défilement natif quand le contenu peut encore défiler dans ce sens.
+        const scrolls = drag.touch && !drag.fromGrip && sheet.scrollHeight > sheet.clientHeight &&
+          (distance < 0 || sheet.scrollTop > 1);
+        if (horizontal >= Math.abs(distance) || scrolls || !event.cancelable) {
+          resetDrag();
+          return;
+        }
+        drag.offset = new DOMMatrixReadOnly(getComputedStyle(sheet).transform).m42;
+        drag.height = sheet.offsetHeight;
+        drag.started = true;
+        suppressClick = true;
+        if (!drag.touch) sheet.setPointerCapture(drag.id);
+        sheet.classList.add('is-dragging');
+      }
+      event.preventDefault();
+      const offset = drag.offset + distance;
       const elapsed = event.timeStamp - drag.time;
-      if (elapsed > 0) drag.velocity = (event.clientY - drag.y) / elapsed;
-      drag.y = event.clientY;
+      if (elapsed > 0) drag.velocity = (point.clientY - drag.y) / elapsed;
+      drag.y = point.clientY;
       drag.time = event.timeStamp;
       sheet.style.setProperty('--sheet-offset', Math.max(0, Math.min(offset, drag.height)) + 'px');
       sheet.style.setProperty('--sheet-lift', Math.min(16, Math.max(0, -offset) / 4) + 'px');
-    }, options);
-    grip.addEventListener('pointerup', event => {
-      if (event.pointerId !== drag?.id) return;
-      const distance = event.clientY - drag.startY;
+    }
+    function endDrag(event, point) {
+      const distance = point.clientY - drag.startY;
       const flick = event.timeStamp - drag.time < 90 && drag.velocity > .65;
-      if (distance >= Math.min(96, drag.height / 3) || (distance >= 32 && flick)) close();
+      if (drag.started && (distance >= Math.min(96, drag.height / 3) || (distance >= 32 && flick))) close();
       else resetDrag();
+    }
+    const ownsPointer = event => drag && !drag.touch && drag.id === event.pointerId;
+    sheet.addEventListener('pointerdown', event => {
+      if (event.isPrimary && event.button === 0 && event.pointerType !== 'touch') startDrag(event, event, false);
+    }, options);
+    sheet.addEventListener('pointermove', event => {
+      if (ownsPointer(event)) moveDrag(event, event);
+    }, options);
+    sheet.addEventListener('pointerup', event => {
+      if (ownsPointer(event)) endDrag(event, event);
     }, options);
     for (const type of ['pointercancel', 'lostpointercapture']) {
-      grip.addEventListener(type, event => {
-        if (event.pointerId === drag?.id) resetDrag();
+      sheet.addEventListener(type, event => {
+        if (ownsPointer(event) && (type === 'pointercancel' || event.target === sheet)) resetDrag();
       }, options);
     }
+    sheet.addEventListener('pointerleave', () => {
+      if (drag && !drag.touch && !drag.started) resetDrag();
+    }, options);
+    sheet.addEventListener('dragstart', event => { if (drag && !drag.touch) event.preventDefault(); }, options);
+    // Un touchmove annulable permet de réserver le geste au panneau ou de le laisser défiler.
+    sheet.addEventListener('touchstart', event => {
+      if (event.touches.length === 1) startDrag(event, event.changedTouches[0], true);
+      else if (drag?.touch) resetDrag();
+    }, {...options, passive: true});
+    function trackedTouch(event) {
+      const point = event.changedTouches[0];
+      if (drag?.touch && point?.identifier === drag.id) return point;
+    }
+    sheet.addEventListener('touchmove', event => {
+      if (outsidePress && event.touches.length === 1 && event.cancelable) event.preventDefault();
+      const point = trackedTouch(event);
+      if (point) moveDrag(event, point);
+    }, {...options, passive: false});
+    sheet.addEventListener('touchend', event => {
+      const point = trackedTouch(event);
+      if (point) endDrag(event, point);
+    }, options);
+    sheet.addEventListener('touchcancel', event => {
+      if (trackedTouch(event)) resetDrag();
+    }, options);
     mobileMenu.addEventListener('change', sync, options);
     disposeMenu = () => { finishClose(false); controller.abort(); sheet.remove(); };
     sync();
